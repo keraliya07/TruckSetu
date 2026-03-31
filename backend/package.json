@@ -1,0 +1,39 @@
+{
+  "name": "stlos-backend",
+  "version": "1.0.0",
+  "description": "STLOS Backend API - Node.js + Express",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "lint": "eslint src/",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio",
+    "seed": "node prisma/seed.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.6.0",
+    "@socket.io/redis-adapter": "^8.3.0",
+    "axios": "^1.8.4",
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.1.0",
+    "ioredis": "^5.6.1",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "node-cron": "^4.0.7",
+    "nodemailer": "^6.10.1",
+    "pdfkit": "^0.17.0",
+    "socket.io": "^4.8.1",
+    "zod": "^3.24.3"
+  },
+  "devDependencies": {
+    "eslint": "^9.23.0",
+    "nodemon": "^3.1.9",
+    "prisma": "^6.6.0"
+  }
+}

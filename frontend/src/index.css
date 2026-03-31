@@ -1,0 +1,61 @@
+/* === frontend/src/index.css ===
+ * Purpose: Global styles, Tailwind imports, and design system tokens
+ * Dependencies: tailwindcss
+ */
+
+/* TODO: Add Tailwind base imports:
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+*/
+
+/* TODO: Import Google Font
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+*/
+
+/* ===== CSS Custom Properties (Design Tokens) ===== */
+/* :root {
+  --primary: #2563EB;
+  --primary-light: #3B82F6;
+  --primary-dark: #1D4ED8;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --border: #E5E7EB;
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F9FAFB;
+  --text-primary: #111827;
+  --text-secondary: #6B7280;
+  --sidebar-width: 260px;
+  --navbar-height: 64px;
+} */
+
+/* ===== Global Reset ===== */
+/* *, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+} */
+
+/* body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  line-height: 1.6;
+} */
+
+/* ===== Tailwind @layer Components ===== */
+/* TODO: Define reusable component classes:
+@layer components {
+  .btn-primary { @apply bg-primary text-white px-4 py-2 rounded-lg font-medium... }
+  .btn-secondary { ... }
+  .card { @apply bg-white rounded-xl shadow-sm border border-gray-100 p-6... }
+  .input-field { @apply w-full px-3 py-2 border rounded-lg focus:ring-2... }
+  .badge { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium... }
+}
+*/
+
+/* ===== Scrollbar Styles ===== */
+/* ===== Animation Classes ===== */
+/* ===== Map Container Styles ===== */
+/* ===== Print Styles ===== */

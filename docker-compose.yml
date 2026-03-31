@@ -1,0 +1,111 @@
+# === docker-compose.yml ===
+# Smart Truck Loading Optimization System (STLOS) — Development Environment
+# Dependencies: Docker, Docker Compose v2
+#
+# USAGE:
+#   docker compose up -d          # Start all services
+#   docker compose logs -f        # Follow logs
+#   docker compose down -v        # Stop and remove volumes
+#
+# IMPORTANT: Before first run, prepare OSRM data:
+#   mkdir -p osrm-data
+#   wget https://download.geofabrik.de/asia/india-latest.osm.pbf -O osrm-data/india.osm.pbf
+#   docker run -t -v ./osrm-data:/data osrm/osrm-backend osrm-extract -p /opt/car.lua /data/india.osm.pbf
+#   docker run -t -v ./osrm-data:/data osrm/osrm-backend osrm-partition /data/india.osrm
+#   docker run -t -v ./osrm-data:/data osrm/osrm-backend osrm-customize /data/india.osrm
+
+# TODO: Define the following services:
+#
+# ─── postgres ───
+# image: postgres:15-alpine
+# ports: 5432:5432
+# environment:
+#   POSTGRES_USER: stlos_user
+#   POSTGRES_PASSWORD: stlos_pass
+#   POSTGRES_DB: stlos_db
+# volumes:
+#   - pgdata:/var/lib/postgresql/data
+# healthcheck:
+#   test: ["CMD-SHELL", "pg_isready -U stlos_user -d stlos_db"]
+#   interval: 5s
+#   retries: 5
+#
+# ─── redis ───
+# image: redis:7-alpine
+# ports: 6379:6379
+# volumes:
+#   - redisdata:/data
+# healthcheck:
+#   test: ["CMD", "redis-cli", "ping"]
+#   interval: 5s
+#   retries: 5
+#
+# ─── node-api ───
+# build:
+#   context: ./backend
+#   dockerfile: Dockerfile
+# ports: 4000:4000
+# depends_on:
+#   postgres: { condition: service_healthy }
+#   redis: { condition: service_healthy }
+# environment:
+#   DATABASE_URL: postgresql://stlos_user:stlos_pass@postgres:5432/stlos_db
+#   REDIS_URL: redis://redis:6379
+#   JWT_SECRET: ${JWT_SECRET:-change-me-in-env}
+#   PYTHON_ML_URL: http://python-ml:8000
+#   OSRM_URL: http://osrm:5000
+#   NODE_ENV: development
+# volumes:
+#   - ./backend:/app
+#   - /app/node_modules
+#
+# ─── python-ml ───
+# build:
+#   context: ./ml-service
+#   dockerfile: Dockerfile
+# ports: 8000:8000
+# depends_on:
+#   postgres: { condition: service_healthy }
+# environment:
+#   DATABASE_URL: postgresql://stlos_user:stlos_pass@postgres:5432/stlos_db
+#   OSRM_URL: http://osrm:5000
+# volumes:
+#   - ./ml-service:/app
+#
+# ─── osrm ───
+# image: osrm/osrm-backend
+# ports: 5000:5000
+# command: osrm-routed --algorithm mld /data/india.osrm
+# volumes:
+#   - ./osrm-data:/data
+#
+# ─── frontend ───
+# build:
+#   context: ./frontend
+#   dockerfile: Dockerfile
+# ports: 3000:3000
+# depends_on:
+#   - node-api
+# environment:
+#   VITE_API_URL: http://localhost:4000/api
+#   VITE_SOCKET_URL: http://localhost:4000
+# volumes:
+#   - ./frontend:/app
+#   - /app/node_modules
+#
+# ─── minio ───
+# image: minio/minio
+# ports:
+#   - 9000:9000   # API
+#   - 9001:9001   # Console
+# command: server /data --console-address ":9001"
+# environment:
+#   MINIO_ROOT_USER: minioadmin
+#   MINIO_ROOT_PASSWORD: minioadmin
+# volumes:
+#   - miniodata:/data
+#
+# ─── volumes ───
+# pgdata:
+# redisdata:
+# miniodata:

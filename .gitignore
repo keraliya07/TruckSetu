@@ -1,0 +1,57 @@
+# === .gitignore ===
+# Smart Truck Loading Optimization System (STLOS)
+
+# ─── Dependencies ───
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+
+# ─── Environment ───
+.env
+.env.local
+.env.production
+
+# ─── Build Output ───
+dist/
+build/
+*.egg-info/
+
+# ─── IDE ───
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ─── OS ───
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── Docker ───
+osrm-data/
+
+# ─── Logs ───
+logs/
+*.log
+npm-debug.log*
+
+# ─── Prisma ───
+prisma/migrations/*
+!prisma/migrations/.gitkeep
+
+# ─── ML Models ───
+ml-service/app/models/saved/
+*.pkl
+*.joblib
+
+# ─── Uploaded files ───
+uploads/
+
+# ─── Coverage ───
+coverage/
+.nyc_output/
+htmlcov/

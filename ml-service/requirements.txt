@@ -1,0 +1,12 @@
+fastapi
+numpy
+ortools
+pandas
+prophet
+psycopg2-binary
+pydantic
+pydantic-settings
+python-dotenv
+requests
+scikit-learn
+uvicorn[standard]

@@ -1,24 +1,49 @@
-// === frontend/src/components/common/ConfirmModal.jsx ===
-// Purpose: Reusable confirmation dialog (e.g., "Are you sure you want to cancel?")
-// Dependencies: lucide-react
+import clsx from 'clsx';
 
-/**
- * TODO: Implement ConfirmModal component
- *
- * Props:
- *   @param {boolean} isOpen — Control visibility
- *   @param {function} onClose — Close handler
- *   @param {function} onConfirm — Confirm action handler
- *   @param {string} title — Modal title
- *   @param {string} message — Confirmation message
- *   @param {string} [confirmText='Confirm'] — Confirm button text
- *   @param {string} [cancelText='Cancel']
- *   @param {string} [variant='danger'] — 'danger' | 'warning' | 'info' (button color)
- *   @param {boolean} [isLoading=false] — Show spinner on confirm button
- *
- * @returns {JSX.Element} Modal overlay with dialog
- */
+export default function ConfirmModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  message,
+  confirmText = 'Confirm',
+  cancelText = 'Cancel',
+  variant = 'danger',
+  isLoading = false,
+}) {
+  if (!isOpen) {
+    return null;
+  }
 
-// export default function ConfirmModal({ isOpen, onClose, onConfirm, title, message, ... }) {
-//   // TODO: Render modal with backdrop, title, message, and action buttons
-// }
+  const confirmStyles = {
+    danger: 'bg-rose-600 hover:bg-rose-700',
+    warning: 'bg-amber-600 hover:bg-amber-700',
+    info: 'bg-freight-600 hover:bg-freight-700',
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 px-4">
+      <div className="panel w-full max-w-md p-6">
+        <h3 className="font-heading text-2xl text-slate-950">{title}</h3>
+        <p className="mt-3 text-sm text-slate-600">{message}</p>
+
+        <div className="mt-6 flex flex-wrap justify-end gap-3">
+          <button className="btn-secondary" onClick={onClose} type="button">
+            {cancelText}
+          </button>
+          <button
+            className={clsx(
+              'inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold text-white transition',
+              confirmStyles[variant] || confirmStyles.info
+            )}
+            disabled={isLoading}
+            onClick={onConfirm}
+            type="button"
+          >
+            {isLoading ? 'Working...' : confirmText}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

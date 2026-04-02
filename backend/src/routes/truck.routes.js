@@ -1,22 +1,19 @@
-// === backend/src/routes/truck.routes.js ===
-// Purpose: Truck route definitions
-// Dependencies: express.Router, ../controllers/truck.controller, ../middleware/*
+const router = require('express').Router();
+const controller = require('../controllers/truck.controller');
+const { requireRole } = require('../middleware/role.middleware');
+const { validate } = require('../middleware/validate.middleware');
+const {
+  createTruckSchema,
+  updateTruckSchema,
+  updateTruckStatusSchema,
+} = require('../validators/truck.validator');
 
-// const router = require('express').Router();
-// const controller = require('../controllers/truck.controller');
-// const { requireRole } = require('../middleware/role.middleware');
-// const { validate } = require('../middleware/validate.middleware');
+router.get('/', requireRole('DEALER', 'WAREHOUSE', 'ADMIN'), controller.getAll);
+router.get('/:id', requireRole('DEALER', 'WAREHOUSE', 'ADMIN'), controller.getById);
+router.use(requireRole('DEALER'));
+router.post('/', validate(createTruckSchema), controller.create);
+router.put('/:id', validate(updateTruckSchema), controller.update);
+router.patch('/:id/status', validate(updateTruckStatusSchema), controller.updateStatus);
+router.delete('/:id', controller.remove);
 
-/**
- * TODO: Define route endpoints:
- * GET /, GET /:id, POST /, PUT /:id, PATCH /:id/status, DELETE /:id
- *
- * Apply middleware chain:
- *   - requireRole() for role-restricted routes
- *   - validate(schema) for request body validation
- *
- * Example:
- *   router.post('/', requireRole('WAREHOUSE'), validate(createSchema), controller.create);
- */
-
-// module.exports = router;
+module.exports = router;

@@ -1,42 +1,41 @@
-// === frontend/src/api/auth.api.js ===
-// Purpose: Authentication API calls (login, register, refresh, logout)
-// Dependencies: ./axiosInstance
+import api from './axiosInstance';
 
-// import api from './axiosInstance';   // TODO: uncomment
+export const login = (credentials) => api.post('/auth/login', credentials);
 
-/**
- * TODO: Implement login
- * POST /auth/login
- * @param {{ email: string, password: string }} credentials
- * @returns {Promise<{ token: string, user: { id, email, role, name } }>}
- */
-// export const login = (credentials) => api.post('/auth/login', credentials);
+export const register = (payload) => api.post('/auth/register', payload);
 
-/**
- * TODO: Implement register
- * POST /auth/register
- * @param {{ email: string, password: string, name: string, role: 'WAREHOUSE'|'DEALER', phone?: string }} data
- * @returns {Promise<{ token: string, user: object }>}
- */
-// export const register = (data) => api.post('/auth/register', data);
+export const getProfile = () => api.get('/auth/me');
 
-/**
- * TODO: Implement getProfile
- * GET /auth/me
- * @returns {Promise<{ id, email, role, name, warehouse?: object, truckDealer?: object }>}
- */
-// export const getProfile = () => api.get('/auth/me');
+export const updateProfile = (payload) => api.put('/auth/me', payload);
 
-/**
- * TODO: Implement updateProfile
- * PUT /auth/me
- * @param {object} data - Profile fields to update
- * @returns {Promise<object>} Updated user
- */
-// export const updateProfile = (data) => api.put('/auth/me', data);
+export const logout = () => api.post('/auth/logout');
 
-/**
- * TODO: Implement logout (optional — may just clear local state)
- * POST /auth/logout
- */
-// export const logout = () => api.post('/auth/logout');
+export const refreshSession = () =>
+  api.post('/auth/refresh', null, {
+    skipAuthRefresh: true,
+  });
+
+export const forgotPassword = (payload) =>
+  api.post('/auth/forgot-password', payload, {
+    skipAuthRefresh: true,
+  });
+
+export const resetPassword = (payload) =>
+  api.post('/auth/reset-password', payload, {
+    skipAuthRefresh: true,
+  });
+
+export const sendVerificationEmail = () => api.post('/auth/send-verification');
+
+export const verifyEmail = (payload) =>
+  api.post('/auth/verify-email', payload, {
+    skipAuthRefresh: true,
+  });
+
+export const getSessions = () => api.get('/auth/sessions');
+
+export const revokeSession = (sessionId) => api.delete(`/auth/sessions/${sessionId}`);
+
+export const revokeOtherSessions = () => api.delete('/auth/sessions/others');
+
+export const getDemoAccounts = () => api.get('/auth/demo-accounts');

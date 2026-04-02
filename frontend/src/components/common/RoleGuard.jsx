@@ -1,26 +1,23 @@
-// === frontend/src/components/common/RoleGuard.jsx ===
-// Purpose: Conditional render based on user role — prevents unauthorized role access
-// Dependencies: react-router-dom, ../hooks/useAuth
+import { Navigate } from 'react-router-dom';
 
-/**
- * TODO: Implement RoleGuard component
- *
- * Purpose: Only render children if user has the required role
- *
- * Steps:
- *   1. Get user.role from useAuth()
- *   2. Check if role is in allowedRoles array prop
- *   3. If role matches: render children
- *   4. If not: redirect to user's role-based dashboard
- *
- * Props:
- *   @param {string[]} allowedRoles — e.g., ['WAREHOUSE'] or ['WAREHOUSE', 'ADMIN']
- *   @param {JSX.Element} children
- *   @param {string} [fallbackPath] — Optional redirect path (default: role dashboard)
- *
- * @returns {JSX.Element}
- */
+import { useAuth } from '../../hooks/useAuth';
+import { getDashboardPath } from '../../utils/roleRoutes';
 
-// export default function RoleGuard({ allowedRoles, children, fallbackPath }) {
-//   // TODO: Implement role check
-// }
+export default function RoleGuard({ allowedRoles, children, fallbackPath }) {
+  const { user } = useAuth();
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!allowedRoles.includes(user.role)) {
+    return (
+      <Navigate
+        to={fallbackPath || getDashboardPath(user.role)}
+        replace
+      />
+    );
+  }
+
+  return children;
+}

@@ -1,51 +1,93 @@
-// === frontend/src/api/axiosInstance.js ===
-// Purpose: Configured axios instance with base URL, JWT interceptor, and error handling
-// Dependencies: axios, ../store/authStore
+import axios from 'axios';
 
-// import axios from 'axios';           // TODO: uncomment
-// import { useAuthStore } from '../store/authStore';  // TODO: uncomment (for getState)
+import { clearStoredAuth, mergeStoredAuth, readStoredAuth } from '../utils/authStorage';
 
-/**
- * TODO: Create and configure axios instance
- *
- * const api = axios.create({
- *   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:4000/api',
- *   timeout: 15000,
- *   headers: { 'Content-Type': 'application/json' },
- * });
- */
+const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
-/**
- * TODO: Add request interceptor
- *
- * Purpose: Attach JWT token to every outgoing request
- *
- * Steps:
- *   1. Get token from authStore.getState().token
- *   2. If token exists, set Authorization header: `Bearer ${token}`
- *   3. Return modified config
- *
- * api.interceptors.request.use((config) => {
- *   // TODO: Attach JWT
- * });
- */
+const api = axios.create({
+  baseURL,
+  timeout: 15000,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
-/**
- * TODO: Add response interceptor
- *
- * Purpose: Handle 401 responses (token expired) and other errors globally
- *
- * Steps:
- *   1. On success: return response.data (unwrap axios response)
- *   2. On 401 error: clear auth store, redirect to /login
- *   3. On 403 error: show "Access denied" toast
- *   4. On 500 error: show "Server error" toast
- *   5. On network error: show "Connection lost" toast
- *
- * api.interceptors.response.use(
- *   (response) => response.data,
- *   (error) => { /* TODO: handle errors */ }
- * );
- */
+const refreshClient = axios.create({
+  baseURL,
+  timeout: 15000,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
-// export default api;
+api.interceptors.request.use((config) => {
+  const stored = readStoredAuth();
+  const token = stored?.state?.token;
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+
+api.interceptors.response.use(
+  (response) => response.data,
+  async (error) => {
+    const originalRequest = error.config || {};
+    const shouldTryRefresh =
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.skipAuthRefresh &&
+      !String(originalRequest.url || '').includes('/auth/refresh');
+
+    if (shouldTryRefresh) {
+      originalRequest._retry = true;
+
+      try {
+        const refreshed = await refreshClient.post('/auth/refresh');
+        mergeStoredAuth({
+          token: refreshed.data.token,
+          user: refreshed.data.user,
+        });
+        originalRequest.headers = {
+          ...originalRequest.headers,
+          Authorization: `Bearer ${refreshed.data.token}`,
+        };
+        return api(originalRequest);
+      } catch (refreshError) {
+        clearStoredAuth();
+        if (typeof window !== 'undefined') {
+          window.location.assign('/login');
+        }
+
+        const refreshMessage =
+          refreshError.response?.data?.error ||
+          refreshError.response?.data?.message ||
+          refreshError.message ||
+          'Session expired';
+
+        return Promise.reject(new Error(refreshMessage));
+      }
+    }
+
+    if (error.response?.status === 401) {
+      clearStoredAuth();
+      if (typeof window !== 'undefined') {
+        window.location.assign('/login');
+      }
+    }
+
+    const message =
+      error.response?.data?.error ||
+      error.response?.data?.message ||
+      error.message ||
+      'Something went wrong';
+
+    return Promise.reject(new Error(message));
+  }
+);
+
+export default api;

@@ -1,33 +1,53 @@
-// === backend/src/routes/index.js ===
-// Purpose: Mount all route modules on the Express router
-// Dependencies: express.Router, all route files
+const router = require('express').Router();
+const { authenticate } = require('../middleware/auth.middleware');
+const { authLimiter } = require('../middleware/rateLimit.middleware');
+const authRoutes = require('./auth.routes');
+const shipmentRoutes = require('./shipment.routes');
+const truckRoutes = require('./truck.routes');
+const bookingRoutes = require('./booking.routes');
+const tripRoutes = require('./trip.routes');
 
-// const router = require('express').Router();
-// const { authenticate } = require('../middleware/auth.middleware');
-// const { authLimiter } = require('../middleware/rateLimit.middleware');
+router.get('/', (req, res) => {
+  res.json({
+    service: 'stlos-api',
+    status: 'ok',
+    phase: 'Phase 2 - Persistent Auth, Database Workflows, and Security Closeout',
+    availableRoutes: [
+      'GET /api/health',
+      'GET /api/auth/demo-accounts',
+      'POST /api/auth/login',
+      'POST /api/auth/register',
+      'POST /api/auth/forgot-password',
+      'POST /api/auth/reset-password',
+      'POST /api/auth/verify-email',
+      'GET /api/auth/me',
+      'PUT /api/auth/me',
+      'POST /api/auth/send-verification',
+      'GET /api/auth/sessions',
+      'DELETE /api/auth/sessions/:sessionId',
+      'DELETE /api/auth/sessions/others',
+      'GET /api/shipments',
+      'POST /api/shipments',
+      'GET /api/trucks',
+      'POST /api/trucks',
+      'GET /api/bookings',
+      'POST /api/bookings',
+      'GET /api/trips',
+    ],
+  });
+});
 
-// TODO: Import all route files
-// const authRoutes = require('./auth.routes');
-// const shipmentRoutes = require('./shipment.routes');
-// const truckRoutes = require('./truck.routes');
-// const bookingRoutes = require('./booking.routes');
-// const tripRoutes = require('./trip.routes');
-// const optimizationRoutes = require('./optimization.routes');
-// const trackingRoutes = require('./tracking.routes');
-// const analyticsRoutes = require('./analytics.routes');
-// const returnLoadRoutes = require('./returnLoad.routes');
-// const adminRoutes = require('./admin.routes');
+router.use('/auth', authLimiter, authRoutes);
+router.use('/shipments', authenticate, shipmentRoutes);
+router.use('/trucks', authenticate, truckRoutes);
+router.use('/bookings', authenticate, bookingRoutes);
+router.use('/trips', authenticate, tripRoutes);
 
-// TODO: Mount routes
-// router.use('/auth', authLimiter, authRoutes);
-// router.use('/shipments', authenticate, shipmentRoutes);
-// router.use('/trucks', authenticate, truckRoutes);
-// router.use('/bookings', authenticate, bookingRoutes);
-// router.use('/trips', authenticate, tripRoutes);
-// router.use('/optimization', authenticate, optimizationRoutes);
-// router.use('/tracking', authenticate, trackingRoutes);
-// router.use('/analytics', authenticate, analyticsRoutes);
-// router.use('/return-loads', authenticate, returnLoadRoutes);
-// router.use('/admin', authenticate, adminRoutes);
+router.use((req, res) => {
+  res.status(404).json({
+    error: 'API route not found',
+    path: req.originalUrl,
+  });
+});
 
-// module.exports = router;
+module.exports = router;

@@ -1,25 +1,34 @@
-// === backend/src/utils/apiError.utils.js ===
-// Purpose: Custom API error class for consistent error handling
-// Dependencies: none
+class ApiError extends Error {
+  constructor(statusCode, message, details = null) {
+    super(message);
+    this.statusCode = statusCode;
+    this.details = details;
+    this.name = 'ApiError';
+  }
 
-/**
- * TODO: Implement ApiError class
- *
- * class ApiError extends Error {
- *   constructor(statusCode, message, details = null) {
- *     super(message);
- *     this.statusCode = statusCode;
- *     this.details = details;
- *     this.name = 'ApiError';
- *   }
- *
- *   static badRequest(msg, details)  { return new ApiError(400, msg, details); }
- *   static unauthorized(msg)         { return new ApiError(401, msg || 'Unauthorized'); }
- *   static forbidden(msg)            { return new ApiError(403, msg || 'Forbidden'); }
- *   static notFound(msg)             { return new ApiError(404, msg || 'Not found'); }
- *   static conflict(msg)             { return new ApiError(409, msg || 'Conflict'); }
- *   static internal(msg)             { return new ApiError(500, msg || 'Internal server error'); }
- * }
- *
- * module.exports = ApiError;
- */
+  static badRequest(message, details = null) {
+    return new ApiError(400, message, details);
+  }
+
+  static unauthorized(message = 'Unauthorized') {
+    return new ApiError(401, message);
+  }
+
+  static forbidden(message = 'Forbidden') {
+    return new ApiError(403, message);
+  }
+
+  static notFound(message = 'Not found') {
+    return new ApiError(404, message);
+  }
+
+  static conflict(message = 'Conflict') {
+    return new ApiError(409, message);
+  }
+
+  static internal(message = 'Internal server error') {
+    return new ApiError(500, message);
+  }
+}
+
+module.exports = ApiError;

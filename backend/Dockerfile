@@ -1,23 +1,15 @@
-# === backend/Dockerfile ===
-# Purpose: Multi-stage Docker build for the Node.js backend API
-# Dependencies: Node.js 18
+FROM node:20-alpine
 
-# ─── Development Stage ───
-# FROM node:18-alpine AS development
-# WORKDIR /app
-# COPY package*.json ./
-# RUN npm install
-# COPY . .
-# RUN npx prisma generate
-# EXPOSE 4000
-# CMD ["npm", "run", "dev"]
+WORKDIR /app/backend
 
-# ─── Production Stage ───
-# FROM node:18-alpine AS production
-# WORKDIR /app
-# COPY package*.json ./
-# RUN npm ci --only=production
-# COPY . .
-# RUN npx prisma generate
-# EXPOSE 4000
-# CMD ["npm", "start"]
+COPY backend/package*.json ./
+RUN npm install
+
+COPY prisma /app/prisma
+RUN npx prisma generate --schema /app/prisma/schema.prisma
+
+COPY backend ./
+
+EXPOSE 4000
+
+CMD ["npm", "run", "dev"]

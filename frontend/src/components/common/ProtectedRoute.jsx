@@ -1,24 +1,26 @@
-// === frontend/src/components/common/ProtectedRoute.jsx ===
-// Purpose: Route wrapper that redirects unauthenticated users to login
-// Dependencies: react-router-dom, ../hooks/useAuth
+import { Navigate } from 'react-router-dom';
 
-/**
- * TODO: Implement ProtectedRoute component
- *
- * Purpose: Wrap routes that require authentication
- *
- * Steps:
- *   1. Check isAuthenticated from useAuth()
- *   2. If not authenticated: <Navigate to="/login" replace />
- *   3. If authenticated: render children (via <Outlet /> or children prop)
- *   4. Optional: show LoadingSpinner while auth state is initializing
- *
- * Props:
- *   @param {JSX.Element} children — Route content to protect
- *
- * @returns {JSX.Element}
- */
+import LoadingSpinner from './LoadingSpinner';
+import { useAuth } from '../../hooks/useAuth';
 
-// export default function ProtectedRoute({ children }) {
-//   // TODO: Implement auth check and redirect
-// }
+export default function ProtectedRoute({ children }) {
+  const { isAuthenticated, isBootstrapping } = useAuth();
+
+  if (isBootstrapping) {
+    return (
+      <main className="min-h-screen px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-3xl">
+          <div className="panel p-6 sm:p-8">
+            <LoadingSpinner label="Restoring session..." />
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+}

@@ -1,20 +1,26 @@
-// === backend/src/middleware/rateLimit.middleware.js ===
-// Purpose: Rate limiting for API endpoints (prevent abuse)
-// Dependencies: express-rate-limit
+const rateLimit = require('express-rate-limit');
 
-/**
- * TODO: Implement rate limiters
- *
- * Export multiple rate limiters:
- *   - generalLimiter: 100 requests per 15 minutes per IP
- *   - authLimiter: 10 requests per 15 minutes per IP (login/register)
- *   - optimizationLimiter: 5 requests per minute per user (expensive operation)
- */
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
-// const rateLimit = require('express-rate-limit');  // TODO: uncomment
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many auth attempts. Please try again later.' },
+});
 
-// const generalLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
-// const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: 'Too many auth attempts' });
-// const optimizationLimiter = rateLimit({ windowMs: 60 * 1000, max: 5, keyGenerator: (req) => req.user?.userId });
+const optimizationLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => req.user?.userId || req.ip,
+});
 
-// module.exports = { generalLimiter, authLimiter, optimizationLimiter };
+module.exports = { generalLimiter, authLimiter, optimizationLimiter };

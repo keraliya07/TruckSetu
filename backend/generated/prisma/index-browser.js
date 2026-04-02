@@ -148,6 +148,24 @@ exports.Prisma.RefreshSessionScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.EmailVerificationTokenScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  consumedAt: 'consumedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.PasswordResetTokenScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  consumedAt: 'consumedAt',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.WarehouseScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -527,6 +545,8 @@ exports.DocumentType = exports.$Enums.DocumentType = {
 exports.Prisma.ModelName = {
   User: 'User',
   RefreshSession: 'RefreshSession',
+  EmailVerificationToken: 'EmailVerificationToken',
+  PasswordResetToken: 'PasswordResetToken',
   Warehouse: 'Warehouse',
   TruckDealer: 'TruckDealer',
   Truck: 'Truck',

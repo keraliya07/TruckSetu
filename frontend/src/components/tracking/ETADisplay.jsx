@@ -1,21 +1,29 @@
-// === frontend/src/components/tracking/ETADisplay.jsx ===
-// Purpose: Show estimated time of arrival for next stop and final destination
-// Dependencies: date-fns
+import { useEffect, useState } from 'react';
 
-/**
- * TODO: Implement ETADisplay component
- *
- * Props:
- *   @param {Date} nextStopETA — ETA for the next upcoming stop
- *   @param {Date} finalETA — ETA for the last stop
- *   @param {string} nextStopCity — Name of next stop
- *
- * Display: "Next: Nashik in 2h 15m | Final: Surat in 8h 30m"
- *   Updates every 60 seconds using setInterval
- *
- * @returns {JSX.Element}
- */
+import { formatCountdown } from '../../utils/formatters';
 
-// export default function ETADisplay({ nextStopETA, finalETA, nextStopCity }) {
-//   // TODO: Implement ETA countdown display
-// }
+export default function ETADisplay({ nextStopETA, finalETA, nextStopCity }) {
+  const [tick, setTick] = useState(Date.now());
+
+  useEffect(() => {
+    const interval = window.setInterval(() => setTick(Date.now()), 60000);
+    return () => window.clearInterval(interval);
+  }, []);
+
+  void tick;
+
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      <div className="rounded-3xl bg-slate-50 px-4 py-4">
+        <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Next stop</p>
+        <p className="mt-2 text-lg font-semibold text-slate-950">{nextStopCity || 'Awaiting route'}</p>
+        <p className="mt-1 text-sm text-slate-600">ETA in {formatCountdown(nextStopETA)}</p>
+      </div>
+      <div className="rounded-3xl bg-slate-50 px-4 py-4">
+        <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Final destination</p>
+        <p className="mt-2 text-lg font-semibold text-slate-950">Route completion</p>
+        <p className="mt-1 text-sm text-slate-600">ETA in {formatCountdown(finalETA)}</p>
+      </div>
+    </div>
+  );
+}

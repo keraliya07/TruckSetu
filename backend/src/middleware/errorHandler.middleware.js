@@ -1,28 +1,37 @@
-// === backend/src/middleware/errorHandler.middleware.js ===
-// Purpose: Global error handler — catches all errors and returns consistent JSON responses
-// Dependencies: ../utils/apiError.utils
+const { ZodError } = require('zod');
+const ApiError = require('../utils/apiError.utils');
+const { NODE_ENV } = require('../config/env');
 
-/**
- * TODO: Implement errorHandler middleware
- *
- * Steps:
- *   1. Check if error is instanceof ApiError (custom error class)
- *      - If yes: use error.statusCode and error.message
- *   2. Check for Prisma errors:
- *      - P2002 (unique constraint): return 409 "Already exists"
- *      - P2025 (record not found): return 404 "Not found"
- *   3. Check for Zod validation errors: return 400 with error details
- *   4. For unknown errors: return 500 "Internal server error"
- *   5. In development: include error stack trace in response
- *   6. Log error to console/log service
- *
- * @param {Error} err
- * @param {Request} req
- * @param {Response} res
- * @param {NextFunction} next
- */
+const errorHandler = (err, req, res, next) => {
+  if (err instanceof ApiError) {
+    return res.status(err.statusCode).json({
+      error: err.message,
+      details: err.details,
+      ...(NODE_ENV === 'development' && err.stack ? { stack: err.stack } : {}),
+    });
+  }
 
-// const errorHandler = (err, req, res, next) => {
-//   // TODO: Implement global error handler
-// };
-// module.exports = { errorHandler };
+  if (err instanceof ZodError) {
+    return res.status(400).json({
+      error: 'Validation failed',
+      details: err.flatten(),
+    });
+  }
+
+  if (err?.code === 'P2002') {
+    return res.status(409).json({ error: 'Already exists' });
+  }
+
+  if (err?.code === 'P2025') {
+    return res.status(404).json({ error: 'Not found' });
+  }
+
+  console.error(err);
+
+  return res.status(500).json({
+    error: 'Internal server error',
+    ...(NODE_ENV === 'development' && err?.stack ? { stack: err.stack } : {}),
+  });
+};
+
+module.exports = { errorHandler };

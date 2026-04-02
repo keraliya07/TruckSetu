@@ -1,33 +1,57 @@
-// === backend/src/config/env.js ===
-// Purpose: Validated environment variable exports — fail fast if required vars missing
-// Dependencies: dotenv
+require('dotenv').config();
 
-// require('dotenv').config();  // TODO: uncomment
+const { z } = require('zod');
 
-/**
- * TODO: Validate and export environment variables
- *
- * Steps:
- *   1. Define required variables: DATABASE_URL, REDIS_URL, JWT_SECRET
- *   2. For each required var: if missing, throw Error("Missing env: VAR_NAME")
- *   3. Export all env vars with sensible defaults:
- *
- * module.exports = {
- *   NODE_ENV: process.env.NODE_ENV || 'development',
- *   PORT: parseInt(process.env.PORT || '4000'),
- *   DATABASE_URL: process.env.DATABASE_URL,
- *   REDIS_URL: process.env.REDIS_URL,
- *   JWT_SECRET: process.env.JWT_SECRET,
- *   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '7d',
- *   PYTHON_ML_URL: process.env.PYTHON_ML_URL || 'http://localhost:8000',
- *   OSRM_URL: process.env.OSRM_URL || 'http://localhost:5000',
- *   CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:3000',
- *   SMTP_HOST: process.env.SMTP_HOST,
- *   SMTP_PORT: parseInt(process.env.SMTP_PORT || '587'),
- *   SMTP_USER: process.env.SMTP_USER,
- *   SMTP_PASS: process.env.SMTP_PASS,
- *   BOOKING_TIMEOUT_HOURS: parseInt(process.env.BOOKING_TIMEOUT_HOURS || '2'),
- *   RETURN_LOAD_EXPIRY_HOURS: parseInt(process.env.RETURN_LOAD_EXPIRY_HOURS || '4'),
- *   GPS_UPDATE_INTERVAL_MS: parseInt(process.env.GPS_UPDATE_INTERVAL_MS || '10000'),
- * };
- */
+const toBoolean = (value) => {
+  if (typeof value === 'boolean') {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    return value.toLowerCase() === 'true';
+  }
+
+  return false;
+};
+
+const schema = z.object({
+  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  PORT: z.coerce.number().int().positive().default(4000),
+  DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
+  DIRECT_URL: z.string().min(1, 'DIRECT_URL is required'),
+  REDIS_URL: z.string().default('redis://localhost:6379'),
+  JWT_SECRET: z.string().min(16, 'JWT_SECRET must be at least 16 characters'),
+  ACCESS_TOKEN_EXPIRES_IN: z.string().default(process.env.JWT_EXPIRES_IN || '15m'),
+  JWT_REFRESH_SECRET: z
+    .string()
+    .min(16, 'JWT_REFRESH_SECRET must be at least 16 characters'),
+  JWT_REFRESH_EXPIRES_IN: z.string().default('30d'),
+  APP_BASE_URL: z.string().default('http://localhost:3000'),
+  PYTHON_ML_URL: z.string().default('http://localhost:8000'),
+  OSRM_URL: z.string().default('http://router.project-osrm.org'),
+  CORS_ORIGIN: z.string().min(1).default('http://localhost:3000'),
+  COOKIE_SECURE: z.preprocess(toBoolean, z.boolean().default(false)),
+  COOKIE_SAME_SITE: z.enum(['lax', 'strict', 'none']).default('lax'),
+  COOKIE_DOMAIN: z.string().default(''),
+  SMTP_HOST: z.string().default(''),
+  SMTP_PORT: z.coerce.number().int().positive().default(587),
+  SMTP_USER: z.string().default(''),
+  SMTP_PASS: z.string().default(''),
+  EMAIL_VERIFICATION_TOKEN_TTL_HOURS: z.coerce.number().int().positive().default(24),
+  PASSWORD_RESET_TOKEN_TTL_HOURS: z.coerce.number().int().positive().default(2),
+  BOOKING_TIMEOUT_HOURS: z.coerce.number().int().positive().default(2),
+  RETURN_LOAD_EXPIRY_HOURS: z.coerce.number().int().positive().default(4),
+  GPS_UPDATE_INTERVAL_MS: z.coerce.number().int().positive().default(10000),
+});
+
+const parsed = schema.safeParse(process.env);
+
+if (!parsed.success) {
+  const message = parsed.error.issues
+    .map((issue) => `${issue.path.join('.')}: ${issue.message}`)
+    .join(', ');
+
+  throw new Error(`Invalid environment configuration: ${message}`);
+}
+
+module.exports = parsed.data;

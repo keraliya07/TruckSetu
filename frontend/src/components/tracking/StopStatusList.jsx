@@ -1,28 +1,57 @@
-// === frontend/src/components/tracking/StopStatusList.jsx ===
-// Purpose: Ordered vertical list of trip stops with status indicators
-// Dependencies: ../common/StatusBadge, date-fns
+import StatusBadge from '../common/StatusBadge';
+import { formatDateTime } from '../../utils/formatters';
 
-/**
- * TODO: Implement StopStatusList component
- *
- * Purpose: Show all stops in order with completion status
- *
- * Props:
- *   @param {array} stops — [{ id, city, type, status, sequenceOrder, estimatedArrival, arrivedAt }]
- *   @param {function} [onCompleteStop] — Dealer action to mark stop as completed
- *
- * Visual: Vertical timeline with connected dots
- *   ● Mumbai (Pickup)     — Completed at 10:30 AM     ✅
- *   │
- *   ● Pune (Delivery)     — Arrived at 1:15 PM        ✅
- *   │
- *   ◉ Nashik (Delivery)   — ETA: 3:45 PM              🔵 [Mark Complete]
- *   │
- *   ○ Surat (Delivery)    — ETA: 6:30 PM              ⬜
- *
- * @returns {JSX.Element}
- */
+export default function StopStatusList({ stops, onCompleteStop, busyStopId }) {
+  return (
+    <div className="space-y-4">
+      {stops.map((stop, index) => {
+        const isComplete = stop.status === 'COMPLETED';
 
-// export default function StopStatusList({ stops, onCompleteStop }) {
-//   // TODO: Implement vertical stop timeline
-// }
+        return (
+          <div key={stop.id} className="flex gap-4">
+            <div className="flex w-6 flex-col items-center">
+              <span
+                className={`mt-2 h-3 w-3 rounded-full ${
+                  isComplete ? 'bg-emerald-500' : 'bg-slate-300'
+                }`}
+              />
+              {index !== stops.length - 1 ? (
+                <span className="mt-2 h-full w-px bg-slate-200" />
+              ) : null}
+            </div>
+            <div className="min-w-0 flex-1 rounded-3xl border border-slate-200 px-4 py-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="font-semibold text-slate-900">
+                    Stop {stop.sequence}. {stop.city}
+                  </p>
+                  <p className="mt-1 text-sm text-slate-600">
+                    {stop.type} {stop.address ? `• ${stop.address}` : ''}
+                  </p>
+                </div>
+                <StatusBadge status={stop.status} />
+              </div>
+              <p className="mt-3 text-sm text-slate-500">
+                {isComplete
+                  ? `Completed ${formatDateTime(stop.completedAt)}`
+                  : stop.plannedArrival
+                    ? `Planned arrival ${formatDateTime(stop.plannedArrival)}`
+                    : 'Awaiting live ETA'}
+              </p>
+              {onCompleteStop && !isComplete ? (
+                <button
+                  className="btn-secondary mt-4"
+                  disabled={busyStopId === stop.id}
+                  onClick={() => onCompleteStop(stop.id)}
+                  type="button"
+                >
+                  {busyStopId === stop.id ? 'Updating stop...' : 'Mark complete'}
+                </button>
+              ) : null}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}

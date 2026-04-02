@@ -1,22 +1,55 @@
-// === backend/src/controllers/truck.controller.js ===
-// Purpose: Truck request handlers — parse req, call service, send response
-// Dependencies: ../services/truck.service
+const service = require('../services/truck.service');
 
-// const service = require('../services/truck.service');
+exports.getAll = async (req, res, next) => {
+  try {
+    const result = await service.getAll(req.query, req.user);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
 
-/**
- * TODO: Implement controller methods: getAll, getById, create, update, updateStatus, remove
- *
- * Pattern for each method:
- *   exports.methodName = async (req, res, next) => {
- *     try {
- *       const result = await service.methodName(req.body, req.user);
- *       res.status(200).json(result);
- *     } catch (error) {
- *       next(error);
- *     }
- *   };
- *
- * Called by: ../routes/truck.routes.js
- * Calls: ../services/truck.service
- */
+exports.getById = async (req, res, next) => {
+  try {
+    const result = await service.getById(req.params.id, req.user);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.create = async (req, res, next) => {
+  try {
+    const result = await service.create(req.body, req.user);
+    res.status(201).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.update = async (req, res, next) => {
+  try {
+    const result = await service.update(req.params.id, req.body, req.user);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.updateStatus = async (req, res, next) => {
+  try {
+    const result = await service.updateStatus(req.params.id, req.body, req.user);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.remove = async (req, res, next) => {
+  try {
+    const result = await service.remove(req.params.id, req.user);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};

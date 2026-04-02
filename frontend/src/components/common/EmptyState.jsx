@@ -1,19 +1,21 @@
-// === frontend/src/components/common/EmptyState.jsx ===
-// Purpose: Placeholder component shown when lists/tables have no data
-// Dependencies: lucide-react
+import { PackageSearch } from 'lucide-react';
 
-/**
- * TODO: Implement EmptyState component
- *
- * Props:
- *   @param {string} title — e.g., "No shipments yet"
- *   @param {string} [description] — e.g., "Create your first shipment to get started"
- *   @param {string} [icon] — Lucide icon name
- *   @param {JSX.Element} [action] — CTA button, e.g., "Create Shipment"
- *
- * @returns {JSX.Element}
- */
-
-// export default function EmptyState({ title, description, icon, action }) {
-//   // TODO: Render centered empty state with icon, text, and optional CTA
-// }
+export default function EmptyState({
+  title,
+  description,
+  action,
+  icon: Icon = PackageSearch,
+}) {
+  return (
+    <div className="panel flex flex-col items-center justify-center px-6 py-14 text-center">
+      <div className="rounded-full bg-slate-100 p-4 text-slate-500">
+        <Icon className="size-7" />
+      </div>
+      <h3 className="mt-5 font-heading text-2xl text-slate-950">{title}</h3>
+      {description ? (
+        <p className="mt-3 max-w-md text-sm text-slate-600">{description}</p>
+      ) : null}
+      {action ? <div className="mt-6">{action}</div> : null}
+    </div>
+  );
+}

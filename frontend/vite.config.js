@@ -3,6 +3,13 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  test: {
+    environment: 'jsdom',
+    setupFiles: './src/test/setup.js',
+    globals: true,
+    clearMocks: true,
+    restoreMocks: true,
+  },
   server: {
     port: 3000,
     host: true,
@@ -20,6 +27,47 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) {
+            return;
+          }
+
+          if (
+            id.includes('react-dom') ||
+            id.includes('react/') ||
+            id.includes('scheduler')
+          ) {
+            return 'react-core';
+          }
+
+          if (id.includes('react-router')) {
+            return 'router';
+          }
+
+          if (
+            id.includes('@tanstack/react-query') ||
+            id.includes('axios') ||
+            id.includes('zustand')
+          ) {
+            return 'data-client';
+          }
+
+          if (id.includes('recharts') || id.includes('d3-')) {
+            return 'charts';
+          }
+
+          if (id.includes('react-leaflet') || id.includes('leaflet')) {
+            return 'maps';
+          }
+
+          if (id.includes('lucide-react')) {
+            return 'icons';
+          }
+        },
+      },
+    },
   },
   resolve: {
     alias: {

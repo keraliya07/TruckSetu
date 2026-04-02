@@ -1,61 +1,49 @@
-/* === frontend/src/index.css ===
- * Purpose: Global styles, Tailwind imports, and design system tokens
- * Dependencies: tailwindcss
- */
-
-/* TODO: Add Tailwind base imports:
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-*/
 
-/* TODO: Import Google Font
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-*/
-
-/* ===== CSS Custom Properties (Design Tokens) ===== */
-/* :root {
-  --primary: #2563EB;
-  --primary-light: #3B82F6;
-  --primary-dark: #1D4ED8;
-  --success: #10B981;
-  --warning: #F59E0B;
-  --danger: #EF4444;
-  --border: #E5E7EB;
-  --bg-primary: #FFFFFF;
-  --bg-secondary: #F9FAFB;
-  --text-primary: #111827;
-  --text-secondary: #6B7280;
-  --sidebar-width: 260px;
-  --navbar-height: 64px;
-} */
-
-/* ===== Global Reset ===== */
-/* *, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-} */
-
-/* body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: var(--bg-secondary);
-  color: var(--text-primary);
-  line-height: 1.6;
-} */
-
-/* ===== Tailwind @layer Components ===== */
-/* TODO: Define reusable component classes:
-@layer components {
-  .btn-primary { @apply bg-primary text-white px-4 py-2 rounded-lg font-medium... }
-  .btn-secondary { ... }
-  .card { @apply bg-white rounded-xl shadow-sm border border-gray-100 p-6... }
-  .input-field { @apply w-full px-3 py-2 border rounded-lg focus:ring-2... }
-  .badge { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium... }
+:root {
+  color: #0f172a;
+  background: #f8fafc;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
-*/
 
-/* ===== Scrollbar Styles ===== */
-/* ===== Animation Classes ===== */
-/* ===== Map Container Styles ===== */
-/* ===== Print Styles ===== */
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  font-family: 'Inter', system-ui, sans-serif;
+  background:
+    radial-gradient(circle at top, rgba(34, 197, 94, 0.16), transparent 30%),
+    linear-gradient(180deg, #f8fafc 0%, #eef6f1 100%);
+  color: #0f172a;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+@layer components {
+  .panel {
+    @apply rounded-3xl border border-slate-200/70 bg-white/80 shadow-card backdrop-blur;
+  }
+
+  .field-label {
+    @apply mb-2 block text-sm font-medium text-slate-700;
+  }
+
+  .input-base {
+    @apply block w-full rounded-2xl border-slate-200 bg-white/90 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-freight-500 focus:ring-freight-500;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-freight-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-freight-700;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50;
+  }
+}

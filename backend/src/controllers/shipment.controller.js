@@ -1,22 +1,55 @@
-// === backend/src/controllers/shipment.controller.js ===
-// Purpose: Shipment request handlers — parse req, call service, send response
-// Dependencies: ../services/shipment.service
+const service = require('../services/shipment.service');
 
-// const service = require('../services/shipment.service');
+exports.getAll = async (req, res, next) => {
+  try {
+    const result = await service.getAll(req.query, req.user);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
 
-/**
- * TODO: Implement controller methods: getAll, getById, create, update, remove, batchUpdateStatus
- *
- * Pattern for each method:
- *   exports.methodName = async (req, res, next) => {
- *     try {
- *       const result = await service.methodName(req.body, req.user);
- *       res.status(200).json(result);
- *     } catch (error) {
- *       next(error);
- *     }
- *   };
- *
- * Called by: ../routes/shipment.routes.js
- * Calls: ../services/shipment.service
- */
+exports.getById = async (req, res, next) => {
+  try {
+    const result = await service.getById(req.params.id, req.user);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.create = async (req, res, next) => {
+  try {
+    const result = await service.create(req.body, req.user);
+    res.status(201).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.update = async (req, res, next) => {
+  try {
+    const result = await service.update(req.params.id, req.body, req.user);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.remove = async (req, res, next) => {
+  try {
+    const result = await service.remove(req.params.id, req.user);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.batchUpdateStatus = async (req, res, next) => {
+  try {
+    const result = await service.batchUpdateStatus(req.body, req.user);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};

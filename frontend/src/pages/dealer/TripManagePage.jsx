@@ -1,24 +1,63 @@
-// === frontend/src/pages/dealer/TripManagePage.jsx ===
-// Purpose: Active trip management for dealer — start trip, manage stops, view map
-// Dependencies: ../../hooks/useTracking, ../../components/maps/TrackingMap, ../../components/tracking/*
+import { useParams } from 'react-router-dom';
 
-/**
- * TODO: Implement TripManagePage
- *
- * Route: /dealer/trips/:tripId
- *
- * Split layout (same as warehouse TrackingPage but with DEALER actions):
- *   Left: TrackingMap
- *   Right: Trip details panel with:
- *     - "Start Trip" button (if status is PLANNED)
- *     - Ordered stop list with "Mark Complete" buttons
- *     - ETA display
- *     - Trip progress bar
- *     - After last stop completed: "Complete Trip" → triggers return load matching
- *
- * @returns {JSX.Element}
- */
+import DashboardShell from '../../components/common/DashboardShell';
+import LoadingSpinner from '../../components/common/LoadingSpinner';
+import PageTabs from '../../components/common/PageTabs';
+import TrackingMap from '../../components/maps/TrackingMap';
+import LiveTrackingPanel from '../../components/tracking/LiveTrackingPanel';
+import { useTracking } from '../../hooks/useTracking';
 
-// export default function TripManagePage() {
-//   // TODO: Implement dealer trip management page
-// }
+export default function TripManagePage() {
+  const { tripId } = useParams();
+  const tracking = useTracking(tripId);
+
+  return (
+    <DashboardShell
+      accent="text-freight-600"
+      eyebrow="Dealer Flow"
+      title={tracking.trip ? `Trip ${tracking.trip.id.slice(0, 8)}` : 'Trip management'}
+      subtitle="Start the trip, complete stops as the truck progresses, and keep the booking lifecycle moving from the dealer console."
+    >
+      <PageTabs
+        items={[
+          { to: '/dealer/fleet', label: 'Fleet' },
+          { to: '/dealer/bookings', label: 'Booking requests' },
+          { to: '/dealer/analytics', label: 'Analytics' },
+        ]}
+      />
+
+      {tracking.isLoading ? <LoadingSpinner label="Loading trip controls..." /> : null}
+
+      {tracking.error ? (
+        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          {tracking.error}
+        </div>
+      ) : null}
+
+      {tracking.trip ? (
+        <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+          <TrackingMap stops={tracking.stops} truckPosition={tracking.truckPosition} />
+          <LiveTrackingPanel
+            actions={
+              tracking.trip.status === 'PLANNED' ? (
+                <button className="btn-primary" onClick={tracking.startTrip} type="button">
+                  Start trip
+                </button>
+              ) : tracking.trip.status === 'DELIVERED' ? (
+                <div className="rounded-3xl border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm text-emerald-900">
+                  Trip is fully delivered. Truck can now be repositioned for the next load.
+                </div>
+              ) : null
+            }
+            busyStopId={tracking.busyStopId}
+            eta={tracking.eta}
+            onCompleteStop={tracking.trip.status !== 'DELIVERED' ? tracking.completeStop : undefined}
+            progress={tracking.progress}
+            stops={tracking.stops}
+            trip={tracking.trip}
+          />
+        </div>
+      ) : null}
+    </DashboardShell>
+  );
+}

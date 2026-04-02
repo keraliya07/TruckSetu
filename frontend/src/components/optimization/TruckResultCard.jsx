@@ -1,39 +1,75 @@
-// === frontend/src/components/optimization/TruckResultCard.jsx ===
-// Purpose: Card showing one matched truck with its optimization scores
-// Dependencies: ../common/ScoreBar, ../common/StatusBadge
+import ScoreBar from '../common/ScoreBar';
+import StatusBadge from '../common/StatusBadge';
+import { formatCurrency, formatNumber } from '../../utils/formatters';
 
-/**
- * TODO: Implement TruckResultCard component
- *
- * Purpose: Display a single truck from optimization results with all score details
- *
- * Visual layout:
- *   ┌─────────────────────────────────────────────┐
- *   │ 🚛 MH-12-AB-1234  |  Heavy Truck  |  20T   │
- *   │ Dealer: XYZ Transport  |  Mumbai             │
- *   │                                               │
- *   │ ████████████████████ 87.3 / 100               │  ← ScoreBar
- *   │ Utilization: 92  Route: 85  Cost: 78  CO2: 91│
- *   │                                               │
- *   │ Est. Cost: ₹45,200  |  CO2 Saved: 12.4 kg    │
- *   │ Route: Mumbai → Pune → Nashik (3 stops)       │
- *   │                                               │
- *   │ [View Route]  [Book This Truck]               │
- *   └─────────────────────────────────────────────┘
- *
- * Props:
- *   @param {object} truck — { truckId, registrationNo, truckType, maxWeightKg, dealer }
- *   @param {object} scores — { utilization, route, cost, co2, composite }
- *   @param {object} route — { stops, totalDistanceKm, estimatedTime }
- *   @param {number} estimatedCost
- *   @param {number} co2Saved
- *   @param {number} rank — Position in results (1, 2, 3...)
- *   @param {function} onBook — Handler when "Book" is clicked
- *   @param {function} onViewRoute — Handler to preview route on map
- *
- * @returns {JSX.Element}
- */
+export default function TruckResultCard({
+  truck,
+  scores,
+  route,
+  estimatedCost,
+  co2Saved,
+  rank,
+  onBook,
+  onViewRoute,
+}) {
+  return (
+    <article className="panel p-5">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <div className="flex flex-wrap items-center gap-3">
+            <p className="rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-white">
+              Rank {rank}
+            </p>
+            <StatusBadge status={truck.status} />
+          </div>
+          <h3 className="mt-4 font-heading text-2xl text-slate-950">{truck.registrationNo}</h3>
+          <p className="mt-1 text-sm text-slate-600">
+            {truck.truckType} with {formatNumber(truck.maxWeightKg)} kg capacity
+          </p>
+          <p className="mt-1 text-sm text-slate-500">
+            {truck.dealer?.companyName} from {truck.currentCity || truck.dealer?.primaryCity}
+          </p>
+        </div>
+        <div className="rounded-3xl bg-slate-50 px-4 py-4 text-right">
+          <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Estimated commercial</p>
+          <p className="mt-2 text-xl font-semibold text-slate-950">{formatCurrency(estimatedCost)}</p>
+          <p className="mt-1 text-sm text-emerald-700">{formatNumber(co2Saved)} kg CO2 saved</p>
+        </div>
+      </div>
 
-// export default function TruckResultCard({ truck, scores, route, estimatedCost, co2Saved, rank, onBook, onViewRoute }) {
-//   // TODO: Implement truck result card
-// }
+      <div className="mt-5">
+        <ScoreBar scores={scores} compositeScore={scores.composite} />
+      </div>
+
+      <div className="mt-5 grid gap-3 sm:grid-cols-2">
+        <div className="rounded-3xl bg-slate-50 px-4 py-4">
+          <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Route preview</p>
+          <p className="mt-2 text-sm font-semibold text-slate-900">
+            {route.stops.map((stop) => stop.city).join(' to ')}
+          </p>
+          <p className="mt-1 text-sm text-slate-600">
+            {formatNumber(route.totalDistanceKm)} km and {route.estimatedDuration}
+          </p>
+        </div>
+        <div className="rounded-3xl bg-slate-50 px-4 py-4">
+          <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Fit summary</p>
+          <p className="mt-2 text-sm font-semibold text-slate-900">
+            {formatNumber(route.loadWeightKg)} kg booked against {formatNumber(truck.maxWeightKg)} kg
+          </p>
+          <p className="mt-1 text-sm text-slate-600">
+            Dealer base rate {formatCurrency(truck.dealer?.baseRatePerKmTon || 0)} / km-ton
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-5 flex flex-wrap gap-3">
+        <button className="btn-secondary" onClick={() => onViewRoute(route)} type="button">
+          View route
+        </button>
+        <button className="btn-primary" onClick={() => onBook(truck)} type="button">
+          Book this truck
+        </button>
+      </div>
+    </article>
+  );
+}

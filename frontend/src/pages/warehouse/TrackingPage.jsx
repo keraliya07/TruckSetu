@@ -1,26 +1,50 @@
-// === frontend/src/pages/warehouse/TrackingPage.jsx ===
-// Purpose: Full-screen live tracking view for a trip
-// Dependencies: ../../hooks/useTracking, ../../components/maps/TrackingMap, ../../components/tracking/LiveTrackingPanel
+import { useParams } from 'react-router-dom';
 
-/**
- * TODO: Implement TrackingPage
- *
- * Route: /warehouse/tracking/:tripId
- *
- * Layout (split view):
- *   Left (70%): TrackingMap with live truck position, route, and stops
- *   Right (30%): LiveTrackingPanel with trip info, ETA, and stop list
- *
- * Steps:
- *   1. Get tripId from URL params
- *   2. Initialize useTracking(tripId) hook
- *   3. Render TrackingMap with real-time truck position
- *   4. Render LiveTrackingPanel alongside
- *   5. Handle trip completion → show rating modal
- *
- * @returns {JSX.Element}
- */
+import DashboardShell from '../../components/common/DashboardShell';
+import LoadingSpinner from '../../components/common/LoadingSpinner';
+import PageTabs from '../../components/common/PageTabs';
+import TrackingMap from '../../components/maps/TrackingMap';
+import LiveTrackingPanel from '../../components/tracking/LiveTrackingPanel';
+import { useTracking } from '../../hooks/useTracking';
 
-// export default function TrackingPage() {
-//   // TODO: Implement live tracking page
-// }
+export default function TrackingPage() {
+  const { tripId } = useParams();
+  const tracking = useTracking(tripId);
+
+  return (
+    <DashboardShell
+      accent="text-brand-600"
+      eyebrow="Warehouse Flow"
+      title={tracking.trip ? `Trip ${tracking.trip.id.slice(0, 8)}` : 'Live tracking'}
+      subtitle="Monitor trip movement, stop completion, ETA drift, and shipment handoff status from the warehouse control room."
+    >
+      <PageTabs
+        items={[
+          { to: '/warehouse/shipments', label: 'Shipment board' },
+          { to: '/warehouse/bookings', label: 'Bookings' },
+          { to: '/warehouse/optimization', label: 'Optimization' },
+        ]}
+      />
+
+      {tracking.isLoading ? <LoadingSpinner label="Loading trip tracking..." /> : null}
+
+      {tracking.error ? (
+        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          {tracking.error}
+        </div>
+      ) : null}
+
+      {tracking.trip ? (
+        <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+          <TrackingMap stops={tracking.stops} truckPosition={tracking.truckPosition} />
+          <LiveTrackingPanel
+            eta={tracking.eta}
+            progress={tracking.progress}
+            stops={tracking.stops}
+            trip={tracking.trip}
+          />
+        </div>
+      ) : null}
+    </DashboardShell>
+  );
+}

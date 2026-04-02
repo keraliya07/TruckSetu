@@ -1,23 +1,50 @@
-// === frontend/src/components/analytics/UtilizationChart.jsx ===
-// Purpose: Line chart showing truck utilization percentage over time
-// Dependencies: recharts (LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer)
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 
-/**
- * TODO: Implement UtilizationChart component
- *
- * Props:
- *   @param {array} data — [{ date: string, utilization: number }]
- *   @param {string} [period='30d']
- *
- * Visual: Smooth line chart with gradient fill below the line
- *   - X axis: dates
- *   - Y axis: utilization % (0-100)
- *   - Tooltip: shows exact value on hover
- *   - Reference line at 87% (optimal utilization target)
- *
- * @returns {JSX.Element}
- */
-
-// export default function UtilizationChart({ data, period }) {
-//   // TODO: Implement Recharts line chart
-// }
+export default function UtilizationChart({ data, period = '30d' }) {
+  return (
+    <article className="panel p-5">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-sm uppercase tracking-[0.2em] text-slate-500">Utilization</p>
+          <h3 className="mt-2 font-heading text-2xl text-slate-950">Capacity efficiency trend</h3>
+        </div>
+        <p className="rounded-full bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700">
+          {period}
+        </p>
+      </div>
+      <div className="mt-6 h-72">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={data}>
+            <defs>
+              <linearGradient id="utilizationGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#0284c7" stopOpacity={0.35} />
+                <stop offset="95%" stopColor="#0284c7" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+            <XAxis dataKey="label" tickLine={false} axisLine={false} />
+            <YAxis domain={[0, 100]} tickLine={false} axisLine={false} />
+            <Tooltip formatter={(value) => [`${Number(value).toFixed(0)}%`, 'Utilization']} />
+            <ReferenceLine y={87} stroke="#f59e0b" strokeDasharray="4 4" />
+            <Area
+              dataKey="utilization"
+              type="monotone"
+              stroke="#0284c7"
+              strokeWidth={3}
+              fill="url(#utilizationGradient)"
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+    </article>
+  );
+}

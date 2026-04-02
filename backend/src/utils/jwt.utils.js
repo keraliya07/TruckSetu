@@ -1,24 +1,31 @@
-// === backend/src/utils/jwt.utils.js ===
-// Purpose: JWT token generation and verification
-// Dependencies: jsonwebtoken, ../config/env
+const jwt = require('jsonwebtoken');
+const {
+  ACCESS_TOKEN_EXPIRES_IN,
+  JWT_REFRESH_EXPIRES_IN,
+  JWT_REFRESH_SECRET,
+  JWT_SECRET,
+} = require('../config/env');
 
-// const jwt = require('jsonwebtoken');
-// const { JWT_SECRET, JWT_EXPIRES_IN } = require('../config/env');
+const generateAccessToken = (payload) =>
+  jwt.sign({ ...payload, type: 'access' }, JWT_SECRET, {
+    expiresIn: ACCESS_TOKEN_EXPIRES_IN,
+  });
 
-/**
- * TODO: Implement generateToken
- * @param {{ userId, email, role }} payload
- * @returns {string} Signed JWT
- *
- * jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN })
- */
+const generateRefreshToken = (payload) =>
+  jwt.sign({ ...payload, type: 'refresh' }, JWT_REFRESH_SECRET, {
+    expiresIn: JWT_REFRESH_EXPIRES_IN,
+  });
 
-/**
- * TODO: Implement verifyToken
- * @param {string} token
- * @returns {object} Decoded payload
- *
- * jwt.verify(token, JWT_SECRET)
- */
+const verifyAccessToken = (token) => jwt.verify(token, JWT_SECRET);
 
-// module.exports = { generateToken, verifyToken };
+const verifyRefreshToken = (token) => jwt.verify(token, JWT_REFRESH_SECRET);
+
+const decodeToken = (token) => jwt.decode(token);
+
+module.exports = {
+  decodeToken,
+  generateAccessToken,
+  generateRefreshToken,
+  verifyAccessToken,
+  verifyRefreshToken,
+};

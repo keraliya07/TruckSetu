@@ -1,24 +1,47 @@
-// === backend/src/middleware/auth.middleware.js ===
-// Purpose: Verify JWT token and attach user to request
-// Dependencies: jsonwebtoken, ../config/env
+const prisma = require('../config/db');
+const { verifyAccessToken } = require('../utils/jwt.utils');
+const ApiError = require('../utils/apiError.utils');
 
-/**
- * TODO: Implement authenticate middleware
- *
- * Steps:
- *   1. Extract token from Authorization header: 'Bearer <token>'
- *   2. If no token: return 401 { error: 'No token provided' }
- *   3. Verify token: jwt.verify(token, JWT_SECRET)
- *   4. If invalid/expired: return 401 { error: 'Invalid or expired token' }
- *   5. Attach decoded payload to req.user: { userId, email, role }
- *   6. Call next()
- *
- * @param {Request} req
- * @param {Response} res
- * @param {NextFunction} next
- */
+const authenticate = async (req, res, next) => {
+  const authorization = req.headers.authorization || '';
+  const [scheme, token] = authorization.split(' ');
 
-// const authenticate = (req, res, next) => {
-//   // TODO: Implement JWT verification
-// };
-// module.exports = { authenticate };
+  if (scheme !== 'Bearer' || !token) {
+    return next(ApiError.unauthorized('No token provided'));
+  }
+
+  try {
+    const payload = verifyAccessToken(token);
+
+    if (payload.type !== 'access' || !payload.sessionId) {
+      return next(ApiError.unauthorized('Invalid access token'));
+    }
+
+    const session = await prisma.refreshSession.findUnique({
+      where: { id: payload.sessionId },
+      include: {
+        user: {
+          select: {
+            accountStatus: true,
+          },
+        },
+      },
+    });
+
+    if (
+      !session ||
+      session.user.accountStatus !== 'ACTIVE' ||
+      session.revokedAt ||
+      session.expiresAt <= new Date()
+    ) {
+      return next(ApiError.unauthorized('Session expired or revoked'));
+    }
+
+    req.user = payload;
+    return next();
+  } catch (error) {
+    return next(ApiError.unauthorized('Invalid or expired token'));
+  }
+};
+
+module.exports = { authenticate };

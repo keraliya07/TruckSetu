@@ -1,22 +1,40 @@
-// === backend/src/routes/auth.routes.js ===
-// Purpose: Auth route definitions
-// Dependencies: express.Router, ../controllers/auth.controller, ../middleware/*
+const router = require('express').Router();
+const controller = require('../controllers/auth.controller');
+const { authenticate } = require('../middleware/auth.middleware');
+const { validate } = require('../middleware/validate.middleware');
+const {
+  forgotPasswordSchema,
+  loginSchema,
+  registerSchema,
+  resetPasswordSchema,
+  sessionParamsSchema,
+  updateProfileSchema,
+  verifyEmailSchema,
+} = require('../validators/auth.validator');
 
-// const router = require('express').Router();
-// const controller = require('../controllers/auth.controller');
-// const { requireRole } = require('../middleware/role.middleware');
-// const { validate } = require('../middleware/validate.middleware');
+router.get('/demo-accounts', controller.getDemoAccounts);
+router.post('/login', validate(loginSchema), controller.login);
+router.post('/register', validate(registerSchema), controller.register);
+router.post('/refresh', controller.refresh);
+router.post('/forgot-password', validate(forgotPasswordSchema), controller.forgotPassword);
+router.post('/reset-password', validate(resetPasswordSchema), controller.resetPassword);
+router.post('/verify-email', validate(verifyEmailSchema), controller.verifyEmail);
+router.get('/me', authenticate, controller.getProfile);
+router.put(
+  '/me',
+  authenticate,
+  validate(updateProfileSchema),
+  controller.updateProfile
+);
+router.post('/send-verification', authenticate, controller.sendVerificationEmail);
+router.get('/sessions', authenticate, controller.listSessions);
+router.delete('/sessions/others', authenticate, controller.revokeOtherSessions);
+router.delete(
+  '/sessions/:sessionId',
+  authenticate,
+  validate(sessionParamsSchema, 'params'),
+  controller.revokeSession
+);
+router.post('/logout', controller.logout);
 
-/**
- * TODO: Define route endpoints:
- * POST /login, POST /register, GET /me, PUT /me
- *
- * Apply middleware chain:
- *   - requireRole() for role-restricted routes
- *   - validate(schema) for request body validation
- *
- * Example:
- *   router.post('/', requireRole('WAREHOUSE'), validate(createSchema), controller.create);
- */
-
-// module.exports = router;
+module.exports = router;

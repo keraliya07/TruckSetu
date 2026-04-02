@@ -1,8 +1,550 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../backend/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UserRole {
+  ADMIN
+  WAREHOUSE
+  DEALER
+}
+
+enum AccountStatus {
+  ACTIVE
+  PENDING
+  SUSPENDED
+  DISABLED
+}
+
+enum TruckStatus {
+  AVAILABLE
+  ON_TRIP
+  MAINTENANCE
+  INACTIVE
+}
+
+enum ShipmentStatus {
+  DRAFT
+  PENDING
+  OPTIMIZED
+  BOOKING_PENDING
+  BOOKING_CONFIRMED
+  LOADING
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
+}
+
+enum BookingStatus {
+  SENT
+  APPROVED
+  REJECTED
+  COUNTERED
+  EXPIRED
+  PRE_APPROVED
+  CANCELLED
+}
+
+enum TripStatus {
+  PLANNED
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
+}
+
+enum TripStopType {
+  DEPOT
+  PICKUP
+  DELIVERY
+}
+
+enum TripStopStatus {
+  PENDING
+  ARRIVED
+  COMPLETED
+  SKIPPED
+}
+
+enum ReturnLoadMatchStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum NotificationType {
+  SYSTEM
+  BOOKING
+  TRIP
+  RETURN_LOAD
+  SHIPMENT
+  ADMIN
+}
+
+enum DocumentType {
+  INVOICE
+  CO2_REPORT
+  POD
+  OTHER
+}
+
+enum DisputeStatus {
+  OPEN
+  IN_REVIEW
+  RESOLVED
+  REJECTED
+}
+
+enum DisputeEntityType {
+  SHIPMENT
+  TRIP
+  BOOKING
+  PAYMENT
+  OTHER
+}
+
+enum OptimizationStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model User {
+  id                String           @id @default(uuid())
+  email             String           @unique
+  passwordHash      String
+  name              String
+  phone             String?
+  role              UserRole
+  accountStatus     AccountStatus    @default(ACTIVE)
+  profileComplete   Boolean          @default(false)
+  isEmailVerified   Boolean          @default(false)
+  warehouse         Warehouse?
+  truckDealer       TruckDealer?
+  notifications     Notification[]
+  shipmentsCreated  Shipment[]       @relation("ShipmentCreatedBy")
+  bookingsRequested BookingRequest[] @relation("BookingRequestedBy")
+  optimizationRuns  OptimizationRun[]
+  disputesRaised    Dispute[]        @relation("DisputeRaisedBy")
+  disputesResolved  Dispute[]        @relation("DisputeResolvedBy")
+  sessions          RefreshSession[]
+  emailVerificationTokens EmailVerificationToken[]
+  passwordResetTokens PasswordResetToken[]
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@index([role])
+  @@index([accountStatus])
+}
+
+model RefreshSession {
+  id               String   @id @default(uuid())
+  userId           String
+  refreshTokenHash String
+  userAgent        String?
+  ipAddress        String?
+  lastUsedAt       DateTime?
+  expiresAt        DateTime
+  revokedAt        DateTime?
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([userId, revokedAt])
+  @@index([expiresAt])
+  @@map("Session")
+}
+
+model EmailVerificationToken {
+  id         String   @id @default(uuid())
+  userId     String
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  consumedAt DateTime?
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@index([userId, consumedAt])
+  @@index([expiresAt])
+}
+
+model PasswordResetToken {
+  id         String   @id @default(uuid())
+  userId     String
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  consumedAt DateTime?
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@index([userId, consumedAt])
+  @@index([expiresAt])
+}
+
+model Warehouse {
+  id               String            @id @default(uuid())
+  userId           String            @unique
+  warehouseName    String
+  city             String
+  address          String
+  latitude         Float?
+  longitude        Float?
+  contactEmail     String?
+  contactPhone     String?
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shipments        Shipment[]
+  bookingRequests  BookingRequest[]
+  optimizationRuns OptimizationRun[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@index([city])
+}
+
+model TruckDealer {
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  companyName      String
+  primaryCity      String
+  primaryLat       Float?
+  primaryLng       Float?
+  baseRatePerKmTon Float
+  pickupZones      String[] @default([])
+  deliveryZones    String[] @default([])
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trucks           Truck[]
+  trips            Trip[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([primaryCity])
+}
+
+model Truck {
+  id                   String                  @id @default(uuid())
+  dealerId             String
+  registrationNo       String                  @unique
+  truckType            String
+  maxWeightKg          Float
+  maxVolumeM3          Float
+  emissionFactor       Float                   @default(2.68)
+  fuelEfficiency       Float                   @default(4.0)
+  currentCity          String?
+  currentLat           Float?
+  currentLng           Float?
+  status               TruckStatus             @default(AVAILABLE)
+  isActive             Boolean                 @default(true)
+  dealer               TruckDealer             @relation(fields: [dealerId], references: [id], onDelete: Restrict)
+  bookingRequests      BookingRequest[]
+  trips                Trip[]
+  optimizationOptions  OptimizationCandidate[]
+  locationHistory      TripLocation[]
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @updatedAt
+
+  @@index([dealerId, status])
+  @@index([currentCity])
+}
+
+model Shipment {
+  id                String                   @id @default(uuid())
+  warehouseId       String
+  createdById       String?
+  referenceNo       String?                  @unique
+  title             String?
+  description       String?
+  weightKg          Float
+  volumeM3          Float
+  originCity        String
+  originAddress     String?
+  originLat         Float
+  originLng         Float
+  destCity          String
+  destAddress       String?
+  destLat           Float
+  destLng           Float
+  deadline          DateTime
+  fragile           Boolean                  @default(false)
+  hazardous         Boolean                  @default(false)
+  priority          Int                      @default(1)
+  status            ShipmentStatus           @default(DRAFT)
+  specialInstructions String?
+  warehouse         Warehouse                @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
+  createdBy         User?                    @relation("ShipmentCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  bookingShipments  BookingShipment[]
+  tripShipments     TripShipment[]
+  returnLoadMatches ReturnLoadMatch[]
+  optimizationRuns  OptimizationRunShipment[]
+  disputes          Dispute[]
+  stopEvents        TripStop[]
+  createdAt         DateTime                 @default(now())
+  updatedAt         DateTime                 @updatedAt
+
+  @@index([warehouseId, status])
+  @@index([originCity])
+  @@index([destCity])
+  @@index([deadline])
+}
+
+model OptimizationRun {
+  id                String                   @id @default(uuid())
+  warehouseId       String
+  requestedById     String
+  status            OptimizationStatus       @default(PENDING)
+  cacheKey          String?                  @unique
+  notes             String?
+  errorMessage      String?
+  requestedAt       DateTime                 @default(now())
+  completedAt       DateTime?
+  warehouse         Warehouse                @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
+  requestedBy       User                     @relation(fields: [requestedById], references: [id], onDelete: Restrict)
+  shipments         OptimizationRunShipment[]
+  candidates        OptimizationCandidate[]
+  bookingRequests   BookingRequest[]
+
+  @@index([warehouseId, status])
+}
+
+model OptimizationRunShipment {
+  optimizationRunId String
+  shipmentId        String
+  optimizationRun   OptimizationRun @relation(fields: [optimizationRunId], references: [id], onDelete: Cascade)
+  shipment          Shipment        @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  @@id([optimizationRunId, shipmentId])
+  @@index([shipmentId])
+}
+
+model OptimizationCandidate {
+  id                String          @id @default(uuid())
+  optimizationRunId String
+  truckId           String
+  rank              Int
+  compositeScore    Float
+  utilizationScore  Float
+  routeScore        Float
+  costScore         Float
+  co2Score          Float
+  estimatedCost     Float?
+  co2SavedKg        Float?
+  routeSummary      Json?
+  optimizationRun   OptimizationRun @relation(fields: [optimizationRunId], references: [id], onDelete: Cascade)
+  truck             Truck           @relation(fields: [truckId], references: [id], onDelete: Restrict)
+  bookingRequests   BookingRequest[]
+  createdAt         DateTime        @default(now())
+
+  @@index([optimizationRunId, rank])
+  @@index([truckId])
+}
+
+model BookingRequest {
+  id                    String               @id @default(uuid())
+  warehouseId           String
+  requestedById         String
+  truckId               String
+  optimizationRunId     String?
+  optimizationCandidateId String?
+  status                BookingStatus        @default(SENT)
+  quotedPrice           Float
+  counterPrice          Float?
+  finalPrice            Float?
+  dealerNote            String?
+  warehouseNote         String?
+  expiresAt             DateTime?
+  respondedAt           DateTime?
+  approvedAt            DateTime?
+  warehouse             Warehouse            @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
+  requestedBy           User                 @relation("BookingRequestedBy", fields: [requestedById], references: [id], onDelete: Restrict)
+  truck                 Truck                @relation(fields: [truckId], references: [id], onDelete: Restrict)
+  optimizationRun       OptimizationRun?     @relation(fields: [optimizationRunId], references: [id], onDelete: SetNull)
+  optimizationCandidate OptimizationCandidate? @relation(fields: [optimizationCandidateId], references: [id], onDelete: SetNull)
+  shipments             BookingShipment[]
+  trip                  Trip?
+  disputes              Dispute[]
+  documents             Document[]
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+
+  @@index([warehouseId, status])
+  @@index([truckId, status])
+}
+
+model BookingShipment {
+  bookingRequestId String
+  shipmentId       String
+  bookingRequest   BookingRequest @relation(fields: [bookingRequestId], references: [id], onDelete: Cascade)
+  shipment         Shipment       @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  @@id([bookingRequestId, shipmentId])
+  @@index([shipmentId])
+}
+
+model Trip {
+  id                  String            @id @default(uuid())
+  bookingRequestId    String?           @unique
+  truckId             String
+  dealerId            String
+  status              TripStatus        @default(PLANNED)
+  routeGeometry       Json?
+  routeSummary        Json?
+  estimatedDistanceKm Float?
+  estimatedDurationMin Int?
+  estimatedCost       Float?
+  actualCost          Float?
+  baselineCo2Kg       Float?
+  tripCo2Kg           Float?
+  co2SavedKg          Float?
+  startedAt           DateTime?
+  completedAt         DateTime?
+  bookingRequest      BookingRequest?   @relation(fields: [bookingRequestId], references: [id], onDelete: SetNull)
+  truck               Truck             @relation(fields: [truckId], references: [id], onDelete: Restrict)
+  dealer              TruckDealer       @relation(fields: [dealerId], references: [id], onDelete: Restrict)
+  shipments           TripShipment[]
+  stops               TripStop[]
+  locations           TripLocation[]
+  returnLoadMatches   ReturnLoadMatch[]
+  documents           Document[]
+  disputes            Dispute[]
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  @@index([truckId, status])
+  @@index([dealerId, status])
+}
+
+model TripShipment {
+  tripId      String
+  shipmentId  String
+  loadedAt    DateTime?
+  deliveredAt DateTime?
+  trip        Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  shipment    Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  @@id([tripId, shipmentId])
+  @@index([shipmentId])
+}
+
+model TripStop {
+  id             String         @id @default(uuid())
+  tripId         String
+  shipmentId     String?
+  sequence       Int
+  type           TripStopType
+  status         TripStopStatus @default(PENDING)
+  city           String
+  address        String?
+  lat            Float
+  lng            Float
+  plannedArrival DateTime?
+  arrivedAt      DateTime?
+  completedAt    DateTime?
+  notes          String?
+  trip           Trip           @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  shipment       Shipment?      @relation(fields: [shipmentId], references: [id], onDelete: SetNull)
+
+  @@index([tripId, sequence])
+  @@index([shipmentId])
+}
+
+model TripLocation {
+  id         String   @id @default(uuid())
+  tripId     String
+  truckId    String
+  lat        Float
+  lng        Float
+  speed      Float?
+  heading    Float?
+  source     String?
+  recordedAt DateTime @default(now())
+  trip       Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  truck      Truck    @relation(fields: [truckId], references: [id], onDelete: Cascade)
+
+  @@index([tripId, recordedAt])
+  @@index([truckId, recordedAt])
+}
+
+model ReturnLoadMatch {
+  id               String                @id @default(uuid())
+  tripId           String
+  shipmentId       String
+  status           ReturnLoadMatchStatus @default(PENDING)
+  proximityScore   Float?
+  directionScore   Float?
+  utilizationScore Float?
+  combinedScore    Float?
+  expiresAt        DateTime?
+  acceptedAt       DateTime?
+  rejectedAt       DateTime?
+  trip             Trip                  @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  shipment         Shipment              @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  createdAt        DateTime              @default(now())
+
+  @@unique([tripId, shipmentId])
+  @@index([status, expiresAt])
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  type      NotificationType @default(SYSTEM)
+  title     String
+  message   String
+  link      String?
+  isRead    Boolean          @default(false)
+  readAt    DateTime?
+  metadata  Json?
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime         @default(now())
+
+  @@index([userId, isRead])
+  @@index([type])
+}
+
+model Dispute {
+  id               String            @id @default(uuid())
+  type             DisputeEntityType
+  status           DisputeStatus     @default(OPEN)
+  title            String
+  description      String
+  raisedById       String
+  resolvedById     String?
+  shipmentId       String?
+  tripId           String?
+  bookingRequestId String?
+  resolution       String?
+  resolvedAt       DateTime?
+  raisedBy         User              @relation("DisputeRaisedBy", fields: [raisedById], references: [id], onDelete: Restrict)
+  resolvedBy       User?             @relation("DisputeResolvedBy", fields: [resolvedById], references: [id], onDelete: SetNull)
+  shipment         Shipment?         @relation(fields: [shipmentId], references: [id], onDelete: SetNull)
+  trip             Trip?             @relation(fields: [tripId], references: [id], onDelete: SetNull)
+  bookingRequest   BookingRequest?   @relation(fields: [bookingRequestId], references: [id], onDelete: SetNull)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@index([status, type])
+  @@index([raisedById])
+}
+
+model Document {
+  id               String         @id @default(uuid())
+  tripId           String?
+  bookingRequestId String?
+  type             DocumentType
+  fileName         String
+  objectKey        String
+  mimeType         String?
+  sizeBytes        Int?
+  trip             Trip?          @relation(fields: [tripId], references: [id], onDelete: SetNull)
+  bookingRequest   BookingRequest? @relation(fields: [bookingRequestId], references: [id], onDelete: SetNull)
+  createdAt        DateTime       @default(now())
+
+  @@index([tripId])
+  @@index([bookingRequestId])
+  @@index([type])
 }

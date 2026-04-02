@@ -1,119 +1,137 @@
 # Smart Truck Loading Optimization System (STLOS)
 
-<!-- TODO: Add project logo/banner image here -->
+STLOS is a multi-role logistics platform for warehouses, truck dealers, and admins. The current repo includes persistent auth, operational shipment and booking foundations, trip workflows, and the frontend surfaces needed to exercise those flows.
 
-> A multi-city logistics web platform that optimizes truck loading, routing, and tracking for warehouses and truck dealers.
+## Tech Stack
 
-## 🏗️ Architecture
+- Frontend: React 18, Vite, Tailwind CSS
+- Backend: Node.js, Express, Prisma
+- Database: PostgreSQL / Supabase
+- ML Service: FastAPI
+- Realtime / Pub-Sub target: Socket.IO + Redis
+- Mapping target: Leaflet + OpenStreetMap
+- Routing target: OSRM
+- Object storage target: MinIO
 
-<!-- TODO: Add architecture diagram (Mermaid or image) showing:
-  - React frontend → Node.js API → PostgreSQL
-  - Node.js API → Python ML Service
-  - Node.js API → Redis (cache + pub/sub)
-  - Node.js API → OSRM (routing)
-  - Socket.io for real-time tracking
-  - MinIO for document storage
--->
+## Current Implementation
 
-### Tech Stack
+### Live now
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | React 18 + Vite + Tailwind CSS |
-| Backend API | Node.js + Express |
-| ML/Optimization | Python FastAPI + OR-Tools + scikit-learn |
-| Database | PostgreSQL + Prisma ORM |
-| Cache/PubSub | Redis |
-| Real-time | Socket.io |
-| Maps | Leaflet.js + OpenStreetMap |
-| Routing Engine | OSRM (self-hosted) |
-| Containerization | Docker + Docker Compose |
-| Object Storage | MinIO |
+- Persistent JWT auth with refresh-token rotation
+- Prisma-backed session storage
+- Password reset flow
+- Email verification flow
+- Account session management
+- Shipment, truck, booking, and trip modules
+- Role-based dashboards and protected routes
+- Tracking, optimization, and analytics UI foundations
+- Prisma migrations committed in `prisma/migrations`
 
-## 👥 User Roles
+### Still pending
 
-- **Warehouse User** — Creates shipments, runs optimization, books trucks, tracks deliveries
-- **Truck Dealer** — Manages fleet, responds to booking requests, manages active trips
-- **Admin** — Platform oversight, user management, analytics, dispute resolution
+- Optimization execution and scoring engine integration
+- Tracking sockets and Redis pub-sub
+- Return-load workflow
+- Analytics backend APIs
+- Admin management APIs
+- Background jobs
+- Full production infrastructure
 
-## 🚀 Key Features
-
-1. JWT authentication with role-based access control
-2. Shipment management with multi-parameter optimization
-3. Truck fleet management with pickup/delivery zone mapping
-4. 4-parameter scoring engine (utilization 35%, route 25%, cost 20%, CO2 20%)
-5. Multi-warehouse trip loading
-6. Dynamic VRP route optimization (OR-Tools PDPTW)
-7. Real-time GPS tracking with simulated movement
-8. 3-layer pricing model with counter-offer workflow
-9. Return load matching after trip completion
-10. Analytics dashboard with demand forecasting
-11. CO2 savings calculator with PDF reports
-12. Truck Fit Calculator
-
-## 📦 Getting Started
+## Local Development
 
 ### Prerequisites
 
-- Docker & Docker Compose v2
-- Node.js 18+ (for local dev without Docker)
-- Python 3.10+ (for ML service local dev)
+- Node.js 18+
+- Python 3.10+
+- Supabase or PostgreSQL database
 
-### Quick Start (Docker)
+### Environment setup
 
-```bash
-# 1. Clone the repo
-git clone <repo-url> && cd stlos
+Create these files and fill them in:
 
-# 2. Copy environment files
-cp .env.example .env
-cp frontend/.env.example frontend/.env
-cp backend/.env.example backend/.env
-cp ml-service/.env.example ml-service/.env
+- `.env`
+- `backend/.env`
+- `frontend/.env`
+- `ml-service/.env`
 
-# 3. Prepare OSRM data (one-time setup)
-mkdir -p osrm-data
-# Download India map: https://download.geofabrik.de/asia/india-latest.osm.pbf
-# Place in osrm-data/ and process with osrm-extract, osrm-partition, osrm-customize
+Important backend/root env keys:
 
-# 4. Start all services
-docker compose up -d
+- `DATABASE_URL`
+- `DIRECT_URL`
+- `JWT_SECRET`
+- `JWT_REFRESH_SECRET`
+- `ACCESS_TOKEN_EXPIRES_IN`
+- `JWT_REFRESH_EXPIRES_IN`
+- `APP_BASE_URL`
+- `CORS_ORIGIN`
 
-# 5. Run database migrations
-docker compose exec node-api npx prisma migrate dev
+Notes:
 
-# 6. Open the app
-# Frontend: http://localhost:3000
-# API: http://localhost:4000
-# ML Service: http://localhost:8000/docs
-# MinIO Console: http://localhost:9001
-```
+- Prisma schema lives in `prisma/schema.prisma`.
+- Prisma client is generated into `backend/generated/prisma`.
+- For local password-reset and verification links, use `APP_BASE_URL=http://localhost:3000`.
+- For production, rotate `JWT_SECRET`, `JWT_REFRESH_SECRET`, and your database credentials before deploy.
+- For production cookies behind HTTPS, set `COOKIE_SECURE=true`. If frontend and backend run on different origins, use `COOKIE_SAME_SITE=none` with HTTPS enabled.
 
-### Local Development (without Docker)
+### Start backend
 
 ```bash
-# Frontend
-cd frontend && npm install && npm run dev
-
-# Backend
-cd backend && npm install && npx prisma migrate dev && npm run dev
-
-# ML Service
-cd ml-service && pip install -r requirements.txt && uvicorn app.main:app --reload --port 8000
+cd backend
+npm install
+npm run prisma:generate
+npm run prisma:migrate
+npm run dev
 ```
 
-## 📁 Project Structure
+### Start frontend
 
+```bash
+cd frontend
+npm install
+npm run dev
 ```
+
+### Run local Phase 2 checks
+
+```bash
+cd backend
+npm test
+```
+
+```bash
+cd frontend
+npm test
+```
+
+These local checks cover:
+
+- backend auth integration flow
+- backend shipment, truck, booking, and trip lifecycle flow
+- frontend protected-route auth gating
+- frontend session bootstrap and restore behavior
+- frontend forgot-password, reset-password, verification, and session-management screens
+
+### Start ML service
+
+```bash
+cd ml-service
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
+```
+
+## Project Structure
+
+```text
 stlos/
-├── frontend/          ← React + Vite + Tailwind CSS
-├── backend/           ← Node.js + Express API
-├── ml-service/        ← Python FastAPI ML microservice
-├── prisma/            ← Shared database schema
-├── osrm-data/         ← OSRM map data (gitignored)
-└── docker-compose.yml ← Development environment
+|-- frontend/           React + Vite application
+|-- backend/            Express API
+|-- ml-service/         FastAPI ML microservice
+|-- prisma/             Shared Prisma schema and migrations
+|-- osrm-data/          OSRM map data (gitignored)
+|-- TASKS.md            Project task board
+`-- docker-compose.yml  Development environment definition
 ```
 
-<!-- TODO: Add detailed API documentation link -->
-<!-- TODO: Add contributing guidelines -->
-<!-- TODO: Add license information -->
+## Task Tracking
+
+See [TASKS.md](./TASKS.md) for the current project board, the completed Phase 2 checklist, and the later-phase backlog.

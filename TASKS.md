@@ -6,6 +6,7 @@
 - Phase 2 foundation is complete.
 - Phase 2 local checklist is complete.
 - Phase 3 optimization is complete.
+- Phase 4 tracking and realtime is complete for local development.
 - Core logistics flows exist for auth, shipments, trucks, bookings, trips, dashboards, details, tracking views, and analytics views.
 - Many backend advanced services and realtime/ML modules are still pending.
 
@@ -90,12 +91,12 @@
 
 ## Next Priority
 
-These should be the next implementation targets after Phase 3 optimization.
+These should be the next implementation targets after Phase 4 tracking and realtime.
 
-1. Complete tracking backend and realtime pub-sub
-2. Complete return-load workflow
-3. Complete analytics and admin backend APIs
-4. Finish missing frontend modules for those APIs
+1. Complete return-load workflow
+2. Complete analytics and admin backend APIs
+3. Finish missing frontend modules for those APIs
+4. Complete document, CO2, and notification delivery depth
 
 ## Remaining Project Tasks
 
@@ -126,24 +127,26 @@ These should be the next implementation targets after Phase 3 optimization.
 
 #### Backend
 
-- [ ] Implement tracking routes in `backend/src/routes/tracking.routes.js`
-- [ ] Implement tracking controller in `backend/src/controllers/tracking.controller.js`
-- [ ] Implement tracking service in `backend/src/services/tracking.service.js`
-- [ ] Add Redis client in `backend/src/config/redis.js`
-- [ ] Add Socket.IO setup in `backend/src/config/socket.js`
-- [ ] Add trip socket handlers
-- [ ] Add location socket handlers
-- [ ] Add notification socket handlers
-- [ ] Add Redis pub-sub adapter for Socket.IO
+- [x] Implement tracking routes in `backend/src/routes/tracking.routes.js`
+- [x] Implement tracking controller in `backend/src/controllers/tracking.controller.js`
+- [x] Implement tracking service in `backend/src/services/tracking.service.js`
+- [x] Add Redis client in `backend/src/config/redis.js`
+- [x] Add Socket.IO setup in `backend/src/config/socket.js`
+- [x] Add trip socket handlers
+- [x] Add location socket handlers
+- [x] Add notification socket handlers
+- [x] Add Redis pub-sub adapter for Socket.IO
+- [x] Add tracking and notification integration coverage
 
 #### Frontend
 
-- [ ] Implement `frontend/src/hooks/useSocket.js`
-- [ ] Implement `frontend/src/store/notificationStore.js`
-- [ ] Implement `frontend/src/store/tripStore.js`
-- [ ] Implement notification bell
-- [ ] Implement live trip updates on tracking screens
-- [ ] Implement map markers and route polyline components
+- [x] Implement `frontend/src/hooks/useSocket.js`
+- [x] Implement `frontend/src/store/notificationStore.js`
+- [x] Implement `frontend/src/store/tripStore.js`
+- [x] Implement notification bell
+- [x] Implement live trip updates on tracking screens
+- [x] Implement map markers and route polyline components
+- [x] Add frontend realtime store tests
 
 ### Phase 5 - Return Load Workflow
 

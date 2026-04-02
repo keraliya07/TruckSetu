@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 
 import { useAuth } from '../../hooks/useAuth';
+import { useSocket } from '../../hooks/useSocket';
+import NotificationBell from './NotificationBell';
 
 export default function DashboardShell({
   accent,
@@ -10,6 +12,7 @@ export default function DashboardShell({
   children,
 }) {
   const { user, logout } = useAuth();
+  const { isConnected } = useSocket();
 
   return (
     <main className="min-h-screen bg-dashboard-grid bg-[size:24px_24px] px-4 py-6 sm:px-6 lg:px-8">
@@ -32,6 +35,16 @@ export default function DashboardShell({
               <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
                 Signed in as <span className="font-semibold text-slate-900">{user?.name}</span>
               </div>
+              <div
+                className={`rounded-full px-4 py-3 text-sm font-semibold ${
+                  isConnected
+                    ? 'bg-emerald-50 text-emerald-700'
+                    : 'bg-amber-50 text-amber-700'
+                }`}
+              >
+                {isConnected ? 'Realtime connected' : 'Realtime reconnecting'}
+              </div>
+              <NotificationBell />
               <Link className="btn-secondary" to="/account/security">
                 Security
               </Link>

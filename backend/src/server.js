@@ -2,9 +2,11 @@ require('dotenv').config();
 
 const http = require('http');
 const app = require('./app');
+const { closeSocketServer, initSocketServer } = require('./config/socket');
 
 const PORT = Number(process.env.PORT || 4000);
 const server = http.createServer(app);
+initSocketServer(server);
 
 server.listen(PORT, () => {
   console.log(`STLOS API running on port ${PORT}`);
@@ -13,7 +15,11 @@ server.listen(PORT, () => {
 const shutdown = (signal) => {
   console.log(`Received ${signal}. Shutting down STLOS API...`);
   server.close(() => {
-    process.exit(0);
+    closeSocketServer()
+      .catch(() => {})
+      .finally(() => {
+        process.exit(0);
+      });
   });
 };
 

@@ -20,6 +20,12 @@ const schema = z.object({
   DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
   DIRECT_URL: z.string().min(1, 'DIRECT_URL is required'),
   REDIS_URL: z.string().default('redis://localhost:6379'),
+  REDIS_CONNECT_TIMEOUT_MS: z.coerce.number().int().positive().default(10000),
+  REDIS_RETRY_BASE_MS: z.coerce.number().int().positive().default(500),
+  REDIS_RETRY_MAX_DELAY_MS: z.coerce.number().int().positive().default(5000),
+  REDIS_RETRY_LIMIT: z.coerce.number().int().positive().default(20),
+  SOCKET_REDIS_REATTACH_BASE_MS: z.coerce.number().int().positive().default(2000),
+  SOCKET_REDIS_REATTACH_MAX_DELAY_MS: z.coerce.number().int().positive().default(30000),
   JWT_SECRET: z.string().min(16, 'JWT_SECRET must be at least 16 characters'),
   ACCESS_TOKEN_EXPIRES_IN: z.string().default(process.env.JWT_EXPIRES_IN || '15m'),
   JWT_REFRESH_SECRET: z

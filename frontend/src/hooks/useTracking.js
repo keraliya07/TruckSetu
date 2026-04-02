@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import * as tripApi from '../api/trip.api';
+import { useAuth } from './useAuth';
+import { useSocket } from './useSocket';
+import { useTripStore } from '../store/tripStore';
 
 function interpolatePosition(stops, progressRatio) {
   if (!stops.length) {
@@ -22,31 +24,43 @@ function interpolatePosition(stops, progressRatio) {
 }
 
 export function useTracking(tripId) {
-  const [trip, setTrip] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { user } = useAuth();
+  const {
+    emitLocationUpdate,
+    joinTrip,
+    leaveTrip,
+    socket,
+  } = useSocket();
+  const trip = useTripStore((state) => state.activeTrip);
+  const stops = useTripStore((state) => state.stops);
+  const truckLocation = useTripStore((state) => state.truckLocation);
+  const locationHistory = useTripStore((state) => state.locationHistory);
+  const isLoading = useTripStore((state) => state.isLoading);
+  const error = useTripStore((state) => state.error);
+  const fetchTripById = useTripStore((state) => state.fetchTripById);
+  const clearActiveTrip = useTripStore((state) => state.clearActiveTrip);
+  const startTripAction = useTripStore((state) => state.startTrip);
+  const completeStopAction = useTripStore((state) => state.completeStop);
   const [busyStopId, setBusyStopId] = useState(null);
   const [movementTick, setMovementTick] = useState(0);
 
-  const refresh = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const result = await tripApi.getTripById(tripId);
-      setTrip(result);
-      return result;
-    } catch (loadError) {
-      setError(loadError.message);
-      throw loadError;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [tripId]);
+  const refresh = useCallback(async () => fetchTripById(tripId), [fetchTripById, tripId]);
 
   useEffect(() => {
     refresh().catch(() => {});
-  }, [refresh]);
+    return () => {
+      clearActiveTrip();
+    };
+  }, [clearActiveTrip, refresh]);
+
+  useEffect(() => {
+    if (!tripId) {
+      return undefined;
+    }
+
+    joinTrip(tripId);
+    return () => leaveTrip(tripId);
+  }, [joinTrip, leaveTrip, tripId, socket]);
 
   useEffect(() => {
     if (trip?.status !== 'IN_TRANSIT') {
@@ -55,35 +69,41 @@ export function useTracking(tripId) {
 
     const interval = window.setInterval(() => {
       setMovementTick((tick) => (tick + 1) % 20);
-    }, 2000);
+    }, 3000);
 
     return () => window.clearInterval(interval);
   }, [trip?.status]);
 
-  const stops = useMemo(
-    () => [...(trip?.stops || [])].sort((a, b) => a.sequence - b.sequence),
-    [trip?.stops]
-  );
+  useEffect(() => {
+    if (
+      user?.role !== 'DEALER' ||
+      trip?.status !== 'IN_TRANSIT' ||
+      !tripId ||
+      !socket
+    ) {
+      return undefined;
+    }
+
+    const interval = window.setInterval(() => {
+      const position = interpolatePosition(stops, movementTick / 20);
+      if (!position) {
+        return;
+      }
+
+      emitLocationUpdate({
+        tripId,
+        lat: position.lat,
+        lng: position.lng,
+        source: 'DEALER_LIVE',
+        recordedAt: new Date().toISOString(),
+      });
+    }, 5000);
+
+    return () => window.clearInterval(interval);
+  }, [emitLocationUpdate, movementTick, socket, stops, trip?.status, tripId, user?.role]);
 
   const nextStop = stops.find((stop) => stop.status !== 'COMPLETED') || null;
   const completedStops = stops.filter((stop) => stop.status === 'COMPLETED').length;
-  const progressRatio = trip?.status === 'IN_TRANSIT' ? movementTick / 20 : 0;
-
-  const truckPosition = useMemo(() => {
-    if (!trip) {
-      return null;
-    }
-
-    const latestLocation = trip.locations?.[0];
-    if (latestLocation) {
-      return {
-        lat: latestLocation.lat,
-        lng: latestLocation.lng,
-      };
-    }
-
-    return interpolatePosition(stops, progressRatio);
-  }, [progressRatio, stops, trip]);
 
   const eta = useMemo(() => {
     if (!stops.length) {
@@ -95,8 +115,8 @@ export function useTracking(tripId) {
     }
 
     const remainingStops = stops.filter((stop) => stop.status !== 'COMPLETED').length || 1;
-    const nextStopHours = trip?.status === 'DELIVERED' ? 0 : 1.5;
-    const finalHours = trip?.status === 'DELIVERED' ? 0 : remainingStops * 1.7;
+    const nextStopHours = trip?.status === 'DELIVERED' ? 0 : 1.1;
+    const finalHours = trip?.status === 'DELIVERED' ? 0 : remainingStops * 1.5;
     const now = Date.now();
 
     return {
@@ -120,22 +140,28 @@ export function useTracking(tripId) {
   }, [completedStops, stops.length, trip?.estimatedDistanceKm]);
 
   const startTrip = useCallback(async () => {
-    await tripApi.startTrip(tripId);
-    await refresh();
-  }, [refresh, tripId]);
+    await startTripAction(tripId);
+  }, [startTripAction, tripId]);
 
   const completeStop = useCallback(
     async (stopId) => {
       setBusyStopId(stopId);
       try {
-        await tripApi.completeStop(tripId, stopId);
-        await refresh();
+        await completeStopAction(tripId, stopId);
       } finally {
         setBusyStopId(null);
       }
     },
-    [refresh, tripId]
+    [completeStopAction, tripId]
   );
+
+  const fallbackTruckPosition = useMemo(() => {
+    if (truckLocation) {
+      return truckLocation;
+    }
+
+    return interpolatePosition(stops, movementTick / 20);
+  }, [movementTick, stops, truckLocation]);
 
   return {
     busyStopId,
@@ -145,9 +171,10 @@ export function useTracking(tripId) {
     isLoading,
     progress,
     refresh,
+    locationHistory,
     startTrip,
     stops,
     trip,
-    truckPosition,
+    truckPosition: fallbackTruckPosition,
   };
 }

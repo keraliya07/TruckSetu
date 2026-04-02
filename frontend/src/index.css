@@ -26,6 +26,72 @@ body {
   min-height: 100vh;
 }
 
+.leaflet-container {
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.stlos-truck-icon-wrapper,
+.stlos-stop-icon-wrapper {
+  background: transparent;
+  border: 0;
+}
+
+.stlos-truck-icon {
+  position: relative;
+  display: grid;
+  height: 34px;
+  width: 34px;
+  place-items: center;
+}
+
+.stlos-truck-pulse {
+  position: absolute;
+  inset: 4px;
+  border-radius: 9999px;
+  background: rgba(14, 165, 233, 0.18);
+  animation: stlos-pulse 2s ease-out infinite;
+}
+
+.stlos-truck-glyph {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  height: 30px;
+  width: 30px;
+  place-items: center;
+  border-radius: 9999px;
+  background: #0f172a;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.18);
+}
+
+.stlos-stop-icon {
+  display: grid;
+  height: 28px;
+  width: 28px;
+  place-items: center;
+  border: 3px solid white;
+  border-radius: 9999px;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.16);
+}
+
+@keyframes stlos-pulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.7;
+  }
+
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
 @layer components {
   .panel {
     @apply rounded-3xl border border-slate-200/70 bg-white/80 shadow-card backdrop-blur;

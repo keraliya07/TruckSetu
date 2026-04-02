@@ -1,22 +1,33 @@
-// === backend/src/routes/tracking.routes.js ===
-// Purpose: Tracking route definitions
-// Dependencies: express.Router, ../controllers/tracking.controller, ../middleware/*
+const router = require('express').Router();
 
-// const router = require('express').Router();
-// const controller = require('../controllers/tracking.controller');
-// const { requireRole } = require('../middleware/role.middleware');
-// const { validate } = require('../middleware/validate.middleware');
+const controller = require('../controllers/tracking.controller');
+const { requireRole } = require('../middleware/role.middleware');
+const { validate } = require('../middleware/validate.middleware');
+const {
+  locationUpdateSchema,
+  trackingHistoryQuerySchema,
+  tripParamsSchema,
+} = require('../validators/tracking.validator');
 
-/**
- * TODO: Define route endpoints:
- * GET /:tripId/latest, GET /:tripId/history
- *
- * Apply middleware chain:
- *   - requireRole() for role-restricted routes
- *   - validate(schema) for request body validation
- *
- * Example:
- *   router.post('/', requireRole('WAREHOUSE'), validate(createSchema), controller.create);
- */
+router.get(
+  '/:tripId/latest',
+  requireRole('WAREHOUSE', 'DEALER', 'ADMIN'),
+  validate(tripParamsSchema, 'params'),
+  controller.getLatestLocation
+);
+router.get(
+  '/:tripId/history',
+  requireRole('WAREHOUSE', 'DEALER', 'ADMIN'),
+  validate(tripParamsSchema, 'params'),
+  validate(trackingHistoryQuerySchema, 'query'),
+  controller.getLocationHistory
+);
+router.post(
+  '/:tripId/location',
+  requireRole('DEALER'),
+  validate(tripParamsSchema, 'params'),
+  validate(locationUpdateSchema),
+  controller.createLocationUpdate
+);
 
-// module.exports = router;
+module.exports = router;

@@ -1,17 +1,29 @@
-// === backend/src/sockets/notification.socket.js ===
-// Purpose: Handle notification read events from clients
-// Dependencies: ../services/notification.service
+const notificationService = require('../services/notification.service');
 
-/**
- * TODO: Implement registerNotificationSocket(io, socket)
- *
- * Events:
- *   'notification:read' — { notificationId } → markRead
- *   'notification:readAll' — mark all read for socket.userId
- *
- * NOTE: Outgoing notifications are pushed FROM notification.service
- *   via io.to('user:' + userId).emit('notification:new', data)
- */
+function registerNotificationSocket(io, socket) {
+  socket.on('notification:read', async ({ notificationId }) => {
+    if (!notificationId) {
+      return;
+    }
 
-// function registerNotificationSocket(io, socket) { /* TODO */ }
-// module.exports = { registerNotificationSocket };
+    try {
+      await notificationService.markRead(socket.data.user.userId, notificationId);
+    } catch (error) {
+      socket.emit('notification:error', {
+        message: error.message,
+      });
+    }
+  });
+
+  socket.on('notification:readAll', async () => {
+    try {
+      await notificationService.markAllRead(socket.data.user.userId);
+    } catch (error) {
+      socket.emit('notification:error', {
+        message: error.message,
+      });
+    }
+  });
+}
+
+module.exports = { registerNotificationSocket };

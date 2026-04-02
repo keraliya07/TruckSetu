@@ -36,7 +36,12 @@ export default function TripManagePage() {
 
       {tracking.trip ? (
         <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-          <TrackingMap stops={tracking.stops} truckPosition={tracking.truckPosition} />
+          <TrackingMap
+            locationHistory={tracking.locationHistory}
+            stops={tracking.stops}
+            trip={tracking.trip}
+            truckPosition={tracking.truckPosition}
+          />
           <LiveTrackingPanel
             actions={
               tracking.trip.status === 'PLANNED' ? (

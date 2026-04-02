@@ -5,6 +5,7 @@ import LoadingSpinner from './components/common/LoadingSpinner';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import RoleGuard from './components/common/RoleGuard';
 import { useAuth } from './hooks/useAuth';
+import { useSocket } from './hooks/useSocket';
 import { useAuthStore } from './store/authStore';
 import { getDashboardPath } from './utils/roleRoutes';
 
@@ -200,6 +201,7 @@ function DashboardRedirect() {
 
 export default function App() {
   const initializeAuth = useAuthStore((state) => state.initializeAuth);
+  useSocket();
 
   useEffect(() => {
     initializeAuth();

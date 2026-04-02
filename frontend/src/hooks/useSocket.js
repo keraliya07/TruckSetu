@@ -1,44 +1,140 @@
-// === frontend/src/hooks/useSocket.js ===
-// Purpose: Custom hook for Socket.io connection lifecycle and event handling
-// Dependencies: socket.io-client, ../store/authStore, ../store/notificationStore, ../store/tripStore
+import { useCallback, useEffect, useState } from 'react';
+import { io } from 'socket.io-client';
 
-// import { useEffect, useRef, useCallback } from 'react';       // TODO: uncomment
-// import { io } from 'socket.io-client';                          // TODO: uncomment
-// import { useAuthStore } from '../store/authStore';               // TODO: uncomment
-// import { useNotificationStore } from '../store/notificationStore'; // TODO: uncomment
+import { useAuthStore } from '../store/authStore';
+import { useNotificationStore } from '../store/notificationStore';
+import { useTripStore } from '../store/tripStore';
 
-/**
- * TODO: Implement useSocket hook
- *
- * Purpose: Manage a single Socket.io connection per authenticated user
- *
- * Steps:
- *   1. On mount (when user is authenticated):
- *      - Connect to VITE_SOCKET_URL with auth: { token: jwt }
- *      - Store socket ref in useRef
- *
- *   2. Register global event listeners:
- *      - 'notification:new' → add to notificationStore
- *      - 'booking:update' → refresh booking data
- *      - 'connect_error' → handle auth failure
- *      - 'disconnect' → log and attempt reconnect
- *
- *   3. On unmount or logout:
- *      - socket.disconnect()
- *      - Clean up all listeners
- *
- *   4. Expose methods:
- *      - joinRoom(roomName)  — socket.emit('join', roomName)
- *      - leaveRoom(roomName) — socket.emit('leave', roomName)
- *      - socket (ref)        — Raw socket for trip-specific hooks
- *
- * SOCKET URL: import.meta.env.VITE_SOCKET_URL || 'http://localhost:4000'
- *
- * Called by: App.jsx (top-level), useTracking hook
- *
- * @returns {{ socket: Socket | null, joinRoom: function, leaveRoom: function, isConnected: boolean }}
- */
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:4000';
 
-// export function useSocket() {
-//   // TODO: Implement socket connection lifecycle
-// }
+let sharedSocket = null;
+let sharedToken = null;
+
+function registerSharedListeners(socket) {
+  if (socket.__stlosRegistered) {
+    return;
+  }
+
+  socket.__stlosRegistered = true;
+
+  socket.on('notification:new', (notification) => {
+    useNotificationStore.getState().addNotification(notification);
+  });
+
+  socket.on('notification:updated', (notification) => {
+    useNotificationStore.getState().applyNotificationUpdate(notification);
+  });
+
+  socket.on('notification:allRead', () => {
+    useNotificationStore.getState().markAllReadLocal();
+  });
+
+  socket.on('trip:state', (trip) => {
+    useTripStore.getState().applyTripState(trip);
+  });
+
+  socket.on('location:update', (location) => {
+    useTripStore.getState().updateTruckLocation(location);
+  });
+}
+
+function ensureSocket(token) {
+  if (!token) {
+    if (sharedSocket) {
+      sharedSocket.disconnect();
+      sharedSocket = null;
+      sharedToken = null;
+    }
+    return null;
+  }
+
+  if (sharedSocket && sharedToken === token) {
+    registerSharedListeners(sharedSocket);
+    return sharedSocket;
+  }
+
+  if (sharedSocket) {
+    sharedSocket.disconnect();
+  }
+
+  sharedSocket = io(SOCKET_URL, {
+    auth: {
+      token,
+    },
+    autoConnect: true,
+    transports: ['websocket', 'polling'],
+  });
+  sharedToken = token;
+  registerSharedListeners(sharedSocket);
+
+  return sharedSocket;
+}
+
+export function useSocket() {
+  const token = useAuthStore((state) => state.token);
+  const [isConnected, setIsConnected] = useState(Boolean(sharedSocket?.connected));
+
+  useEffect(() => {
+    const socket = ensureSocket(token);
+
+    if (!socket) {
+      setIsConnected(false);
+      return undefined;
+    }
+
+    const handleConnect = () => setIsConnected(true);
+    const handleDisconnect = () => setIsConnected(false);
+    const handleError = () => setIsConnected(false);
+
+    setIsConnected(socket.connected);
+    socket.on('connect', handleConnect);
+    socket.on('disconnect', handleDisconnect);
+    socket.on('connect_error', handleError);
+
+    return () => {
+      socket.off('connect', handleConnect);
+      socket.off('disconnect', handleDisconnect);
+      socket.off('connect_error', handleError);
+    };
+  }, [token]);
+
+  const joinTrip = useCallback((tripId) => {
+    if (sharedSocket && tripId) {
+      sharedSocket.emit('trip:join', { tripId });
+    }
+  }, []);
+
+  const leaveTrip = useCallback((tripId) => {
+    if (sharedSocket && tripId) {
+      sharedSocket.emit('trip:leave', { tripId });
+    }
+  }, []);
+
+  const emitLocationUpdate = useCallback((payload) => {
+    if (sharedSocket && payload?.tripId) {
+      sharedSocket.emit('location:update', payload);
+    }
+  }, []);
+
+  const markNotificationRead = useCallback((notificationId) => {
+    if (sharedSocket && notificationId) {
+      sharedSocket.emit('notification:read', { notificationId });
+    }
+  }, []);
+
+  const markAllNotificationsRead = useCallback(() => {
+    if (sharedSocket) {
+      sharedSocket.emit('notification:readAll');
+    }
+  }, []);
+
+  return {
+    emitLocationUpdate,
+    isConnected,
+    joinTrip,
+    leaveTrip,
+    markAllNotificationsRead,
+    markNotificationRead,
+    socket: sharedSocket,
+  };
+}

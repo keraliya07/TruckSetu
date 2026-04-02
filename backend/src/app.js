@@ -29,7 +29,7 @@ app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
     service: 'backend',
-    phase: 'Phase 2 - Persistent Auth Sessions and Database Workflows',
+    phase: 'Phase 4 - Tracking, Notifications, and Realtime Foundations',
     timestamp: new Date().toISOString(),
   });
 });

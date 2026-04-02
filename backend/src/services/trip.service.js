@@ -171,6 +171,26 @@ const start = async (tripId, user) => {
     }),
   ]);
 
+  const startedTrip = await getTripOrThrow(tripId);
+
+  if (!startedTrip.locations.length) {
+    await prisma.tripLocation.create({
+      data: {
+        tripId,
+        truckId: startedTrip.truckId,
+        lat:
+          startedTrip.truck.currentLat ??
+          startedTrip.stops[0]?.lat ??
+          0,
+        lng:
+          startedTrip.truck.currentLng ??
+          startedTrip.stops[0]?.lng ??
+          0,
+        source: 'TRIP_START',
+      },
+    });
+  }
+
   return getTripOrThrow(tripId);
 };
 

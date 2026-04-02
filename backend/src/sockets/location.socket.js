@@ -1,16 +1,19 @@
-// === backend/src/sockets/location.socket.js ===
-// Purpose: Receive and broadcast GPS location updates
-// Dependencies: ../services/tracking.service
+const trackingService = require('../services/tracking.service');
 
-/**
- * TODO: Implement registerLocationSocket(io, socket)
- *
- * Events:
- *   'location:update' — { tripId, lat, lng, speed, heading, timestamp }
- *   → Validate dealer owns trip
- *   → trackingService.broadcastLocation(tripId, payload)
- *   → Store in Redis + gps_logs table (throttled)
- */
+function registerLocationSocket(io, socket) {
+  socket.on('location:update', async (payload) => {
+    if (!payload?.tripId) {
+      return;
+    }
 
-// function registerLocationSocket(io, socket) { /* TODO */ }
-// module.exports = { registerLocationSocket };
+    try {
+      await trackingService.broadcastLocation(payload.tripId, payload, socket.data.user);
+    } catch (error) {
+      socket.emit('tracking:error', {
+        message: error.message,
+      });
+    }
+  });
+}
+
+module.exports = { registerLocationSocket };

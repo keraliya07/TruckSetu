@@ -7,12 +7,14 @@ const truckRoutes = require('./truck.routes');
 const bookingRoutes = require('./booking.routes');
 const tripRoutes = require('./trip.routes');
 const optimizationRoutes = require('./optimization.routes');
+const trackingRoutes = require('./tracking.routes');
+const notificationRoutes = require('./notification.routes');
 
 router.get('/', (req, res) => {
   res.json({
     service: 'stlos-api',
     status: 'ok',
-    phase: 'Phase 3 - Optimization Foundation',
+    phase: 'Phase 4 - Tracking, Notifications, and Realtime Foundations',
     availableRoutes: [
       'GET /api/health',
       'GET /api/auth/demo-accounts',
@@ -34,6 +36,12 @@ router.get('/', (req, res) => {
       'GET /api/bookings',
       'POST /api/bookings',
       'GET /api/trips',
+      'GET /api/tracking/:tripId/latest',
+      'GET /api/tracking/:tripId/history',
+      'POST /api/tracking/:tripId/location',
+      'GET /api/notifications',
+      'PATCH /api/notifications/:id/read',
+      'POST /api/notifications/read-all',
       'GET /api/optimization/history',
       'POST /api/optimization/score',
       'GET /api/optimization/result/:cacheKey',
@@ -48,6 +56,8 @@ router.use('/trucks', authenticate, truckRoutes);
 router.use('/bookings', authenticate, bookingRoutes);
 router.use('/trips', authenticate, tripRoutes);
 router.use('/optimization', authenticate, optimizationRoutes);
+router.use('/tracking', authenticate, trackingRoutes);
+router.use('/notifications', authenticate, notificationRoutes);
 
 router.use((req, res) => {
   res.status(404).json({

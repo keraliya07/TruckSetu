@@ -1,22 +1,28 @@
-// === backend/src/controllers/returnLoad.controller.js ===
-// Purpose: ReturnLoad request handlers — parse req, call service, send response
-// Dependencies: ../services/returnLoad.service
+const service = require('../services/returnLoad.service');
 
-// const service = require('../services/returnLoad.service');
+exports.getMatches = async (req, res, next) => {
+  try {
+    const result = await service.getMatches(req.query, req.user);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
 
-/**
- * TODO: Implement controller methods: getMatches, acceptMatch, rejectMatch
- *
- * Pattern for each method:
- *   exports.methodName = async (req, res, next) => {
- *     try {
- *       const result = await service.methodName(req.body, req.user);
- *       res.status(200).json(result);
- *     } catch (error) {
- *       next(error);
- *     }
- *   };
- *
- * Called by: ../routes/returnLoad.routes.js
- * Calls: ../services/returnLoad.service
- */
+exports.acceptMatch = async (req, res, next) => {
+  try {
+    const result = await service.acceptMatch(req.params.matchId, req.user);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.rejectMatch = async (req, res, next) => {
+  try {
+    const result = await service.rejectMatch(req.params.matchId, req.user);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};

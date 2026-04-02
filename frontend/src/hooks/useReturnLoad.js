@@ -1,29 +1,76 @@
-// === frontend/src/hooks/useReturnLoad.js ===
-// Purpose: Custom hook for return load matching functionality
-// Dependencies: @tanstack/react-query, ../api/returnLoad.api, ./useSocket
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 
-// import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';  // TODO: uncomment
-// import * as returnLoadApi from '../api/returnLoad.api';   // TODO: uncomment
-// import { useSocket } from './useSocket';                   // TODO: uncomment
+import * as returnLoadApi from '../api/returnLoad.api';
+import { useSocket } from './useSocket';
 
-/**
- * TODO: Implement useReturnLoad hook
- *
- * Purpose: Manage return load matches for dealers after trip completion
- *
- * Returns:
- *   matches: array               — Available return load matches
- *   isLoading: boolean
- *   acceptMatch(matchId)         — Accept a return load (useMutation)
- *   rejectMatch(matchId)         — Reject a return load (useMutation)
- *   hasNewMatches: boolean       — From socket notification
- *
- * Socket Events:
- *   Listen for 'returnLoad:available' → set hasNewMatches = true, refetch
- *
- * Called by: ReturnLoadPage, ReturnLoadPanel, ReturnLoadBadge
- */
+export function useReturnLoad({ tripId, status = 'PENDING' } = {}) {
+  const queryClient = useQueryClient();
+  const { socket } = useSocket();
+  const [hasNewMatches, setHasNewMatches] = useState(false);
 
-// export function useReturnLoad(tripId) {
-//   // TODO: Implement return load hook
-// }
+  const query = useQuery({
+    queryKey: ['return-loads', { tripId: tripId || '', status }],
+    queryFn: () =>
+      returnLoadApi.getReturnLoadMatches({
+        ...(tripId ? { tripId } : {}),
+        ...(status ? { status } : {}),
+      }),
+    staleTime: 30000,
+  });
+
+  useEffect(() => {
+    if (!socket) {
+      return undefined;
+    }
+
+    const handleAvailable = (payload) => {
+      if (!tripId || payload?.tripId === tripId) {
+        setHasNewMatches(true);
+        query.refetch().catch(() => {});
+      }
+    };
+
+    socket.on('returnLoad:available', handleAvailable);
+
+    return () => {
+      socket.off('returnLoad:available', handleAvailable);
+    };
+  }, [query, socket, tripId]);
+
+  const invalidate = async () => {
+    await queryClient.invalidateQueries({
+      queryKey: ['return-loads'],
+    });
+    setHasNewMatches(false);
+  };
+
+  const acceptMutation = useMutation({
+    mutationFn: (matchId) => returnLoadApi.acceptReturnLoad(matchId),
+    onSuccess: invalidate,
+  });
+
+  const rejectMutation = useMutation({
+    mutationFn: (matchId) => returnLoadApi.rejectReturnLoad(matchId),
+    onSuccess: invalidate,
+  });
+
+  return {
+    acceptMatch: acceptMutation.mutateAsync,
+    acceptedResult: acceptMutation.data,
+    hasNewMatches,
+    isAccepting: acceptMutation.isPending,
+    isLoading: query.isLoading,
+    isRefetching: query.isFetching,
+    isRejecting: rejectMutation.isPending,
+    matches: query.data?.matches || [],
+    refetch: query.refetch,
+    rejectMatch: rejectMutation.mutateAsync,
+    setHasNewMatches,
+    error:
+      query.error?.message ||
+      acceptMutation.error?.message ||
+      rejectMutation.error?.message ||
+      '',
+  };
+}

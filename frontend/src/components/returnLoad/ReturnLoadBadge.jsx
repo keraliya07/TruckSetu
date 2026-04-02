@@ -1,23 +1,20 @@
-// === frontend/src/components/returnLoad/ReturnLoadBadge.jsx ===
-// Purpose: Badge notification shown when new return load matches are available after trip completion
-// Dependencies: lucide-react, ../../hooks/useReturnLoad
+import { ArrowRightLeft } from 'lucide-react';
 
-/**
- * TODO: Implement ReturnLoadBadge component
- *
- * Purpose: Visual indicator on the dealer's trip card/page when return loads are available
- *
- * Props:
- *   @param {number} matchCount — Number of available return load matches
- *   @param {function} onClick — Navigate to return load page
- *
- * Visual: Pulsing badge with "3 return loads available" text
- *   - Show only when matchCount > 0
- *   - Animate entrance with slide-in
- *
- * @returns {JSX.Element | null}
- */
+export default function ReturnLoadBadge({ matchCount, onClick }) {
+  if (!matchCount) {
+    return null;
+  }
 
-// export default function ReturnLoadBadge({ matchCount, onClick }) {
-//   // TODO: Implement return load notification badge
-// }
+  return (
+    <button
+      className="inline-flex items-center gap-3 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800 transition hover:border-emerald-300 hover:bg-emerald-100"
+      onClick={onClick}
+      type="button"
+    >
+      <span className="rounded-full bg-white/90 p-2 text-emerald-700">
+        <ArrowRightLeft className="h-4 w-4" />
+      </span>
+      {matchCount} return load{matchCount === 1 ? '' : 's'} available
+    </button>
+  );
+}

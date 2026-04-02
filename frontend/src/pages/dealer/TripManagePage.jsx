@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 import DashboardShell from '../../components/common/DashboardShell';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
@@ -50,7 +50,13 @@ export default function TripManagePage() {
                 </button>
               ) : tracking.trip.status === 'DELIVERED' ? (
                 <div className="rounded-3xl border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm text-emerald-900">
-                  Trip is fully delivered. Truck can now be repositioned for the next load.
+                  <p>Trip is fully delivered. Truck can now be repositioned for the next load.</p>
+                  <Link
+                    className="mt-3 inline-flex font-semibold text-emerald-900 underline"
+                    to={`/dealer/return-loads?tripId=${tracking.trip.id}`}
+                  >
+                    Review return loads
+                  </Link>
                 </div>
               ) : null
             }

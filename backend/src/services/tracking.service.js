@@ -1,6 +1,7 @@
 const prisma = require('../config/db');
 const { getIO } = require('../config/socket');
 const notificationService = require('./notification.service');
+const returnLoadService = require('./returnLoad.service');
 const tripService = require('./trip.service');
 const ApiError = require('../utils/apiError.utils');
 
@@ -241,6 +242,8 @@ const completeStop = async (tripId, stopId, user) => {
         tripId: updatedTrip.id,
       },
     });
+
+    await returnLoadService.findReturnLoads(updatedTrip.id);
   }
 
   return trip;

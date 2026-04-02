@@ -29,7 +29,7 @@ app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
     service: 'backend',
-    phase: 'Phase 4 - Tracking, Notifications, and Realtime Foundations',
+    phase: 'Phase 5 - Return Load Workflow Foundations',
     timestamp: new Date().toISOString(),
   });
 });

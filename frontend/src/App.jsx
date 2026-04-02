@@ -22,6 +22,7 @@ const BookingRequestsPage = lazy(() => import('./pages/dealer/BookingRequestsPag
 const DealerAnalyticsPage = lazy(() => import('./pages/dealer/DealerAnalyticsPage'));
 const DealerDashboard = lazy(() => import('./pages/dealer/DealerDashboard'));
 const FleetPage = lazy(() => import('./pages/dealer/FleetPage'));
+const ReturnLoadPage = lazy(() => import('./pages/dealer/ReturnLoadPage'));
 const TripManagePage = lazy(() => import('./pages/dealer/TripManagePage'));
 const TruckDetailPage = lazy(() => import('./pages/dealer/TruckDetailPage'));
 const BookingDetailPage = lazy(() => import('./pages/shared/BookingDetailPage'));
@@ -437,6 +438,18 @@ export default function App() {
             <RoleGuard allowedRoles={['DEALER']}>
               <LazyPage>
                 <BookingDetailPage />
+              </LazyPage>
+            </RoleGuard>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dealer/return-loads"
+        element={
+          <ProtectedRoute>
+            <RoleGuard allowedRoles={['DEALER']}>
+              <LazyPage>
+                <ReturnLoadPage />
               </LazyPage>
             </RoleGuard>
           </ProtectedRoute>

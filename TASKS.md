@@ -7,6 +7,7 @@
 - Phase 2 local checklist is complete.
 - Phase 3 optimization is complete.
 - Phase 4 tracking and realtime is complete for local development.
+- Phase 5 return-load workflow is complete for local development.
 - Core logistics flows exist for auth, shipments, trucks, bookings, trips, dashboards, details, tracking views, and analytics views.
 - Many backend advanced services and realtime/ML modules are still pending.
 
@@ -93,10 +94,10 @@
 
 These should be the next implementation targets after Phase 4 tracking and realtime.
 
-1. Complete return-load workflow
-2. Complete analytics and admin backend APIs
-3. Finish missing frontend modules for those APIs
-4. Complete document, CO2, and notification delivery depth
+1. Complete analytics and admin backend APIs
+2. Finish missing frontend modules for those APIs
+3. Complete document, CO2, and notification delivery depth
+4. Finish Phase 5 ML-based return-load scoring
 
 ## Remaining Project Tasks
 
@@ -152,18 +153,22 @@ These should be the next implementation targets after Phase 4 tracking and realt
 
 #### Backend
 
-- [ ] Implement return-load routes in `backend/src/routes/returnLoad.routes.js`
-- [ ] Implement return-load controller in `backend/src/controllers/returnLoad.controller.js`
-- [ ] Implement return-load service in `backend/src/services/returnLoad.service.js`
-- [ ] Trigger matching when trip is delivered
-- [ ] Send return-load notifications
+- [x] Implement return-load routes in `backend/src/routes/returnLoad.routes.js`
+- [x] Implement return-load controller in `backend/src/controllers/returnLoad.controller.js`
+- [x] Implement return-load service in `backend/src/services/returnLoad.service.js`
+- [x] Trigger matching when trip is delivered
+- [x] Send return-load notifications
+- [x] Create pre-approved booking and planned trip on accept
+- [x] Add backend return-load integration coverage
 
 #### Frontend
 
-- [ ] Implement `frontend/src/api/returnLoad.api.js`
-- [ ] Implement `frontend/src/hooks/useReturnLoad.js`
-- [ ] Implement `frontend/src/pages/dealer/ReturnLoadPage.jsx`
-- [ ] Implement return-load cards, panel, and badge
+- [x] Implement `frontend/src/api/returnLoad.api.js`
+- [x] Implement `frontend/src/hooks/useReturnLoad.js`
+- [x] Implement `frontend/src/pages/dealer/ReturnLoadPage.jsx`
+- [x] Implement return-load cards, panel, and badge
+- [x] Add dealer navigation into return-load workflow
+- [x] Add frontend return-load page test
 
 #### ML Service
 

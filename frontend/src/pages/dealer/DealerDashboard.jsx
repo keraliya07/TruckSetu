@@ -9,6 +9,7 @@ const metrics = [
   { label: 'Booking Detail', value: 'Live', hint: 'Counter, approve, and open trip-ready requests.' },
   { label: 'Trip Console', value: 'Live', hint: 'Start trips and complete stops from a single surface.' },
   { label: 'Analytics', value: 'Live', hint: 'Revenue, utilization, and CO2 performance are now visible.' },
+  { label: 'Return Loads', value: 'Live', hint: 'Capture backhaul opportunities after a trip is delivered.' },
 ];
 
 const fleetNotes = [
@@ -27,7 +28,7 @@ export default function DealerDashboard() {
       title={user?.truckDealer?.companyName || user?.name}
       subtitle="The dealer workspace now connects fleet management, booking negotiation, trip execution, and analytics into one flow."
     >
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         {metrics.map((metric) => (
           <MetricCard key={metric.label} {...metric} />
         ))}
@@ -56,6 +57,9 @@ export default function DealerDashboard() {
             </Link>
             <Link className="btn-secondary" to="/dealer/bookings">
               Open booking requests
+            </Link>
+            <Link className="btn-secondary" to="/dealer/return-loads">
+              Open return loads
             </Link>
             <Link className="btn-secondary" to="/dealer/analytics">
               Open analytics

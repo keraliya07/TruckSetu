@@ -202,31 +202,34 @@ const create = async ({ shipmentIds, truckId, quotedPrice }, user) => {
     throw ApiError.badRequest('Selected truck cannot carry the chosen shipments');
   }
 
-  const booking = await prisma.$transaction(async (tx) => {
-    const created = await tx.bookingRequest.create({
-      data: {
-        warehouseId: warehouse.id,
-        requestedById: user.userId,
-        truckId,
-        quotedPrice,
-        status: 'SENT',
-        expiresAt: new Date(Date.now() + BOOKING_TIMEOUT_HOURS * 60 * 60 * 1000),
-        shipments: {
-          create: shipmentIds.map((shipmentId) => ({
-            shipmentId,
-          })),
+  const booking = await prisma.$transaction(
+    async (tx) => {
+      const created = await tx.bookingRequest.create({
+        data: {
+          warehouseId: warehouse.id,
+          requestedById: user.userId,
+          truckId,
+          quotedPrice,
+          status: 'SENT',
+          expiresAt: new Date(Date.now() + BOOKING_TIMEOUT_HOURS * 60 * 60 * 1000),
+          shipments: {
+            create: shipmentIds.map((shipmentId) => ({
+              shipmentId,
+            })),
+          },
         },
-      },
-      include: bookingInclude,
-    });
+        include: bookingInclude,
+      });
 
-    await tx.shipment.updateMany({
-      where: { id: { in: shipmentIds } },
-      data: { status: 'BOOKING_PENDING' },
-    });
+      await tx.shipment.updateMany({
+        where: { id: { in: shipmentIds } },
+        data: { status: 'BOOKING_PENDING' },
+      });
 
-    return created;
-  });
+      return created;
+    },
+    { timeout: 20000 }
+  );
 
   await createNotification({
     userId: truck.dealer.user?.id,
@@ -367,22 +370,25 @@ const respond = async (bookingId, data, user) => {
     return updated;
   }
 
-  const approved = await prisma.$transaction(async (tx) => {
-    const updatedBooking = await tx.bookingRequest.update({
-      where: { id: bookingId },
-      data: {
-        status: 'APPROVED',
-        dealerNote: data.dealerNote || null,
-        finalPrice: booking.counterPrice || booking.quotedPrice,
-        respondedAt: new Date(),
-        approvedAt: new Date(),
-      },
-      include: bookingInclude,
-    });
+  const approved = await prisma.$transaction(
+    async (tx) => {
+      const updatedBooking = await tx.bookingRequest.update({
+        where: { id: bookingId },
+        data: {
+          status: 'APPROVED',
+          dealerNote: data.dealerNote || null,
+          finalPrice: booking.counterPrice || booking.quotedPrice,
+          respondedAt: new Date(),
+          approvedAt: new Date(),
+        },
+        include: bookingInclude,
+      });
 
-    await createTripForBooking(tx, updatedBooking, updatedBooking.finalPrice);
-    return updatedBooking;
-  });
+      await createTripForBooking(tx, updatedBooking, updatedBooking.finalPrice);
+      return updatedBooking;
+    },
+    { timeout: 20000 }
+  );
 
   await createNotification({
     userId: approved.requestedById,
@@ -408,21 +414,24 @@ const acceptCounter = async (bookingId, data, user) => {
     throw ApiError.badRequest('Booking does not have a pending counter offer');
   }
 
-  const approved = await prisma.$transaction(async (tx) => {
-    const updatedBooking = await tx.bookingRequest.update({
-      where: { id: bookingId },
-      data: {
-        status: 'APPROVED',
-        warehouseNote: data.warehouseNote || null,
-        finalPrice: booking.counterPrice,
-        approvedAt: new Date(),
-      },
-      include: bookingInclude,
-    });
+  const approved = await prisma.$transaction(
+    async (tx) => {
+      const updatedBooking = await tx.bookingRequest.update({
+        where: { id: bookingId },
+        data: {
+          status: 'APPROVED',
+          warehouseNote: data.warehouseNote || null,
+          finalPrice: booking.counterPrice,
+          approvedAt: new Date(),
+        },
+        include: bookingInclude,
+      });
 
-    await createTripForBooking(tx, updatedBooking, updatedBooking.finalPrice);
-    return updatedBooking;
-  });
+      await createTripForBooking(tx, updatedBooking, updatedBooking.finalPrice);
+      return updatedBooking;
+    },
+    { timeout: 20000 }
+  );
 
   await createNotification({
     userId: approved.truck.dealer.user?.id,

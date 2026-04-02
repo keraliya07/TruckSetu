@@ -4,15 +4,19 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import DashboardShell from '../../components/common/DashboardShell';
 import EmptyState from '../../components/common/EmptyState';
 import PageTabs from '../../components/common/PageTabs';
+import OptimizationHistoryPanel from '../../components/optimization/OptimizationHistoryPanel';
 import OptimizationPanel from '../../components/optimization/OptimizationPanel';
 import RoutePreview from '../../components/optimization/RoutePreview';
 import ScoreBreakdown from '../../components/optimization/ScoreBreakdown';
+import TruckFitCalculator from '../../components/optimization/TruckFitCalculator';
+import { useAuth } from '../../hooks/useAuth';
 import { useOptimization } from '../../hooks/useOptimization';
 import { useShipmentStore } from '../../store/shipmentStore';
 import { useTruckStore } from '../../store/truckStore';
 import { formatNumber } from '../../utils/formatters';
 
 export default function OptimizationPage() {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const shipmentStore = useShipmentStore();
@@ -20,10 +24,12 @@ export default function OptimizationPage() {
   const optimization = useOptimization();
 
   const queryShipmentIds = searchParams.get('shipmentIds')?.split(',').filter(Boolean) || [];
+  const queryCacheKey = searchParams.get('cacheKey') || '';
 
   useEffect(() => {
     shipmentStore.fetchShipments({ status: 'PENDING', page: 1, limit: 50 }).catch(() => {});
     truckStore.fetchTrucks({ status: 'AVAILABLE', page: 1, limit: 30 }).catch(() => {});
+    optimization.loadHistory().catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -35,6 +41,12 @@ export default function OptimizationPage() {
       });
     }
   }, [queryShipmentIds.join(','), shipmentStore.selectedIds.join(',')]);
+
+  useEffect(() => {
+    if (queryCacheKey) {
+      optimization.loadCachedResult(queryCacheKey).catch(() => {});
+    }
+  }, [optimization.loadCachedResult, queryCacheKey]);
 
   const selectedShipments = useMemo(
     () =>
@@ -74,6 +86,18 @@ export default function OptimizationPage() {
             <p className="mt-2 text-slate-600">
               Combined weight {formatNumber(selectedWeight)} kg across {truckStore.trucks.length} visible truck option(s).
             </p>
+            {optimization.cacheKey ? (
+              <p className="mt-3 text-sm text-slate-500">
+                Last run source{' '}
+                <span className="font-semibold text-slate-900">
+                  {optimization.source || 'live'}
+                </span>{' '}
+                with cache key{' '}
+                <span className="font-mono text-xs text-slate-700">
+                  {optimization.cacheKey}
+                </span>
+              </p>
+            ) : null}
           </div>
           <div className="flex flex-wrap gap-3">
             <button
@@ -88,13 +112,25 @@ export default function OptimizationPage() {
               disabled={!selectedShipments.length || optimization.isOptimizing}
               onClick={() =>
                 optimization.runOptimization({
-                  shipments: selectedShipments,
-                  trucks: truckStore.trucks,
+                  shipmentIds: selectedShipments.map((shipment) => shipment.id),
                 })
               }
               type="button"
             >
               {optimization.isOptimizing ? 'Running...' : 'Run optimization'}
+            </button>
+            <button
+              className="btn-secondary"
+              disabled={!selectedShipments.length || optimization.isOptimizing}
+              onClick={() =>
+                optimization.runOptimization({
+                  shipmentIds: selectedShipments.map((shipment) => shipment.id),
+                  forceRefresh: true,
+                })
+              }
+              type="button"
+            >
+              Force refresh
             </button>
           </div>
         </div>
@@ -138,7 +174,31 @@ export default function OptimizationPage() {
         ) : null}
       </section>
 
-      {selectedShipments.length === 0 ? (
+      <TruckFitCalculator
+        defaultOriginCity={user?.warehouse?.city}
+        onCreateShipment={(values) => {
+          const query = new URLSearchParams({
+            weightKg: String(values.weightKg),
+            volumeM3: String(values.volumeM3),
+            destCity: values.destCity,
+          });
+          navigate(`/warehouse/shipments/new?${query.toString()}`);
+        }}
+      />
+
+      <OptimizationHistoryPanel
+        cacheKey={optimization.cacheKey}
+        isLoading={optimization.isOptimizing}
+        onLoadCacheKey={(nextCacheKey) => {
+          const query = new URLSearchParams(searchParams);
+          query.set('cacheKey', nextCacheKey);
+          navigate(`/warehouse/optimization?${query.toString()}`);
+        }}
+        onRefresh={() => optimization.loadHistory().catch(() => {})}
+        runs={optimization.history}
+      />
+
+      {selectedShipments.length === 0 && optimization.results.length === 0 ? (
         <EmptyState
           title="Select shipments to start optimization"
           description="Choose one or more pending shipments above, or begin from the shipment board."
@@ -151,6 +211,7 @@ export default function OptimizationPage() {
       ) : (
         <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
           <OptimizationPanel
+            activeResultId={optimization.selectedResult?.id}
             isLoading={optimization.isOptimizing}
             onBookTruck={(result) =>
               navigate(

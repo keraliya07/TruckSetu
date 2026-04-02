@@ -6,12 +6,13 @@ const shipmentRoutes = require('./shipment.routes');
 const truckRoutes = require('./truck.routes');
 const bookingRoutes = require('./booking.routes');
 const tripRoutes = require('./trip.routes');
+const optimizationRoutes = require('./optimization.routes');
 
 router.get('/', (req, res) => {
   res.json({
     service: 'stlos-api',
     status: 'ok',
-    phase: 'Phase 2 - Persistent Auth, Database Workflows, and Security Closeout',
+    phase: 'Phase 3 - Optimization Foundation',
     availableRoutes: [
       'GET /api/health',
       'GET /api/auth/demo-accounts',
@@ -33,6 +34,10 @@ router.get('/', (req, res) => {
       'GET /api/bookings',
       'POST /api/bookings',
       'GET /api/trips',
+      'GET /api/optimization/history',
+      'POST /api/optimization/score',
+      'GET /api/optimization/result/:cacheKey',
+      'POST /api/optimization/truck-fit',
     ],
   });
 });
@@ -42,6 +47,7 @@ router.use('/shipments', authenticate, shipmentRoutes);
 router.use('/trucks', authenticate, truckRoutes);
 router.use('/bookings', authenticate, bookingRoutes);
 router.use('/trips', authenticate, tripRoutes);
+router.use('/optimization', authenticate, optimizationRoutes);
 
 router.use((req, res) => {
   res.status(404).json({

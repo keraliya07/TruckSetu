@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
+from app.routers.routing import router as routing_router
+from app.routers.scoring import router as scoring_router
 
 app = FastAPI(
     title="STLOS ML Service",
@@ -27,6 +29,10 @@ def health_check():
         "service": "ml-service",
         "environment": settings.environment,
     }
+
+
+app.include_router(scoring_router, prefix="/internal", tags=["internal"])
+app.include_router(routing_router, prefix="/internal", tags=["internal"])
 
 
 if __name__ == "__main__":

@@ -23,6 +23,8 @@ STLOS is a multi-role logistics platform for warehouses, truck dealers, and admi
 - Email verification flow
 - Account session management
 - Shipment, truck, booking, and trip modules
+- Live optimization scoring API with Prisma-backed cached runs
+- Truck-fit estimation endpoint and warehouse UI
 - Role-based dashboards and protected routes
 - Tracking, optimization, and analytics UI foundations
 - Prisma migrations committed in `prisma/migrations`

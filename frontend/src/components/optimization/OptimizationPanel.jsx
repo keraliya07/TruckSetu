@@ -16,6 +16,7 @@ export default function OptimizationPanel({
   isLoading,
   onBookTruck,
   onViewRoute,
+  activeResultId,
 }) {
   const [sortBy, setSortBy] = useState('best');
   const [maxCost, setMaxCost] = useState('');
@@ -89,8 +90,10 @@ export default function OptimizationPanel({
         {filteredResults.map((result, index) => (
           <TruckResultCard
             key={result.truck.id}
+            active={activeResultId === result.id}
             co2Saved={result.co2Saved}
             estimatedCost={result.estimatedCost}
+            highlights={result.highlights}
             onBook={() => onBookTruck(result)}
             onViewRoute={() => onViewRoute(result)}
             rank={index + 1}

@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
 
 import DashboardShell from '../../components/common/DashboardShell';
@@ -34,6 +34,7 @@ function defaultDeadline() {
 
 export default function CreateShipmentPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const createShipment = useShipmentStore((state) => state.createShipment);
   const error = useShipmentStore((state) => state.error);
@@ -47,9 +48,9 @@ export default function CreateShipmentPage() {
     resolver: zodResolver(schema),
     defaultValues: {
       title: '',
-      weightKg: 1000,
-      volumeM3: 8,
-      destCity: 'Mumbai',
+      weightKg: Number(searchParams.get('weightKg') || 1000),
+      volumeM3: Number(searchParams.get('volumeM3') || 8),
+      destCity: searchParams.get('destCity') || 'Mumbai',
       destAddress: '',
       destLat: cityOptions[3].lat,
       destLng: cityOptions[3].lng,

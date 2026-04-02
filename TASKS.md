@@ -5,7 +5,7 @@
 - Phase 1 is complete.
 - Phase 2 foundation is complete.
 - Phase 2 local checklist is complete.
-- Phase 2 production guidance is documented, while later-phase feature work is still open.
+- Phase 3 optimization is complete.
 - Core logistics flows exist for auth, shipments, trucks, bookings, trips, dashboards, details, tracking views, and analytics views.
 - Many backend advanced services and realtime/ML modules are still pending.
 
@@ -90,13 +90,12 @@
 
 ## Next Priority
 
-These should be the next implementation targets after the local Phase 2 closeout.
+These should be the next implementation targets after Phase 3 optimization.
 
-1. Complete optimization backend and ML integration
-2. Complete tracking backend and realtime pub-sub
-3. Complete return-load workflow
-4. Complete analytics and admin backend APIs
-5. Finish missing frontend modules for those APIs
+1. Complete tracking backend and realtime pub-sub
+2. Complete return-load workflow
+3. Complete analytics and admin backend APIs
+4. Finish missing frontend modules for those APIs
 
 ## Remaining Project Tasks
 
@@ -104,24 +103,24 @@ These should be the next implementation targets after the local Phase 2 closeout
 
 #### Backend
 
-- [ ] Implement optimization routes in `backend/src/routes/optimization.routes.js`
-- [ ] Implement optimization controller in `backend/src/controllers/optimization.controller.js`
-- [ ] Implement optimization service in `backend/src/services/optimization.service.js`
-- [ ] Call ML service for truck scoring
-- [ ] Cache optimization results
-- [ ] Add truck-fit calculation backend
+- [x] Implement optimization routes in `backend/src/routes/optimization.routes.js`
+- [x] Implement optimization controller in `backend/src/controllers/optimization.controller.js`
+- [x] Implement optimization service in `backend/src/services/optimization.service.js`
+- [x] Call ML service for truck scoring
+- [x] Cache optimization results
+- [x] Add truck-fit calculation backend
 
 #### Frontend
 
-- [ ] Implement `frontend/src/api/optimization.api.js`
-- [ ] Replace optimization page shell with live API flow
-- [ ] Implement `TruckFitCalculator`
-- [ ] Add result cards, rank explanations, and cache retrieval flow
+- [x] Implement `frontend/src/api/optimization.api.js`
+- [x] Replace optimization page shell with live API flow
+- [x] Implement `TruckFitCalculator`
+- [x] Add result cards, rank explanations, and cache retrieval flow
 
 #### ML Service
 
-- [ ] Complete scoring logic in `ml-service/app/services/scoring_engine.py`
-- [ ] Complete route/fit scoring contracts
+- [x] Complete scoring logic in `ml-service/app/services/scoring_engine.py`
+- [x] Complete route/fit scoring contracts
 
 ### Phase 4 - Tracking And Realtime
 
@@ -256,10 +255,9 @@ These should be the next implementation targets after the local Phase 2 closeout
 
 ## Recommended Execution Order
 
-1. Implement optimization backend + ML integration
-2. Implement tracking backend + Redis pub-sub + sockets
-3. Implement return-load workflow
-4. Implement analytics and admin APIs
-5. Complete missing frontend integrations
-6. Complete jobs, notifications, PDFs, and infra
-7. Finish production readiness work
+1. Implement tracking backend + Redis pub-sub + sockets
+2. Implement return-load workflow
+3. Implement analytics and admin APIs
+4. Complete missing frontend integrations
+5. Complete jobs, notifications, PDFs, and infra
+6. Finish production readiness work

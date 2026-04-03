@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 
+import FormFeedback from '../../components/common/FormFeedback';
 import { useAuth } from '../../hooks/useAuth';
 import { getDashboardPath } from '../../utils/roleRoutes';
 
@@ -124,11 +125,7 @@ export default function LoginPage() {
               ) : null}
             </div>
 
-            {error ? (
-              <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                {error}
-              </div>
-            ) : null}
+            <FormFeedback message={error} tone="error" />
 
             <button className="btn-primary w-full" disabled={isLoading} type="submit">
               {isLoading ? 'Signing in...' : 'Sign in'}

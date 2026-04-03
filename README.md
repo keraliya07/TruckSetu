@@ -25,19 +25,22 @@ STLOS is a multi-role logistics platform for warehouses, truck dealers, and admi
 - Shipment, truck, booking, and trip modules
 - Live optimization scoring API with Prisma-backed cached runs
 - Truck-fit estimation endpoint and warehouse UI
+- ML-backed demand forecast, pricing, distance matrix, and CO2 contracts
+- ML-backed return-load scoring with validated backend/FastAPI contracts
 - Role-based dashboards and protected routes
-- Tracking, optimization, and analytics UI foundations
+- Full authenticated app shell with navbar, sidebar, notifications, toasts, and error boundary
+- Tracking, optimization, return-load, and analytics UI foundations
+- Admin user management and dispute resolution views
+- Invoice and CO2 report PDF generation for trips
+- Notification email delivery hooks for booking, trip, and return-load events
+- Local background jobs for booking expiry, GPS simulation, return-load triggering, and ML retrain pings
 - Prisma migrations committed in `prisma/migrations`
 
 ### Still pending
 
-- Optimization execution and scoring engine integration
-- Tracking sockets and Redis pub-sub
-- Return-load workflow
-- Analytics backend APIs
-- Admin management APIs
-- Background jobs
 - Full production infrastructure
+- Richer reporting, exports, and audit trails
+- CI/CD, observability, and deployment hardening
 
 ## Local Development
 
@@ -66,12 +69,20 @@ Important backend/root env keys:
 - `JWT_REFRESH_EXPIRES_IN`
 - `APP_BASE_URL`
 - `CORS_ORIGIN`
+- `PYTHON_ML_URL`
+- `ML_REQUEST_TIMEOUT_MS`
+- `JOBS_ENABLED`
+- `BOOKING_TIMEOUT_CRON`
+- `ML_RETRAIN_CRON`
+- `GPS_SIMULATOR_ENABLED`
 
 Notes:
 
 - Prisma schema lives in `prisma/schema.prisma`.
 - Prisma client is generated into `backend/generated/prisma`.
 - For local password-reset and verification links, use `APP_BASE_URL=http://localhost:3000`.
+- `ML_REQUEST_TIMEOUT_MS` controls backend-to-FastAPI call timeouts for optimization and return-load scoring.
+- `REDIS_URL` is only used for Socket.IO pub-sub scaling and is optional for single-instance local development.
 - For production, rotate `JWT_SECRET`, `JWT_REFRESH_SECRET`, and your database credentials before deploy.
 - For production cookies behind HTTPS, set `COOKIE_SECURE=true`. If frontend and backend run on different origins, use `COOKIE_SAME_SITE=none` with HTTPS enabled.
 
@@ -109,9 +120,11 @@ These local checks cover:
 
 - backend auth integration flow
 - backend shipment, truck, booking, and trip lifecycle flow
+- backend ML gateway contract validation for scoring, routing, forecasting, pricing, distance, and CO2
 - frontend protected-route auth gating
 - frontend session bootstrap and restore behavior
 - frontend forgot-password, reset-password, verification, and session-management screens
+- frontend shared shell, toast, and notification behavior through integrated page coverage
 
 ### Start ML service
 

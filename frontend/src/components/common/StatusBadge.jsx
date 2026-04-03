@@ -1,8 +1,10 @@
 import clsx from 'clsx';
 
 const statusStyles = {
+  ACTIVE: 'bg-emerald-100 text-emerald-700',
   DRAFT: 'bg-slate-100 text-slate-700',
   PENDING: 'bg-slate-100 text-slate-700',
+  PRE_APPROVED: 'bg-sky-100 text-sky-700',
   OPTIMIZED: 'bg-sky-100 text-sky-700',
   BOOKING_PENDING: 'bg-blue-100 text-blue-700',
   BOOKING_CONFIRMED: 'bg-emerald-100 text-emerald-700',
@@ -14,10 +16,14 @@ const statusStyles = {
   LOADING: 'bg-amber-100 text-amber-800',
   IN_TRANSIT: 'bg-amber-100 text-amber-800',
   DELIVERED: 'bg-emerald-100 text-emerald-700',
+  OPEN: 'bg-rose-100 text-rose-700',
+  IN_REVIEW: 'bg-amber-100 text-amber-700',
   AVAILABLE: 'bg-emerald-100 text-emerald-700',
   ON_TRIP: 'bg-blue-100 text-blue-700',
   MAINTENANCE: 'bg-amber-100 text-amber-700',
   INACTIVE: 'bg-slate-200 text-slate-700',
+  SUSPENDED: 'bg-amber-100 text-amber-700',
+  DISABLED: 'bg-slate-200 text-slate-700',
   CANCELLED: 'bg-rose-100 text-rose-700',
 };
 

@@ -1,9 +1,12 @@
 const prisma = require('../config/db');
-const { getIO } = require('../config/socket');
+const { stopSimulator } = require('../jobs/gpsSimulator.job');
+const { triggerReturnLoadMatching } = require('../jobs/returnLoad.job');
 const notificationService = require('./notification.service');
-const returnLoadService = require('./returnLoad.service');
 const tripService = require('./trip.service');
+const { updateTripCO2 } = require('./co2.service');
 const ApiError = require('../utils/apiError.utils');
+
+const getIO = () => require('../config/socket').getIO?.() || null;
 
 const tripInclude = {
   truck: {
@@ -232,6 +235,9 @@ const completeStop = async (tripId, stopId, user) => {
   const updatedTrip = await emitTripState(tripId);
 
   if (updatedTrip.status === 'DELIVERED') {
+    stopSimulator(updatedTrip.id);
+    await updateTripCO2(updatedTrip.id);
+
     await notificationService.sendNotification({
       userId: updatedTrip.bookingRequest.requestedById,
       type: 'TRIP',
@@ -241,9 +247,17 @@ const completeStop = async (tripId, stopId, user) => {
       metadata: {
         tripId: updatedTrip.id,
       },
+      email: {
+        subject: 'STLOS trip delivered',
+        text: `Trip ${updatedTrip.id.slice(0, 8)} has been delivered successfully.`,
+        html: `
+          <p>Trip <strong>${updatedTrip.id.slice(0, 8)}</strong> has been delivered.</p>
+          <p>You can review the trip in your STLOS dashboard.</p>
+        `,
+      },
     });
 
-    await returnLoadService.findReturnLoads(updatedTrip.id);
+    await triggerReturnLoadMatching(updatedTrip.id);
   }
 
   return trip;

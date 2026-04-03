@@ -1,3 +1,6 @@
+from app.services.osrm_client import get_route
+
+
 def _distance_km(start, end):
     lat1 = float(start.get("lat", 0.0))
     lng1 = float(start.get("lng", 0.0))
@@ -7,6 +10,15 @@ def _distance_km(start, end):
 
 
 def solve_vrp(truck, shipments):
+    if not shipments:
+        return {
+            "orderedStops": [],
+            "totalDistanceKm": 0.0,
+            "totalTimeS": 0,
+            "feasible": False,
+            "geometry": {"type": "LineString", "coordinates": []},
+        }
+
     pickup = shipments[0]
     truck_position = {
         "lat": truck.get("currentLat") or truck.get("dealer", {}).get("primaryLat") or pickup.get("originLat"),
@@ -55,21 +67,22 @@ def solve_vrp(truck, shipments):
         ordered.append(next_stop)
         current = next_stop
 
-    points = [truck_position, *ordered]
-    total_distance = 0.0
-    for index in range(1, len(points)):
-        total_distance += _distance_km(points[index - 1], points[index])
-
-    total_distance = round(max(total_distance * 1.18, 12.0), 2)
-    total_time_s = int(max((total_distance / 42.0) * 3600.0, 2700.0))
+    route_points = [[truck_position["lng"], truck_position["lat"]]] + [
+        [stop.get("lng"), stop.get("lat")] for stop in ordered
+    ]
+    route = get_route(route_points)
+    total_distance = round(max(float(route["distance"]) / 1000.0, 12.0), 2)
+    total_time_s = int(max(float(route["duration"]), 2700.0))
 
     return {
         "orderedStops": ordered,
         "totalDistanceKm": total_distance,
         "totalTimeS": total_time_s,
         "feasible": True,
-        "geometry": {
+        "geometry": route.get("geometry")
+        or {
             "type": "LineString",
             "coordinates": [[stop.get("lng"), stop.get("lat")] for stop in ordered],
         },
+        "source": route.get("source", "fallback"),
     }

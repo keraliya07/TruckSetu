@@ -2,6 +2,7 @@ const prisma = require('../config/db');
 const { RETURN_LOAD_EXPIRY_HOURS } = require('../config/env');
 const notificationService = require('./notification.service');
 const ApiError = require('../utils/apiError.utils');
+const { MlServiceError, scoreReturnLoads: scoreReturnLoadsWithMl } = require('./ml.service');
 
 const getIO = () => require('../config/socket').getIO?.() || null;
 
@@ -173,6 +174,73 @@ const scoreCandidateShipment = (trip, shipment, truckPosition, homeBase) => {
   };
 };
 
+const scoreCandidateShipments = async (
+  trip,
+  shipments,
+  truckPosition,
+  homeBase
+) => {
+  if (!shipments.length) {
+    return [];
+  }
+
+  try {
+    const scored = await scoreReturnLoadsWithMl({
+      truck: {
+        id: trip.truck.id,
+        currentLat: truckPosition.lat,
+        currentLng: truckPosition.lng,
+        maxWeightKg: trip.truck.maxWeightKg,
+        maxVolumeM3: trip.truck.maxVolumeM3,
+        homeLat: homeBase.lat,
+        homeLng: homeBase.lng,
+      },
+      candidateShipments: shipments.map((shipment) => ({
+        id: shipment.id,
+        originCity: shipment.originCity,
+        originLat: shipment.originLat,
+        originLng: shipment.originLng,
+        destCity: shipment.destCity,
+        destLat: shipment.destLat,
+        destLng: shipment.destLng,
+        weightKg: shipment.weightKg,
+        volumeM3: shipment.volumeM3,
+      })),
+    });
+
+    const shipmentById = new Map(shipments.map((shipment) => [shipment.id, shipment]));
+
+    return scored
+      .map((candidate) => {
+        const shipment = shipmentById.get(candidate.shipmentId);
+        if (!shipment) {
+          return null;
+        }
+
+        return {
+          shipment,
+          pickupDistanceKm: Number((candidate.pickupDistanceKm ?? 0).toFixed(2)),
+          proximityScore: Number((candidate.proximityScore ?? 0).toFixed(2)),
+          directionScore: Number((candidate.directionScore ?? 0).toFixed(2)),
+          utilizationScore: Number((candidate.utilizationScore ?? 0).toFixed(2)),
+          combinedScore: Number((candidate.combinedScore ?? 0).toFixed(2)),
+        };
+      })
+      .filter(Boolean);
+  } catch (error) {
+    if (!(error instanceof MlServiceError)) {
+      throw error;
+    }
+    console.warn(
+      `[return-load] ML scoring unavailable, falling back to heuristic scoring (${error.details.reason})`
+    );
+
+    return shipments.map((shipment) =>
+      scoreCandidateShipment(trip, shipment, truckPosition, homeBase)
+    );
+  }
+};
+
 const buildTripStops = (shipment) => [
   {
     sequence: 1,
@@ -225,6 +293,10 @@ const createReturnLoadNotification = async (trip, count) => {
     metadata: {
       tripId: trip.id,
       count,
+    },
+    email: {
+      subject: 'STLOS return load opportunities available',
+      text: `${count} return load match(es) are now available for trip ${trip.id.slice(0, 8)}.`,
     },
   });
 
@@ -289,8 +361,12 @@ const findReturnLoads = async (tripId) => {
     },
   });
 
-  const scoredMatches = pendingShipments
-    .map((shipment) => scoreCandidateShipment(trip, shipment, truckPosition, homeBase))
+  const scoredMatches = (await scoreCandidateShipments(
+    trip,
+    pendingShipments,
+    truckPosition,
+    homeBase
+  ))
     .filter((candidate) => candidate.pickupDistanceKm <= 180 && candidate.combinedScore >= 45)
     .sort((left, right) => right.combinedScore - left.combinedScore)
     .slice(0, 6);
@@ -593,6 +669,10 @@ const acceptMatch = async (matchId, user) => {
       bookingId: booking.id,
       tripId: booking.trip?.id,
       shipmentId: match.shipmentId,
+    },
+    email: {
+      subject: 'STLOS return load accepted',
+      text: `A dealer accepted the return load for ${match.shipment.destCity}.`,
     },
   });
 

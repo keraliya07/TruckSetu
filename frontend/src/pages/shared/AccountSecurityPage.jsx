@@ -8,7 +8,9 @@ import {
   sendVerificationEmail,
 } from '../../api/auth.api';
 import DashboardShell from '../../components/common/DashboardShell';
+import FormFeedback from '../../components/common/FormFeedback';
 import { useAuth } from '../../hooks/useAuth';
+import { useToastStore } from '../../store/toastStore';
 
 const formatRelativeTime = (value) => {
   if (!value) {
@@ -54,6 +56,7 @@ export default function AccountSecurityPage() {
       const response = await sendVerificationEmail();
       setFeedback(response.message);
       setVerificationLink(response.devUrl || '');
+      useToastStore.getState().success('Verification link sent', response.message);
     } catch (nextError) {
       setError(nextError.message);
     } finally {
@@ -68,6 +71,7 @@ export default function AccountSecurityPage() {
     try {
       const response = await revokeSession(sessionId);
       setFeedback(response.message);
+      useToastStore.getState().info('Session revoked', response.message);
       await loadSessions();
     } catch (nextError) {
       setError(nextError.message);
@@ -81,6 +85,7 @@ export default function AccountSecurityPage() {
     try {
       const response = await revokeOtherSessions();
       setFeedback(response.message);
+      useToastStore.getState().info('Other sessions revoked', response.message);
       await loadSessions();
     } catch (nextError) {
       setError(nextError.message);
@@ -91,6 +96,7 @@ export default function AccountSecurityPage() {
     try {
       await fetchProfile();
       setFeedback('Account profile refreshed.');
+      useToastStore.getState().success('Profile refreshed', 'Latest account state loaded.');
     } catch (nextError) {
       setError(nextError.message);
     }
@@ -133,7 +139,10 @@ export default function AccountSecurityPage() {
           </div>
 
           {verificationLink ? (
-            <a className="mt-4 inline-block text-sm font-semibold text-freight-700 underline" href={verificationLink}>
+            <a
+              className="mt-4 inline-block text-sm font-semibold text-freight-700 underline"
+              href={verificationLink}
+            >
               Open development verification link
             </a>
           ) : null}
@@ -152,17 +161,8 @@ export default function AccountSecurityPage() {
             </button>
           </div>
 
-          {feedback ? (
-            <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-              {feedback}
-            </div>
-          ) : null}
-
-          {error ? (
-            <div className="mt-5 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-              {error}
-            </div>
-          ) : null}
+          <FormFeedback className="mt-5" message={feedback} tone="success" />
+          <FormFeedback className="mt-5" message={error} tone="error" />
 
           <div className="mt-5 space-y-4">
             {isLoading ? (
@@ -192,11 +192,11 @@ export default function AccountSecurityPage() {
                           {session.userAgent || 'Unknown device'}
                         </p>
                         <p className="text-xs text-slate-500">
-                          IP: {session.ipAddress || 'Unknown'} · created{' '}
+                          IP: {session.ipAddress || 'Unknown'} | created{' '}
                           {formatRelativeTime(session.createdAt)}
                         </p>
                         <p className="text-xs text-slate-500">
-                          Last used {formatRelativeTime(session.lastUsedAt)} · expires{' '}
+                          Last used {formatRelativeTime(session.lastUsedAt)} | expires{' '}
                           {formatRelativeTime(session.expiresAt)}
                         </p>
                       </div>

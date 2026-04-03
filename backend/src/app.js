@@ -13,15 +13,22 @@ if (NODE_ENV === 'production') {
   app.set('trust proxy', 1);
 }
 
-app.use(helmet());
+if (NODE_ENV !== 'test') {
+  app.use(helmet());
+}
+
 app.use(
   cors({
     origin: CORS_ORIGIN,
     credentials: true,
   })
 );
-app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev'));
-app.use(generalLimiter);
+
+if (NODE_ENV !== 'test') {
+  app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev'));
+  app.use(generalLimiter);
+}
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -29,7 +36,7 @@ app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
     service: 'backend',
-    phase: 'Phase 5 - Return Load Workflow Foundations',
+    phase: 'Phase 8 - Background Jobs And Automation',
     timestamp: new Date().toISOString(),
   });
 });

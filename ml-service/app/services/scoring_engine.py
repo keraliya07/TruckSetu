@@ -1,4 +1,5 @@
 from app.services.co2_calculator import calculate, calculate_baseline, score as co2_score_fn
+from app.services.vrp_solver import solve_vrp
 
 W_UTILIZATION = 0.35
 W_ROUTE = 0.25
@@ -58,6 +59,9 @@ def _estimate_route_distance(truck, shipments):
 
 
 def score_trucks(trucks, shipments):
+    if not trucks or not shipments:
+        return []
+
     total_weight_kg = sum(float(shipment.get("weightKg", 0.0)) for shipment in shipments)
     total_volume_m3 = sum(float(shipment.get("volumeM3", 0.0)) for shipment in shipments)
     max_base_rate = max(
@@ -71,7 +75,8 @@ def score_trucks(trucks, shipments):
         if total_weight_kg > max_weight or total_volume_m3 > max_volume:
             continue
 
-        route_km = _estimate_route_distance(truck, shipments)
+        solved_route = solve_vrp(truck, shipments)
+        route_km = float(solved_route.get("totalDistanceKm") or _estimate_route_distance(truck, shipments))
         weight_util = (total_weight_kg / max_weight) * 100.0 if max_weight else 0.0
         volume_util = (total_volume_m3 / max_volume) * 100.0 if max_volume else 0.0
         utilization_pct = weight_util * 0.65 + volume_util * 0.35
@@ -127,6 +132,7 @@ def score_trucks(trucks, shipments):
                 "estimatedCost": estimated_cost,
                 "co2SavedKg": co2_saved,
                 "routeDistanceKmEstimate": route_km,
+                "routeSource": solved_route.get("source", "fallback"),
                 "compositeScore": round(composite, 2),
             }
         )

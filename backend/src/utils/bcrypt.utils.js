@@ -1,7 +1,11 @@
 const bcrypt = require('bcryptjs');
 
+const testRounds = 4;
+const defaultRounds = 10;
+const rounds = process.env.NODE_ENV === 'test' ? testRounds : defaultRounds;
+
 const hashPassword = async (password) => {
-  const salt = await bcrypt.genSalt(10);
+  const salt = await bcrypt.genSalt(rounds);
   return bcrypt.hash(password, salt);
 };
 

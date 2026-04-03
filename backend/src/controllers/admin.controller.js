@@ -1,22 +1,46 @@
-// === backend/src/controllers/admin.controller.js ===
-// Purpose: Admin request handlers — parse req, call service, send response
-// Dependencies: ../services/admin.service
+const service = require('../services/admin.service');
 
-// const service = require('../services/admin.service');
+exports.getUsers = async (req, res, next) => {
+  try {
+    const result = await service.getUsers(req.query);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
 
-/**
- * TODO: Implement controller methods: getUsers, getUserById, updateUserStatus, getDisputes, resolveDispute
- *
- * Pattern for each method:
- *   exports.methodName = async (req, res, next) => {
- *     try {
- *       const result = await service.methodName(req.body, req.user);
- *       res.status(200).json(result);
- *     } catch (error) {
- *       next(error);
- *     }
- *   };
- *
- * Called by: ../routes/admin.routes.js
- * Calls: ../services/admin.service
- */
+exports.getUserById = async (req, res, next) => {
+  try {
+    const result = await service.getUserById(req.params.id);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.updateUserStatus = async (req, res, next) => {
+  try {
+    const result = await service.updateUserStatus(req.params.id, req.body);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getDisputes = async (req, res, next) => {
+  try {
+    const result = await service.getDisputes(req.query);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.resolveDispute = async (req, res, next) => {
+  try {
+    const result = await service.resolveDispute(req.params.id, req.body, req.user);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};

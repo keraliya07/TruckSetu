@@ -2,7 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 
 import { sendVerificationEmail, verifyEmail } from '../../api/auth.api';
+import FormFeedback from '../../components/common/FormFeedback';
 import { useAuth } from '../../hooks/useAuth';
+import { useToastStore } from '../../store/toastStore';
 
 export default function VerifyEmailPage() {
   const [searchParams] = useSearchParams();
@@ -31,6 +33,7 @@ export default function VerifyEmailPage() {
         }
         setStatus('success');
         setMessage(response.message);
+        useToastStore.getState().success('Email verified', response.message);
         if (isAuthenticated) {
           await fetchProfile().catch(() => null);
         }
@@ -60,6 +63,7 @@ export default function VerifyEmailPage() {
       setMessage(response.message);
       setDevUrl(response.devUrl || '');
       setDevToken(response.devToken || '');
+      useToastStore.getState().success('Verification link sent', response.message);
     } catch (error) {
       setStatus('error');
       setMessage(error.message);
@@ -88,15 +92,11 @@ export default function VerifyEmailPage() {
                 {user?.isEmailVerified ? 'Verified' : 'Not verified'}
               </span>
             </p>
-            {message ? (
-              <p
-                className={`mt-3 text-sm ${
-                  status === 'error' ? 'text-rose-700' : 'text-emerald-800'
-                }`}
-              >
-                {message}
-              </p>
-            ) : null}
+            <FormFeedback
+              className="mt-3"
+              message={message}
+              tone={status === 'error' ? 'error' : 'success'}
+            />
             {devUrl ? (
               <a className="mt-3 inline-block font-semibold text-freight-700 underline" href={devUrl}>
                 Open development verification link

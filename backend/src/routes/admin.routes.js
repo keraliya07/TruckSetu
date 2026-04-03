@@ -1,22 +1,43 @@
-// === backend/src/routes/admin.routes.js ===
-// Purpose: Admin route definitions
-// Dependencies: express.Router, ../controllers/admin.controller, ../middleware/*
+const router = require('express').Router();
 
-// const router = require('express').Router();
-// const controller = require('../controllers/admin.controller');
-// const { requireRole } = require('../middleware/role.middleware');
-// const { validate } = require('../middleware/validate.middleware');
+const controller = require('../controllers/admin.controller');
+const { requireRole } = require('../middleware/role.middleware');
+const { validate } = require('../middleware/validate.middleware');
+const {
+  disputeParamsSchema,
+  disputeQuerySchema,
+  resolveDisputeSchema,
+  updateUserStatusSchema,
+  userParamsSchema,
+  userQuerySchema,
+} = require('../validators/admin.validator');
 
-/**
- * TODO: Define route endpoints:
- * GET /users, GET /users/:id, PATCH /users/:id/status, GET /disputes, PATCH /disputes/:id/resolve
- *
- * Apply middleware chain:
- *   - requireRole() for role-restricted routes
- *   - validate(schema) for request body validation
- *
- * Example:
- *   router.post('/', requireRole('WAREHOUSE'), validate(createSchema), controller.create);
- */
+router.get('/users', requireRole('ADMIN'), validate(userQuerySchema, 'query'), controller.getUsers);
+router.get(
+  '/users/:id',
+  requireRole('ADMIN'),
+  validate(userParamsSchema, 'params'),
+  controller.getUserById
+);
+router.patch(
+  '/users/:id/status',
+  requireRole('ADMIN'),
+  validate(userParamsSchema, 'params'),
+  validate(updateUserStatusSchema),
+  controller.updateUserStatus
+);
+router.get(
+  '/disputes',
+  requireRole('ADMIN'),
+  validate(disputeQuerySchema, 'query'),
+  controller.getDisputes
+);
+router.patch(
+  '/disputes/:id/resolve',
+  requireRole('ADMIN'),
+  validate(disputeParamsSchema, 'params'),
+  validate(resolveDisputeSchema),
+  controller.resolveDispute
+);
 
-// module.exports = router;
+module.exports = router;

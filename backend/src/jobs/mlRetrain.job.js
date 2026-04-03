@@ -1,20 +1,82 @@
-// === backend/src/jobs/mlRetrain.job.js ===
-// Purpose: Weekly cron to trigger ML model retraining in Python service
-// Dependencies: node-cron, axios, ../config/env
+const cron = require('node-cron');
+const axios = require('axios');
 
-// const cron = require('node-cron');
-// const axios = require('axios');
+const prisma = require('../config/db');
+const { ML_RETRAIN_CRON, PYTHON_ML_URL } = require('../config/env');
+const notificationService = require('../services/notification.service');
 
-/**
- * TODO: Schedule: '0 2 * * 0' (every Sunday at 2 AM)
- *
- * Steps:
- *   1. Call Python ML service: POST /internal/retrain
- *   2. Log success/failure
- *   3. Notify admin if retraining fails
- *
- * Models retrained: Price prediction (RandomForest), Demand forecast (Prophet)
- */
+let mlRetrainTask = null;
 
-// function startMLRetrainJob() { /* TODO */ }
-// module.exports = { startMLRetrainJob };
+async function triggerMLRetrain(options = {}) {
+  const client =
+    options.client ||
+    axios.create({
+      baseURL: PYTHON_ML_URL,
+      timeout: 10000,
+    });
+  const prismaClient = options.prismaClient || prisma;
+  const notifier = options.notifier || notificationService;
+
+  try {
+    const response = await client.post('/internal/retrain');
+    return {
+      ok: true,
+      data: response.data,
+    };
+  } catch (error) {
+    const admins = await prismaClient.user.findMany({
+      where: {
+        role: 'ADMIN',
+        accountStatus: 'ACTIVE',
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    await Promise.all(
+      admins.map((admin) =>
+        notifier.sendNotification({
+          userId: admin.id,
+          type: 'ADMIN',
+          title: 'ML retrain failed',
+          message: `Scheduled ML retraining failed: ${error.message}`,
+          link: '/admin/analytics',
+          metadata: {
+            source: 'ml-retrain-job',
+          },
+        })
+      )
+    );
+
+    return {
+      ok: false,
+      error: error.message,
+    };
+  }
+}
+
+function startMLRetrainJob() {
+  if (mlRetrainTask) {
+    return mlRetrainTask;
+  }
+
+  mlRetrainTask = cron.schedule(ML_RETRAIN_CRON, () => {
+    triggerMLRetrain().catch((error) => {
+      console.warn(`[ml-retrain-job] ${error.message}`);
+    });
+  });
+
+  return mlRetrainTask;
+}
+
+function stopMLRetrainJob() {
+  mlRetrainTask?.stop();
+  mlRetrainTask = null;
+}
+
+module.exports = {
+  startMLRetrainJob,
+  stopMLRetrainJob,
+  triggerMLRetrain,
+};

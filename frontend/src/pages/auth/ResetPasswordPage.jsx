@@ -5,6 +5,8 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
 
 import { resetPassword } from '../../api/auth.api';
+import FormFeedback from '../../components/common/FormFeedback';
+import { useToastStore } from '../../store/toastStore';
 
 const schema = z
   .object({
@@ -59,6 +61,9 @@ export default function ResetPasswordPage() {
         password: values.password,
       });
       setSuccessMessage(response.message);
+      useToastStore
+        .getState()
+        .success('Password reset', 'You can sign in with the new password now.');
       window.setTimeout(() => {
         navigate('/login', { replace: true });
       }, 1200);
@@ -125,17 +130,8 @@ export default function ResetPasswordPage() {
               ) : null}
             </div>
 
-            {serverError ? (
-              <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                {serverError}
-              </div>
-            ) : null}
-
-            {successMessage ? (
-              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                {successMessage}
-              </div>
-            ) : null}
+            <FormFeedback message={serverError} tone="error" />
+            <FormFeedback message={successMessage} tone="success" />
 
             <button className="btn-primary w-full" disabled={isSubmitting} type="submit">
               {isSubmitting ? 'Resetting...' : 'Reset password'}

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import * as authApi from '../api/auth.api';
+import { useToastStore } from './toastStore';
 
 export const useAuthStore = create(
   persist(
@@ -51,6 +52,7 @@ export const useAuthStore = create(
             isBootstrapping: false,
             error: null,
           });
+          useToastStore.getState().success('Signed in', `Welcome back, ${result.user.name}.`);
           return result.user;
         } catch (error) {
           set({ isLoading: false, error: error.message });
@@ -69,6 +71,9 @@ export const useAuthStore = create(
             isBootstrapping: false,
             error: null,
           });
+          useToastStore
+            .getState()
+            .success('Account created', 'Your workspace is ready for onboarding.');
           return result.user;
         } catch (error) {
           set({ isLoading: false, error: error.message });
@@ -93,6 +98,7 @@ export const useAuthStore = create(
         try {
           const user = await authApi.updateProfile(payload);
           set({ user, isLoading: false });
+          useToastStore.getState().success('Profile updated', 'Your account details were saved.');
           return user;
         } catch (error) {
           set({ isLoading: false, error: error.message });
@@ -112,6 +118,9 @@ export const useAuthStore = create(
             isBootstrapping: false,
             error: null,
           });
+          useToastStore
+            .getState()
+            .info('Signed out', 'Your session has been closed on this device.');
         }
       },
     }),

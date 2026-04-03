@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import 'leaflet/dist/leaflet.css';
 
 import App from './App';
+import ErrorBoundary from './components/common/ErrorBoundary';
+import ToastViewport from './components/common/ToastViewport';
 import './index.css';
 
 const queryClient = new QueryClient({
@@ -19,10 +21,13 @@ const queryClient = new QueryClient({
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <QueryClientProvider client={queryClient}>
-        <App />
-      </QueryClientProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <QueryClientProvider client={queryClient}>
+          <App />
+          <ToastViewport />
+        </QueryClientProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   </React.StrictMode>
 );

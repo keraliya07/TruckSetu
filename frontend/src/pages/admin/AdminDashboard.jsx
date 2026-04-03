@@ -7,13 +7,13 @@ const metrics = [
   { label: 'Auth + Profiles', value: 'Live', hint: 'Supabase-backed authentication and seeded roles.' },
   { label: 'Core Modules', value: 'Live', hint: 'Shipment, truck, booking, trip, and tracking data are active.' },
   { label: 'Analytics', value: 'Live', hint: 'Platform analytics now aggregate live operational records.' },
-  { label: 'Next Focus', value: 'UI Polish', hint: 'Design refinement and deeper module expansion remain next.' },
+  { label: 'Admin Ops', value: 'Live', hint: 'User status management and dispute review are available from admin routes.' },
 ];
 
 const alerts = [
   'Warehouse and dealer flows now include detail pages and trip handoff surfaces.',
   'Admin analytics can inspect shipment, truck, booking, and trip trends.',
-  'Optimization uses a derived scoring model until dedicated ML scoring routes are connected.',
+  'Admin can now review account status, sessions, and operational disputes.',
 ];
 
 export default function AdminDashboard() {
@@ -61,9 +61,17 @@ export default function AdminDashboard() {
             ))}
           </div>
           <div className="mt-6">
-            <Link className="btn-primary" to="/admin/analytics">
-              Open system analytics
-            </Link>
+            <div className="flex flex-wrap gap-3">
+              <Link className="btn-primary" to="/admin/analytics">
+                Open system analytics
+              </Link>
+              <Link className="btn-secondary" to="/admin/users">
+                Manage users
+              </Link>
+              <Link className="btn-secondary" to="/admin/disputes">
+                Review disputes
+              </Link>
+            </div>
           </div>
         </article>
       </section>

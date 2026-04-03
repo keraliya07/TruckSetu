@@ -1,10 +1,15 @@
 const crypto = require('crypto');
 
-const axios = require('axios');
-
 const prisma = require('../config/db');
-const { PYTHON_ML_URL } = require('../config/env');
 const ApiError = require('../utils/apiError.utils');
+const {
+  MlServiceError,
+  getDistanceMatrix,
+  predictPrice,
+  scoreCO2,
+  scoreTrucks: scoreWithMl,
+  solveRoute,
+} = require('./ml.service');
 
 const truckInclude = {
   dealer: true,
@@ -27,11 +32,6 @@ const runInclude = {
     },
   },
 };
-
-const mlClient = axios.create({
-  baseURL: PYTHON_ML_URL,
-  timeout: 5000,
-});
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
@@ -299,27 +299,98 @@ const normalizeMlRoute = (route, fallbackRoute) => {
 
 const callMlScore = async (trucks, shipments) => {
   try {
-    const response = await mlClient.post('/internal/score-trucks', {
+    return await scoreWithMl({
       trucks,
       shipments,
     });
-
-    return response.data?.scoredTrucks || [];
-  } catch {
+  } catch (error) {
+    if (!(error instanceof MlServiceError)) {
+      throw error;
+    }
     return null;
   }
 };
 
 const callMlRoute = async (truck, shipments) => {
   try {
-    const response = await mlClient.post('/internal/vrp-route', {
+    return await solveRoute({
       truck,
       shipments,
     });
-
-    return response.data || null;
-  } catch {
+  } catch (error) {
+    if (!(error instanceof MlServiceError)) {
+      throw error;
+    }
     return null;
+  }
+};
+
+const callMlTruckFitInsights = async ({
+  distanceKm,
+  weightKg,
+  volumeM3,
+  recommendedType,
+  originCity,
+  destCity,
+}) => {
+  try {
+    const [pricing, co2] = await Promise.all([
+      predictPrice({
+        distance_km: distanceKm,
+        weight_tons: weightKg / 1000,
+        truck_type: recommendedType,
+        origin_city: originCity,
+        dest_city: destCity,
+        urgency: 1,
+      }),
+      scoreCO2({
+        distance_km: distanceKm,
+        weight_tons: weightKg / 1000,
+        fuel_efficiency: recommendedType === 'LCV' ? 6.2 : recommendedType === 'ICV' ? 4.9 : 3.8,
+        emission_factor: 2.68,
+        utilization_pct: Math.min(100, Math.max((weightKg / Math.max(volumeM3 * 180, 1)) * 10, 45)),
+      }),
+    ]);
+
+    return { pricing, co2, source: 'ml' };
+  } catch (error) {
+    if (!(error instanceof MlServiceError)) {
+      throw error;
+    }
+
+    return null;
+  }
+};
+
+const getEstimatedDistanceKm = async (originCity, destCity) => {
+  const presets = {
+    ahmedabad: { lat: 23.0225, lng: 72.5714 },
+    surat: { lat: 21.1702, lng: 72.8311 },
+    vadodara: { lat: 22.3072, lng: 73.1812 },
+    mumbai: { lat: 19.076, lng: 72.8777 },
+    pune: { lat: 18.5204, lng: 73.8567 },
+    rajkot: { lat: 22.3039, lng: 70.8022 },
+  };
+
+  const origin = presets[normalizeCity(originCity)];
+  const destination = presets[normalizeCity(destCity)];
+
+  if (!origin || !destination) {
+    return normalizeCity(originCity) === normalizeCity(destCity) ? 35 : 180;
+  }
+
+  try {
+    const matrix = await getDistanceMatrix({
+      coordinates: [origin, destination],
+    });
+    const meters = Number(matrix.distances?.[0]?.[1] || 0);
+    return meters > 0 ? Number((meters / 1000).toFixed(1)) : 180;
+  } catch (error) {
+    if (!(error instanceof MlServiceError)) {
+      throw error;
+    }
+
+    return Number(Math.max(haversineKm(origin, destination) * 1.18, 35).toFixed(1));
   }
 };
 
@@ -722,27 +793,42 @@ const truckFitEstimate = async ({ weightKg, volumeM3, originCity, destCity }, us
     candidateRates.length > 0
       ? candidateRates.reduce((sum, rate) => sum + rate, 0) / candidateRates.length
       : 22;
-  const estimatedDistanceKm =
-    normalizeCity(originCity) === normalizeCity(destCity) ? 35 : 180;
-  const estimatedCost = Math.round(avgRate * (weightKg / 1000) * estimatedDistanceKm);
-  const estimatedCo2Kg = Number(
+  const estimatedDistanceKm = await getEstimatedDistanceKm(originCity, destCity);
+  const fallbackCost = Math.round(avgRate * (weightKg / 1000) * estimatedDistanceKm);
+  const fallbackCo2Kg = Number(
     (
       (estimatedDistanceKm / 4.5) *
       2.68 *
       clamp((weightKg / Math.max(volumeM3 * 180, 1)) / 10, 0.7, 1.15)
     ).toFixed(1)
   );
+  const mlInsights = await callMlTruckFitInsights({
+    distanceKm: estimatedDistanceKm,
+    weightKg,
+    volumeM3,
+    recommendedType,
+    originCity,
+    destCity,
+  });
+
+  const estimatedCost = Math.round(
+    mlInsights?.pricing?.estimated_price ?? fallbackCost
+  );
+  const estimatedCo2Kg = Number(
+    (mlInsights?.co2?.emitted_kg ?? fallbackCo2Kg).toFixed(1)
+  );
 
   return {
     recommendedType,
     estimatedCost,
     estimatedCostRange: {
-      min: Math.round(estimatedCost * 0.9),
-      max: Math.round(estimatedCost * 1.12),
+      min: Math.round(mlInsights?.pricing?.confidence_interval?.[0] ?? estimatedCost * 0.9),
+      max: Math.round(mlInsights?.pricing?.confidence_interval?.[1] ?? estimatedCost * 1.12),
     },
     estimatedCO2Kg: estimatedCo2Kg,
     availableTruckCount: eligible.length,
     availableTruckTypes: [...new Set(eligible.map((truck) => truck.truckType))],
+    estimationSource: mlInsights?.source || 'heuristic',
   };
 };
 

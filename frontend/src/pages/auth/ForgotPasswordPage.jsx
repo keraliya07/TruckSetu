@@ -5,6 +5,8 @@ import { Link } from 'react-router-dom';
 import { z } from 'zod';
 
 import { forgotPassword } from '../../api/auth.api';
+import FormFeedback from '../../components/common/FormFeedback';
+import { useToastStore } from '../../store/toastStore';
 
 const schema = z.object({
   email: z.string().email('Enter a valid email'),
@@ -32,6 +34,9 @@ export default function ForgotPasswordPage() {
     try {
       const response = await forgotPassword(values);
       setResult(response);
+      useToastStore
+        .getState()
+        .success('Reset link generated', 'Use the development link to continue locally.');
     } catch (nextError) {
       setError(nextError.message);
     } finally {
@@ -78,11 +83,7 @@ export default function ForgotPasswordPage() {
               ) : null}
             </div>
 
-            {error ? (
-              <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                {error}
-              </div>
-            ) : null}
+            <FormFeedback message={error} tone="error" />
 
             {result ? (
               <div className="space-y-3 rounded-3xl border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm text-emerald-800">

@@ -1,21 +1,18 @@
-# === ml-service/app/models/forecast.py ===
-# Purpose: Pydantic models for demand forecasting
-# Dependencies: pydantic
+from pydantic import BaseModel, Field
 
-# from pydantic import BaseModel
-# from typing import List
-# from datetime import date
 
-# class ForecastRequest(BaseModel):
-#     cities: List[str]
-#     horizon_days: int = 7
+class ForecastRequest(BaseModel):
+    cities: list[str] = Field(default_factory=list)
+    horizon_days: int = 7
 
-# class CityForecast(BaseModel):
-#     city: str
-#     date: date
-#     predicted_demand: float
-#     lower_bound: float
-#     upper_bound: float
 
-# class ForecastResponse(BaseModel):
-#     forecasts: List[CityForecast]
+class CityForecast(BaseModel):
+    city: str
+    date: str
+    predicted_demand: float
+    lower_bound: float
+    upper_bound: float
+
+
+class ForecastResponse(BaseModel):
+    forecasts: list[CityForecast]

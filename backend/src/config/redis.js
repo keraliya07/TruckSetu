@@ -103,10 +103,34 @@ const createRedisClient = (name = 'redis') => {
   return client;
 };
 
-const redis = createRedisClient('redis');
+let redis;
+
+const getRedisClient = () => {
+  if (!redis) {
+    redis = createRedisClient('redis');
+  }
+
+  return redis;
+};
+
+const closeRedisClient = async () => {
+  if (!redis || redis.status === 'end') {
+    redis = null;
+    return;
+  }
+
+  try {
+    await redis.quit();
+  } catch {
+    redis.disconnect();
+  } finally {
+    redis = null;
+  }
+};
 
 module.exports = {
+  closeRedisClient,
   createRedisClient,
+  getRedisClient,
   getRedisConnectionMeta,
-  redis,
 };

@@ -1,4 +1,7 @@
 const app = require('../../src/app');
+const prisma = require('../../src/config/db');
+const { closeRedisClient } = require('../../src/config/redis');
+const { closeSocketServer } = require('../../src/config/socket');
 
 async function startTestServer() {
   return new Promise((resolve) => {
@@ -15,7 +18,11 @@ async function startTestServer() {
                 return;
               }
 
-              closeResolve();
+              Promise.allSettled([
+                closeSocketServer(),
+                prisma.$disconnect(),
+                closeRedisClient(),
+              ]).finally(() => closeResolve());
             });
           }),
       });

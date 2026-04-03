@@ -8,8 +8,13 @@
 - Phase 3 optimization is complete.
 - Phase 4 tracking and realtime is complete for local development.
 - Phase 5 return-load workflow is complete for local development.
+- Phase 6 analytics and admin workflows are complete for local development.
+- Phase 7 document generation and notification delivery depth is complete for local development.
+- Phase 8 background jobs and automation is complete for local development.
+- Phase 9 ML service depth is complete for local development.
+- Phase 10 UI system completion is complete for local development.
 - Core logistics flows exist for auth, shipments, trucks, bookings, trips, dashboards, details, tracking views, and analytics views.
-- Many backend advanced services and realtime/ML modules are still pending.
+- The remaining roadmap is now mostly production hardening, exports, audit depth, and deployment work.
 
 ## Done
 
@@ -92,12 +97,12 @@
 
 ## Next Priority
 
-These should be the next implementation targets after Phase 4 tracking and realtime.
+These are the next implementation targets after the Phase 10 closeout.
 
-1. Complete analytics and admin backend APIs
-2. Finish missing frontend modules for those APIs
-3. Complete document, CO2, and notification delivery depth
-4. Finish Phase 5 ML-based return-load scoring
+1. Add wider automated coverage for analytics, admin, and shell components
+2. Expand production-readiness and infra work
+3. Add richer reporting, exports, and audit visibility
+4. Refine staging and deployment tooling
 
 ## Remaining Project Tasks
 
@@ -172,75 +177,79 @@ These should be the next implementation targets after Phase 4 tracking and realt
 
 #### ML Service
 
-- [ ] Complete return-load scoring integration
+- [x] Complete return-load scoring integration
 
 ### Phase 6 - Analytics And Admin
 
 #### Backend Analytics
 
-- [ ] Implement analytics routes in `backend/src/routes/analytics.routes.js`
-- [ ] Implement analytics controller in `backend/src/controllers/analytics.controller.js`
-- [ ] Implement analytics service in `backend/src/services/analytics.service.js`
-- [ ] Add KPI endpoint
-- [ ] Add utilization series endpoint
-- [ ] Add revenue series endpoint
-- [ ] Add CO2 series endpoint
-- [ ] Add demand forecast endpoint
-- [ ] Add CO2 report download endpoint
+- [x] Implement analytics routes in `backend/src/routes/analytics.routes.js`
+- [x] Implement analytics controller in `backend/src/controllers/analytics.controller.js`
+- [x] Implement analytics service in `backend/src/services/analytics.service.js`
+- [x] Add KPI endpoint
+- [x] Add utilization series endpoint
+- [x] Add revenue series endpoint
+- [x] Add CO2 series endpoint
+- [x] Add demand forecast endpoint
+- [x] Add CO2 report download endpoint
 
 #### Backend Admin
 
-- [ ] Implement admin routes in `backend/src/routes/admin.routes.js`
-- [ ] Implement admin controller in `backend/src/controllers/admin.controller.js`
-- [ ] Implement admin service in `backend/src/services/admin.service.js`
-- [ ] Add user management endpoints
-- [ ] Add user status update endpoint
-- [ ] Add dispute listing and dispute resolution endpoints
+- [x] Implement admin routes in `backend/src/routes/admin.routes.js`
+- [x] Implement admin controller in `backend/src/controllers/admin.controller.js`
+- [x] Implement admin service in `backend/src/services/admin.service.js`
+- [x] Add user management endpoints
+- [x] Add user status update endpoint
+- [x] Add dispute listing and dispute resolution endpoints
 
 #### Frontend
 
-- [ ] Implement `frontend/src/api/analytics.api.js`
-- [ ] Implement `frontend/src/pages/admin/UserManagementPage.jsx`
-- [ ] Implement `frontend/src/pages/admin/DisputePage.jsx`
-- [ ] Connect analytics pages to real backend analytics APIs
+- [x] Implement `frontend/src/api/analytics.api.js`
+- [x] Implement `frontend/src/api/admin.api.js`
+- [x] Implement `frontend/src/pages/admin/UserManagementPage.jsx`
+- [x] Implement `frontend/src/pages/admin/DisputePage.jsx`
+- [x] Connect analytics pages to real backend analytics APIs
 
 ### Phase 7 - CO2, Documents, Notifications
 
 #### Backend
 
-- [ ] Implement `backend/src/services/co2.service.js`
-- [ ] Implement `backend/src/services/invoice.service.js`
-- [ ] Implement `backend/src/services/notification.service.js`
-- [ ] Implement `backend/src/utils/pdfGenerator.utils.js`
-- [ ] Generate invoice PDFs
-- [ ] Generate CO2 report PDFs
-- [ ] Add notification read and mark-all-read logic
-- [ ] Add email notification sending
+- [x] Implement `backend/src/services/co2.service.js`
+- [x] Implement `backend/src/services/invoice.service.js`
+- [x] Implement `backend/src/services/notification.service.js`
+- [x] Implement `backend/src/utils/pdfGenerator.utils.js`
+- [x] Generate invoice PDFs
+- [x] Generate CO2 report PDFs
+- [x] Add notification read and mark-all-read logic
+- [x] Add email notification sending
 
 ### Phase 8 - Background Jobs
 
-- [ ] Implement booking timeout cron job
-- [ ] Implement GPS simulator job
-- [ ] Implement return-load trigger job
-- [ ] Implement ML retrain job
+- [x] Implement booking timeout cron job
+- [x] Implement GPS simulator job
+- [x] Implement return-load trigger job
+- [x] Implement ML retrain job
 
 ### Phase 9 - ML Service Completion
 
-- [ ] Complete VRP solver in `ml-service/app/services/vrp_solver.py`
-- [ ] Complete scoring engine in `ml-service/app/services/scoring_engine.py`
-- [ ] Verify all ML routers are reachable from backend
-- [ ] Standardize request/response contracts between Node and FastAPI
-- [ ] Add ML error handling and fallback behavior
+- [x] Complete VRP solver in `ml-service/app/services/vrp_solver.py`
+- [x] Complete scoring engine in `ml-service/app/services/scoring_engine.py`
+- [x] Verify all ML routers are reachable from backend
+- [x] Standardize request/response contracts between Node and FastAPI
+- [x] Add ML error handling and fallback behavior
+- [x] Add typed forecast, pricing, distance-matrix, and CO2 contracts
+- [x] Use ML demand forecasts with heuristic fallback in analytics
+- [x] Use ML distance, price, and CO2 insights in truck-fit estimation
 
 ### Phase 10 - UI System Completion
 
-- [ ] Add proper navbar
-- [ ] Add role-based sidebar
-- [ ] Add global error boundary
-- [ ] Add notification dropdown
-- [ ] Add reusable form feedback and empty states
-- [ ] Add success toasts and mutation feedback
-- [ ] Polish mobile responsiveness across dashboards and detail pages
+- [x] Add proper navbar
+- [x] Add role-based sidebar
+- [x] Add global error boundary
+- [x] Add notification dropdown
+- [x] Add reusable form feedback and empty states
+- [x] Add success toasts and mutation feedback
+- [x] Polish mobile responsiveness across dashboards and detail pages
 
 ## Later
 

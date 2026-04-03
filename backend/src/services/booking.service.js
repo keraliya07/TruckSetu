@@ -1,6 +1,7 @@
 const prisma = require('../config/db');
 const ApiError = require('../utils/apiError.utils');
 const { BOOKING_TIMEOUT_HOURS } = require('../config/env');
+const notificationService = require('./notification.service');
 
 const bookingInclude = {
   warehouse: true,
@@ -66,23 +67,6 @@ const getBookingById = async (bookingId) => {
   }
 
   return booking;
-};
-
-const createNotification = async ({ userId, type, title, message, link, metadata }) => {
-  if (!userId) {
-    return null;
-  }
-
-  return prisma.notification.create({
-    data: {
-      userId,
-      type,
-      title,
-      message,
-      link,
-      metadata,
-    },
-  });
 };
 
 const buildTripStops = (warehouse, shipments) => {
@@ -231,13 +215,22 @@ const create = async ({ shipmentIds, truckId, quotedPrice }, user) => {
     { timeout: 20000 }
   );
 
-  await createNotification({
+  await notificationService.sendNotification({
     userId: truck.dealer.user?.id,
     type: 'BOOKING',
     title: 'New booking request',
     message: `${booking.shipments.length} shipment(s) have been sent for your truck ${truck.registrationNo}.`,
     link: `/dealer/bookings/${booking.id}`,
     metadata: { bookingId: booking.id },
+    email: {
+      subject: 'STLOS booking request received',
+      text: `A new booking request for truck ${truck.registrationNo} is waiting for review.`,
+      html: `
+        <p>A new booking request is waiting for review.</p>
+        <p>Truck: <strong>${truck.registrationNo}</strong></p>
+        <p>Shipments: <strong>${booking.shipments.length}</strong></p>
+      `,
+    },
   });
 
   return getBookingById(booking.id);
@@ -334,13 +327,17 @@ const respond = async (bookingId, data, user) => {
       data: { status: 'PENDING' },
     });
 
-    await createNotification({
+    await notificationService.sendNotification({
       userId: updated.requestedById,
       type: 'BOOKING',
       title: 'Booking rejected',
       message: `Dealer rejected booking for truck ${updated.truck.registrationNo}.`,
       link: `/warehouse/bookings/${updated.id}`,
       metadata: { bookingId: updated.id },
+      email: {
+        subject: 'STLOS booking rejected',
+        text: `Your booking for truck ${updated.truck.registrationNo} was rejected.`,
+      },
     });
 
     return getBookingById(updated.id);
@@ -358,13 +355,17 @@ const respond = async (bookingId, data, user) => {
       include: bookingInclude,
     });
 
-    await createNotification({
+    await notificationService.sendNotification({
       userId: updated.requestedById,
       type: 'BOOKING',
       title: 'Counter offer received',
       message: `Dealer proposed Rs ${data.counterPrice} for booking ${updated.id}.`,
       link: `/warehouse/bookings/${updated.id}`,
       metadata: { bookingId: updated.id },
+      email: {
+        subject: 'STLOS counter offer received',
+        text: `A counter offer of Rs ${data.counterPrice} was received for booking ${updated.id}.`,
+      },
     });
 
     return updated;
@@ -390,13 +391,17 @@ const respond = async (bookingId, data, user) => {
     { timeout: 20000 }
   );
 
-  await createNotification({
+  await notificationService.sendNotification({
     userId: approved.requestedById,
     type: 'BOOKING',
     title: 'Booking approved',
     message: `Dealer approved your booking for truck ${approved.truck.registrationNo}.`,
     link: `/warehouse/bookings/${approved.id}`,
     metadata: { bookingId: approved.id },
+    email: {
+      subject: 'STLOS booking approved',
+      text: `Your booking for truck ${approved.truck.registrationNo} was approved.`,
+    },
   });
 
   return getBookingById(approved.id);
@@ -433,13 +438,17 @@ const acceptCounter = async (bookingId, data, user) => {
     { timeout: 20000 }
   );
 
-  await createNotification({
+  await notificationService.sendNotification({
     userId: approved.truck.dealer.user?.id,
     type: 'BOOKING',
     title: 'Counter offer accepted',
     message: `Warehouse accepted the counter price for booking ${approved.id}.`,
     link: `/dealer/bookings/${approved.id}`,
     metadata: { bookingId: approved.id },
+    email: {
+      subject: 'STLOS counter offer accepted',
+      text: `Warehouse accepted the counter offer for booking ${approved.id}.`,
+    },
   });
 
   return getBookingById(approved.id);

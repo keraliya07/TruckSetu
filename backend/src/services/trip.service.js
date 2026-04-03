@@ -1,5 +1,6 @@
 const prisma = require('../config/db');
 const ApiError = require('../utils/apiError.utils');
+const { startSimulator } = require('../jobs/gpsSimulator.job');
 
 const tripInclude = {
   truck: {
@@ -190,6 +191,10 @@ const start = async (tripId, user) => {
       },
     });
   }
+
+  startSimulator(tripId).catch((error) => {
+    console.warn(`[gps-simulator] unable to start for trip ${tripId}: ${error.message}`);
+  });
 
   return getTripOrThrow(tripId);
 };

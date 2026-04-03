@@ -1,28 +1,47 @@
-# === ml-service/app/models/route.py ===
-# Purpose: Pydantic models for routing
-# Dependencies: pydantic
+from pydantic import BaseModel
 
-# from pydantic import BaseModel
-# from typing import List, Optional, Tuple
 
-# class RouteNode(BaseModel):
-#     id: str
-#     lat: float
-#     lng: float
-#     type: str        # 'DEPOT', 'PICKUP', 'DELIVERY'
-#     demand: float    # m3 (+ for pickup, - for delivery)
-#     time_window: Optional[Tuple[int, int]] = None
+class RouteTruckPayload(BaseModel):
+    id: str | None = None
+    currentLat: float | None = None
+    currentLng: float | None = None
+    dealer: dict | None = None
 
-# class VRPRequest(BaseModel):
-#     nodes: List[RouteNode]
-#     pickup_delivery_pairs: List[Tuple[int, int]]
-#     distance_matrix: List[List[float]]
-#     time_matrix: List[List[float]]
-#     vehicle_capacity: float
-#     max_route_time: int = 36000  # 10 hours
 
-# class VRPResponse(BaseModel):
-#     ordered_stops: List[dict]
-#     total_distance_m: float
-#     total_time_s: float
-#     feasible: bool
+class RouteShipmentPayload(BaseModel):
+    id: str
+    originCity: str
+    originAddress: str | None = None
+    originLat: float
+    originLng: float
+    destCity: str
+    destAddress: str | None = None
+    destLat: float
+    destLng: float
+
+
+class RouteRequest(BaseModel):
+    truck: RouteTruckPayload
+    shipments: list[RouteShipmentPayload]
+
+
+class RouteStop(BaseModel):
+    type: str
+    city: str
+    address: str | None = None
+    lat: float
+    lng: float
+    shipmentId: str | None = None
+
+
+class RouteGeometry(BaseModel):
+    type: str
+    coordinates: list[list[float]]
+
+
+class RouteResponse(BaseModel):
+    orderedStops: list[RouteStop]
+    totalDistanceKm: float
+    totalTimeS: int
+    feasible: bool
+    geometry: RouteGeometry | None = None

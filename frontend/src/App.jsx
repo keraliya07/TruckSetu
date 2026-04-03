@@ -10,7 +10,9 @@ import { useAuthStore } from './store/authStore';
 import { getDashboardPath } from './utils/roleRoutes';
 
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const DisputePage = lazy(() => import('./pages/admin/DisputePage'));
 const SystemAnalyticsPage = lazy(() => import('./pages/admin/SystemAnalyticsPage'));
+const UserManagementPage = lazy(() => import('./pages/admin/UserManagementPage'));
 const ForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage'));
 const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
 const OnboardingPage = lazy(() => import('./pages/auth/OnboardingPage'));
@@ -37,16 +39,24 @@ const WarehouseDashboard = lazy(() => import('./pages/warehouse/WarehouseDashboa
 
 const phases = [
   {
-    title: 'Phase 1',
-    summary: 'Foundation, auth, dashboards, and protected role-aware routing.',
-  },
-  {
-    title: 'Phase 2',
-    summary: 'Supabase-backed Prisma schema, seeded users, and persistent auth.',
+    title: 'Phase 1-2',
+    summary: 'Foundation, persistent auth, Prisma data model, and database-backed sessions.',
   },
   {
     title: 'Phase 3',
-    summary: 'Shipment, fleet, booking, optimization, tracking, and analytics workflows.',
+    summary: 'Shipment, fleet, booking, trip, optimization, tracking, and analytics workflows.',
+  },
+  {
+    title: 'Phase 4-5',
+    summary: 'Realtime updates, Redis-backed Socket.IO pub-sub, and return-load matching.',
+  },
+  {
+    title: 'Phase 6-8',
+    summary: 'Admin analytics, PDFs, notifications, and local automation jobs.',
+  },
+  {
+    title: 'Phase 9-10',
+    summary: 'ML contract depth plus a shared UI shell with navigation, toasts, and error handling.',
   },
 ];
 
@@ -499,6 +509,30 @@ export default function App() {
             <RoleGuard allowedRoles={['ADMIN']}>
               <LazyPage>
                 <SystemAnalyticsPage />
+              </LazyPage>
+            </RoleGuard>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/users"
+        element={
+          <ProtectedRoute>
+            <RoleGuard allowedRoles={['ADMIN']}>
+              <LazyPage>
+                <UserManagementPage />
+              </LazyPage>
+            </RoleGuard>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/disputes"
+        element={
+          <ProtectedRoute>
+            <RoleGuard allowedRoles={['ADMIN']}>
+              <LazyPage>
+                <DisputePage />
               </LazyPage>
             </RoleGuard>
           </ProtectedRoute>

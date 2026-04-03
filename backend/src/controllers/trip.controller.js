@@ -1,5 +1,6 @@
 const service = require('../services/trip.service');
 const trackingService = require('../services/tracking.service');
+const invoiceService = require('../services/invoice.service');
 
 exports.getAll = async (req, res, next) => {
   try {
@@ -37,6 +38,28 @@ exports.completeStop = async (req, res, next) => {
       req.user
     );
     res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.downloadInvoice = async (req, res, next) => {
+  try {
+    const result = await invoiceService.generateInvoice(req.params.id, req.user);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${result.fileName}"`);
+    res.status(200).send(result.buffer);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.downloadCO2Report = async (req, res, next) => {
+  try {
+    const result = await invoiceService.generateCO2Report(req.params.id, req.user);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${result.fileName}"`);
+    res.status(200).send(result.buffer);
   } catch (error) {
     next(error);
   }

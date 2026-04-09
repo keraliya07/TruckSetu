@@ -2,6 +2,7 @@ const crypto = require('crypto');
 
 const prisma = require('../config/db');
 const ApiError = require('../utils/apiError.utils');
+const { TtlCache } = require('../utils/cache.utils');
 const {
   MlServiceError,
   getDistanceMatrix,
@@ -32,6 +33,10 @@ const runInclude = {
     },
   },
 };
+const DISTANCE_CACHE_TTL_MS = 5 * 60 * 1000;
+const TRUCK_FIT_CACHE_TTL_MS = 60 * 1000;
+const distanceCache = new TtlCache(DISTANCE_CACHE_TTL_MS);
+const truckFitCache = new TtlCache(TRUCK_FIT_CACHE_TTL_MS);
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
@@ -363,35 +368,37 @@ const callMlTruckFitInsights = async ({
 };
 
 const getEstimatedDistanceKm = async (originCity, destCity) => {
-  const presets = {
-    ahmedabad: { lat: 23.0225, lng: 72.5714 },
-    surat: { lat: 21.1702, lng: 72.8311 },
-    vadodara: { lat: 22.3072, lng: 73.1812 },
-    mumbai: { lat: 19.076, lng: 72.8777 },
-    pune: { lat: 18.5204, lng: 73.8567 },
-    rajkot: { lat: 22.3039, lng: 70.8022 },
-  };
+  return distanceCache.getOrSet(['distance', originCity, destCity], async () => {
+    const presets = {
+      ahmedabad: { lat: 23.0225, lng: 72.5714 },
+      surat: { lat: 21.1702, lng: 72.8311 },
+      vadodara: { lat: 22.3072, lng: 73.1812 },
+      mumbai: { lat: 19.076, lng: 72.8777 },
+      pune: { lat: 18.5204, lng: 73.8567 },
+      rajkot: { lat: 22.3039, lng: 70.8022 },
+    };
 
-  const origin = presets[normalizeCity(originCity)];
-  const destination = presets[normalizeCity(destCity)];
+    const origin = presets[normalizeCity(originCity)];
+    const destination = presets[normalizeCity(destCity)];
 
-  if (!origin || !destination) {
-    return normalizeCity(originCity) === normalizeCity(destCity) ? 35 : 180;
-  }
-
-  try {
-    const matrix = await getDistanceMatrix({
-      coordinates: [origin, destination],
-    });
-    const meters = Number(matrix.distances?.[0]?.[1] || 0);
-    return meters > 0 ? Number((meters / 1000).toFixed(1)) : 180;
-  } catch (error) {
-    if (!(error instanceof MlServiceError)) {
-      throw error;
+    if (!origin || !destination) {
+      return normalizeCity(originCity) === normalizeCity(destCity) ? 35 : 180;
     }
 
-    return Number(Math.max(haversineKm(origin, destination) * 1.18, 35).toFixed(1));
-  }
+    try {
+      const matrix = await getDistanceMatrix({
+        coordinates: [origin, destination],
+      });
+      const meters = Number(matrix.distances?.[0]?.[1] || 0);
+      return meters > 0 ? Number((meters / 1000).toFixed(1)) : 180;
+    } catch (error) {
+      if (!(error instanceof MlServiceError)) {
+        throw error;
+      }
+
+      return Number(Math.max(haversineKm(origin, destination) * 1.18, 35).toFixed(1));
+    }
+  });
 };
 
 const toCandidateRecord = (result, index) => ({
@@ -516,62 +523,63 @@ const persistRun = async ({
     where: { cacheKey },
   });
 
-  return prisma.$transaction(async (tx) => {
-    let run;
+  return prisma.$transaction(
+    async (tx) => {
+      let run;
 
-    if (existing) {
-      await tx.optimizationCandidate.deleteMany({
-        where: { optimizationRunId: existing.id },
-      });
-      await tx.optimizationRunShipment.deleteMany({
-        where: { optimizationRunId: existing.id },
+      if (existing) {
+        await tx.optimizationCandidate.deleteMany({
+          where: { optimizationRunId: existing.id },
+        });
+        await tx.optimizationRunShipment.deleteMany({
+          where: { optimizationRunId: existing.id },
+        });
+
+        run = await tx.optimizationRun.update({
+          where: { id: existing.id },
+          data: {
+            warehouseId,
+            requestedById,
+            status: 'COMPLETED',
+            notes: `Optimization generated via ${source}`,
+            errorMessage: null,
+            completedAt: new Date(),
+          },
+        });
+      } else {
+        run = await tx.optimizationRun.create({
+          data: {
+            warehouseId,
+            requestedById,
+            status: 'COMPLETED',
+            cacheKey,
+            notes: `Optimization generated via ${source}`,
+            completedAt: new Date(),
+          },
+        });
+      }
+
+      await tx.optimizationRunShipment.createMany({
+        data: shipmentIds.map((shipmentId) => ({
+          optimizationRunId: run.id,
+          shipmentId,
+        })),
       });
 
-      run = await tx.optimizationRun.update({
-        where: { id: existing.id },
-        data: {
-          warehouseId,
-          requestedById,
-          status: 'COMPLETED',
-          notes: `Optimization generated via ${source}`,
-          errorMessage: null,
-          completedAt: new Date(),
-        },
-      });
-    } else {
-      run = await tx.optimizationRun.create({
-        data: {
-          warehouseId,
-          requestedById,
-          status: 'COMPLETED',
-          cacheKey,
-          notes: `Optimization generated via ${source}`,
-          completedAt: new Date(),
-        },
-      });
-    }
-
-    await tx.optimizationRunShipment.createMany({
-      data: shipmentIds.map((shipmentId) => ({
-        optimizationRunId: run.id,
-        shipmentId,
-      })),
-    });
-
-    for (const [index, result] of results.entries()) {
-      await tx.optimizationCandidate.create({
-        data: {
+      await tx.optimizationCandidate.createMany({
+        data: results.map((result, index) => ({
           optimizationRunId: run.id,
           ...toCandidateRecord(result, index),
-        },
+        })),
       });
-    }
 
-    return tx.optimizationRun.findUnique({
-      where: { id: run.id },
-      include: runInclude,
-    });
-  });
+      return tx.optimizationRun.findUnique({
+        where: { id: run.id },
+        include: runInclude,
+      });
+    },
+    { timeout: 20000 }
+  );
 };
 
 const buildCacheKey = (shipments) => {
@@ -583,7 +591,7 @@ const buildCacheKey = (shipments) => {
   return `opt_${crypto.createHash('sha1').update(signature).digest('hex')}`;
 };
 
-const scoreCandidates = async (shipments, trucks) => {
+const scoreCandidates = async (shipments, trucks, options = {}) => {
   const maxBaseRate = Math.max(
     ...trucks.map((truck) => Number(truck.dealer?.baseRatePerKmTon || 0)),
     1
@@ -608,31 +616,34 @@ const scoreCandidates = async (shipments, trucks) => {
     return { results: heuristicResults.slice(0, 10), source: 'heuristic' };
   }
 
-  const ranked = [];
+  const ranked = (
+    await Promise.all(
+      mlScored.map(async (entry) => {
+        const fallback = heuristicById.get(entry.truckId);
+        if (!fallback) {
+          return null;
+        }
 
-  for (const entry of mlScored) {
-    const fallback = heuristicById.get(entry.truckId);
-    if (!fallback) {
-      continue;
-    }
+        const route = options.lightweight
+          ? fallback.route
+          : normalizeMlRoute(await callMlRoute(fallback.truck, shipments), fallback.route);
 
-    const mlRoute = await callMlRoute(fallback.truck, shipments);
-    const route = normalizeMlRoute(mlRoute, fallback.route);
-
-    ranked.push({
-      truck: fallback.truck,
-      route,
-      estimatedCost: Number(entry.estimatedCost || fallback.estimatedCost),
-      co2Saved: Number(entry.co2SavedKg || fallback.co2Saved),
-      scores: {
-        utilization: Number(entry.scores?.utilization || fallback.scores.utilization),
-        route: Number(entry.scores?.route || fallback.scores.route),
-        cost: Number(entry.scores?.cost || fallback.scores.cost),
-        co2: Number(entry.scores?.co2 || fallback.scores.co2),
-        composite: Number(entry.compositeScore || fallback.scores.composite),
-      },
-    });
-  }
+        return {
+          truck: fallback.truck,
+          route,
+          estimatedCost: Number(entry.estimatedCost || fallback.estimatedCost),
+          co2Saved: Number(entry.co2SavedKg || fallback.co2Saved),
+          scores: {
+            utilization: Number(entry.scores?.utilization || fallback.scores.utilization),
+            route: Number(entry.scores?.route || fallback.scores.route),
+            cost: Number(entry.scores?.cost || fallback.scores.cost),
+            co2: Number(entry.scores?.co2 || fallback.scores.co2),
+            composite: Number(entry.compositeScore || fallback.scores.composite),
+          },
+        };
+      })
+    )
+  ).filter(Boolean);
 
   if (!ranked.length) {
     return { results: heuristicResults.slice(0, 10), source: 'heuristic' };
@@ -642,7 +653,7 @@ const scoreCandidates = async (shipments, trucks) => {
   return { results: ranked.slice(0, 10), source: 'ml' };
 };
 
-const scoreTrucks = async ({ shipmentIds, forceRefresh }, user) => {
+const scoreTrucks = async ({ shipmentIds, forceRefresh }, user, options = {}) => {
   const warehouse = await getWarehouseProfile(user.userId);
   const shipments = await prisma.shipment.findMany({
     where: {
@@ -671,10 +682,17 @@ const scoreTrucks = async ({ shipmentIds, forceRefresh }, user) => {
   }
 
   const destinationCities = uniqueDestinations(shipments).map((shipment) => shipment.destCity);
+
+  // Pre-calculate total weight/volume to filter at DB level — avoids fetching ineligible trucks
+  const totalWeight = shipments.reduce((sum, s) => sum + Number(s.weightKg || 0), 0);
+  const totalVolume = shipments.reduce((sum, s) => sum + Number(s.volumeM3 || 0), 0);
+
   const trucks = await prisma.truck.findMany({
     where: {
       isActive: true,
       status: 'AVAILABLE',
+      maxWeightKg: { gte: totalWeight },
+      maxVolumeM3: { gte: totalVolume },
     },
     include: truckInclude,
   });
@@ -689,7 +707,7 @@ const scoreTrucks = async ({ shipmentIds, forceRefresh }, user) => {
     );
   }
 
-  const { results, source } = await scoreCandidates(shipments, eligibleTrucks);
+  const { results, source } = await scoreCandidates(shipments, eligibleTrucks, options);
   const persisted = await persistRun({
     cacheKey,
     warehouseId: warehouse.id,
@@ -763,73 +781,82 @@ const fitTruckType = (weightKg, volumeM3) => {
   return 'MULTI_AXLE';
 };
 
-const truckFitEstimate = async ({ weightKg, volumeM3, originCity, destCity }, user) => {
+const truckFitEstimate = async (
+  { weightKg, volumeM3, originCity, destCity },
+  user,
+  options = {}
+) => {
   await getWarehouseProfile(user.userId);
 
-  const availableTrucks = await prisma.truck.findMany({
-    where: {
-      isActive: true,
-      status: 'AVAILABLE',
-    },
-    include: truckInclude,
-  });
+  return truckFitCache.getOrSet(
+    ['truck-fit', weightKg, volumeM3, originCity, destCity, Boolean(options.preferFast)],
+    async () => {
+      // Filter at DB level — avoids fetching trucks that can't carry the shipment
+      const availableTrucks = await prisma.truck.findMany({
+        where: {
+          isActive: true,
+          status: 'AVAILABLE',
+          maxWeightKg: { gte: weightKg },
+          maxVolumeM3: { gte: volumeM3 },
+        },
+        include: truckInclude,
+      });
 
-  const eligible = availableTrucks.filter(
-    (truck) =>
-      truck.maxWeightKg >= weightKg &&
-      truck.maxVolumeM3 >= volumeM3 &&
-      isTruckEligible(truck, originCity, [destCity])
+      const eligible = availableTrucks.filter(
+        (truck) =>
+          isTruckEligible(truck, originCity, [destCity])
+      );
+
+      const recommendedType =
+        eligible
+          .sort(
+            (left, right) =>
+              left.maxWeightKg - right.maxWeightKg || left.maxVolumeM3 - right.maxVolumeM3
+          )[0]?.truckType || fitTruckType(weightKg, volumeM3);
+
+      const candidateRates = eligible.map((truck) => Number(truck.dealer?.baseRatePerKmTon || 0));
+      const avgRate =
+        candidateRates.length > 0
+          ? candidateRates.reduce((sum, rate) => sum + rate, 0) / candidateRates.length
+          : 22;
+      const estimatedDistanceKm = await getEstimatedDistanceKm(originCity, destCity);
+      const fallbackCost = Math.round(avgRate * (weightKg / 1000) * estimatedDistanceKm);
+      const fallbackCo2Kg = Number(
+        (
+          (estimatedDistanceKm / 4.5) *
+          2.68 *
+          clamp((weightKg / Math.max(volumeM3 * 180, 1)) / 10, 0.7, 1.15)
+        ).toFixed(1)
+      );
+      const mlInsights = options.preferFast
+        ? null
+        : await callMlTruckFitInsights({
+            distanceKm: estimatedDistanceKm,
+            weightKg,
+            volumeM3,
+            recommendedType,
+            originCity,
+            destCity,
+          });
+
+      const estimatedCost = Math.round(mlInsights?.pricing?.estimated_price ?? fallbackCost);
+      const estimatedCo2Kg = Number((mlInsights?.co2?.emitted_kg ?? fallbackCo2Kg).toFixed(1));
+
+      return {
+        recommendedType,
+        estimatedDistanceKm,
+        estimatedCost,
+        estimatedCostRange: {
+          min: Math.round(mlInsights?.pricing?.confidence_interval?.[0] ?? estimatedCost * 0.9),
+          max: Math.round(mlInsights?.pricing?.confidence_interval?.[1] ?? estimatedCost * 1.12),
+        },
+        estimatedCO2Kg: estimatedCo2Kg,
+        availableTruckCount: eligible.length,
+        availableTruckTypes: [...new Set(eligible.map((truck) => truck.truckType))],
+        estimationSource: mlInsights?.source || 'heuristic',
+      };
+    }
   );
-
-  const recommendedType =
-    eligible
-      .sort(
-        (left, right) =>
-          left.maxWeightKg - right.maxWeightKg || left.maxVolumeM3 - right.maxVolumeM3
-      )[0]?.truckType || fitTruckType(weightKg, volumeM3);
-
-  const candidateRates = eligible.map((truck) => Number(truck.dealer?.baseRatePerKmTon || 0));
-  const avgRate =
-    candidateRates.length > 0
-      ? candidateRates.reduce((sum, rate) => sum + rate, 0) / candidateRates.length
-      : 22;
-  const estimatedDistanceKm = await getEstimatedDistanceKm(originCity, destCity);
-  const fallbackCost = Math.round(avgRate * (weightKg / 1000) * estimatedDistanceKm);
-  const fallbackCo2Kg = Number(
-    (
-      (estimatedDistanceKm / 4.5) *
-      2.68 *
-      clamp((weightKg / Math.max(volumeM3 * 180, 1)) / 10, 0.7, 1.15)
-    ).toFixed(1)
-  );
-  const mlInsights = await callMlTruckFitInsights({
-    distanceKm: estimatedDistanceKm,
-    weightKg,
-    volumeM3,
-    recommendedType,
-    originCity,
-    destCity,
-  });
-
-  const estimatedCost = Math.round(
-    mlInsights?.pricing?.estimated_price ?? fallbackCost
-  );
-  const estimatedCo2Kg = Number(
-    (mlInsights?.co2?.emitted_kg ?? fallbackCo2Kg).toFixed(1)
-  );
-
-  return {
-    recommendedType,
-    estimatedCost,
-    estimatedCostRange: {
-      min: Math.round(mlInsights?.pricing?.confidence_interval?.[0] ?? estimatedCost * 0.9),
-      max: Math.round(mlInsights?.pricing?.confidence_interval?.[1] ?? estimatedCost * 1.12),
-    },
-    estimatedCO2Kg: estimatedCo2Kg,
-    availableTruckCount: eligible.length,
-    availableTruckTypes: [...new Set(eligible.map((truck) => truck.truckType))],
-    estimationSource: mlInsights?.source || 'heuristic',
-  };
 };
 
 module.exports = {

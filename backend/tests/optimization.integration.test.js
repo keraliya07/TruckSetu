@@ -11,7 +11,7 @@ before(async () => {
   warehouseClient = createClient(testServer.baseUrl);
 
   const warehouseLogin = await warehouseClient.login(
-    'warehouse@stlos.dev',
+  'warehouse@trucksetu.dev',
     'Warehouse123'
   );
 
@@ -32,6 +32,7 @@ test('warehouse can score trucks, read cached optimization results, and get a fi
       description: 'Phase 3 optimization test shipment',
       weightKg: 1800,
       volumeM3: 10,
+      autoDispatch: false,
       destCity: 'Surat',
       destAddress: 'Hazira Road, Surat',
       destLat: 21.1702,

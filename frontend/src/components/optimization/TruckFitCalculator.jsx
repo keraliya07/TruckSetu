@@ -1,7 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 
 import { truckFitEstimate } from '../../api/optimization.api';
@@ -15,13 +14,11 @@ const schema = z.object({
   destCity: z.string().min(2),
 });
 
-export default function TruckFitCalculator({ defaultOriginCity, onCreateShipment }) {
-  const navigate = useNavigate();
+export default function TruckFitCalculator({ defaultOriginCity }) {
   const [result, setResult] = useState(null);
   const [serverError, setServerError] = useState('');
   const {
     register,
-    watch,
     handleSubmit,
     setValue,
     formState: { errors, isSubmitting },
@@ -41,8 +38,6 @@ export default function TruckFitCalculator({ defaultOriginCity, onCreateShipment
     }
   }, [defaultOriginCity, setValue]);
 
-  const values = watch();
-
   const onSubmit = async (formValues) => {
     setServerError('');
 
@@ -54,30 +49,15 @@ export default function TruckFitCalculator({ defaultOriginCity, onCreateShipment
     }
   };
 
-  const handleCreateShipment = () => {
-    if (onCreateShipment) {
-      onCreateShipment(values);
-      return;
-    }
-
-    const query = new URLSearchParams({
-      weightKg: String(values.weightKg),
-      volumeM3: String(values.volumeM3),
-      destCity: values.destCity,
-    });
-
-    navigate(`/warehouse/shipments/new?${query.toString()}`);
-  };
-
   return (
     <section className="panel p-6">
       <div>
         <p className="text-sm uppercase tracking-[0.2em] text-slate-500">Truck fit</p>
         <h3 className="mt-2 font-heading text-3xl text-slate-950">
-          Quick capacity estimate
+          Truck estimation check
         </h3>
         <p className="mt-2 text-sm text-slate-600">
-          Check the likely truck category and market range before you run a full optimization.
+          Check the likely truck category, market range, and live truck availability for a proposed load without creating a shipment.
         </p>
       </div>
 
@@ -153,7 +133,7 @@ export default function TruckFitCalculator({ defaultOriginCity, onCreateShipment
       ) : null}
 
       {result ? (
-        <div className="mt-6 grid gap-4 lg:grid-cols-4">
+        <div className="mt-6 grid gap-4 lg:grid-cols-3">
           <div className="rounded-3xl bg-slate-50 px-4 py-4">
             <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Recommended</p>
             <p className="mt-2 text-lg font-semibold text-slate-950">
@@ -175,21 +155,6 @@ export default function TruckFitCalculator({ defaultOriginCity, onCreateShipment
             <p className="mt-2 text-lg font-semibold text-slate-950">
               {formatNumber(result.estimatedCO2Kg)} kg
             </p>
-          </div>
-          <div className="rounded-3xl bg-slate-50 px-4 py-4">
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Available trucks</p>
-            <p className="mt-2 text-lg font-semibold text-slate-950">
-              {formatNumber(result.availableTruckCount, { maximumFractionDigits: 0 })}
-            </p>
-            <p className="mt-1 text-sm text-slate-600">
-              {result.availableTruckTypes?.join(', ') || 'No live match yet'}
-            </p>
-          </div>
-
-          <div className="lg:col-span-4">
-            <button className="btn-secondary" onClick={handleCreateShipment} type="button">
-              Create shipment with these details
-            </button>
           </div>
         </div>
       ) : null}

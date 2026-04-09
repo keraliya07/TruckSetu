@@ -5,9 +5,27 @@ import { MapContainer, TileLayer, useMap } from 'react-leaflet';
 import RoutePolyline from './RoutePolyline';
 import StopMarker from './StopMarker';
 import TruckMarker from './TruckMarker';
+import { findCity } from '../../data/logisticsOptions';
 import { formatNumber } from '../../utils/formatters';
 
 const INDIA_CENTER = [22.9734, 78.6569];
+
+function isMissingCoordinate(lat, lng) {
+  return lat == null || lng == null || (Number(lat) === 0 && Number(lng) === 0);
+}
+
+function resolvePosition(lat, lng, city) {
+  if (!isMissingCoordinate(lat, lng)) {
+    return { lat, lng };
+  }
+
+  const fallback = findCity(city);
+  if (!fallback) {
+    return null;
+  }
+
+  return { lat: fallback.lat, lng: fallback.lng };
+}
 
 function FitBounds({ points }) {
   const map = useMap();
@@ -37,18 +55,43 @@ export default function TrackingMap({
   stops = [],
   locationHistory = [],
 }) {
-  const plannedCoordinates = useMemo(
+  const normalizedStops = useMemo(
     () =>
       stops
+        .map((stop) => {
+          const position = resolvePosition(stop.lat, stop.lng, stop.city);
+          return position
+            ? {
+                ...stop,
+                lat: position.lat,
+                lng: position.lng,
+              }
+            : stop;
+        })
+        .filter((stop) => !isMissingCoordinate(stop.lat, stop.lng)),
+    [stops]
+  );
+
+  const normalizedTruckPosition = useMemo(() => {
+    if (!truckPosition) {
+      return null;
+    }
+
+    return resolvePosition(truckPosition.lat, truckPosition.lng, trip?.truck?.currentCity);
+  }, [trip?.truck?.currentCity, truckPosition]);
+
+  const plannedCoordinates = useMemo(
+    () =>
+      normalizedStops
         .filter((stop) => stop.lat != null && stop.lng != null)
         .map((stop) => [stop.lat, stop.lng]),
-    [stops]
+    [normalizedStops]
   );
 
   const liveTrail = useMemo(
     () =>
       locationHistory
-        .filter((location) => location.lat != null && location.lng != null)
+        .filter((location) => !isMissingCoordinate(location.lat, location.lng))
         .map((location) => [location.lat, location.lng]),
     [locationHistory]
   );
@@ -56,14 +99,14 @@ export default function TrackingMap({
   const boundsPoints = useMemo(() => {
     const next = [...plannedCoordinates, ...liveTrail];
 
-    if (truckPosition?.lat != null && truckPosition?.lng != null) {
-      next.push([truckPosition.lat, truckPosition.lng]);
+    if (normalizedTruckPosition?.lat != null && normalizedTruckPosition?.lng != null) {
+      next.push([normalizedTruckPosition.lat, normalizedTruckPosition.lng]);
     }
 
     return next;
-  }, [liveTrail, plannedCoordinates, truckPosition?.lat, truckPosition?.lng]);
+  }, [liveTrail, normalizedTruckPosition?.lat, normalizedTruckPosition?.lng, plannedCoordinates]);
 
-  const completedStops = stops.filter((stop) => stop.status === 'COMPLETED').length;
+  const completedStops = normalizedStops.filter((stop) => stop.status === 'COMPLETED').length;
 
   return (
     <section className="panel h-full overflow-hidden p-5">
@@ -76,10 +119,10 @@ export default function TrackingMap({
           <span className="rounded-full bg-slate-100 px-3 py-2">
             {completedStops}/{stops.length || 0} stops complete
           </span>
-          {truckPosition ? (
+          {normalizedTruckPosition ? (
             <span className="rounded-full bg-brand-50 px-3 py-2 text-brand-700">
-              {formatNumber(truckPosition.lat, { maximumFractionDigits: 3 })},{' '}
-              {formatNumber(truckPosition.lng, { maximumFractionDigits: 3 })}
+              {formatNumber(normalizedTruckPosition.lat, { maximumFractionDigits: 3 })},{' '}
+              {formatNumber(normalizedTruckPosition.lng, { maximumFractionDigits: 3 })}
             </span>
           ) : null}
         </div>
@@ -127,7 +170,7 @@ export default function TrackingMap({
               />
             ) : null}
 
-            {stops.map((stop) => (
+            {normalizedStops.map((stop) => (
               <StopMarker
                 key={stop.id || `${stop.type}-${stop.sequence}`}
                 city={stop.city}
@@ -141,7 +184,14 @@ export default function TrackingMap({
 
             <TruckMarker
               heading={truckPosition?.heading}
-              position={truckPosition}
+              position={
+                normalizedTruckPosition
+                  ? {
+                      ...(truckPosition || {}),
+                      ...normalizedTruckPosition,
+                    }
+                  : null
+              }
               recordedAt={truckPosition?.recordedAt}
               registrationNo={trip?.truck?.registrationNo}
               speed={truckPosition?.speed}

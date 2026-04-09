@@ -49,38 +49,24 @@ async function provisionTrip() {
 
   assert.equal(createShipment.response.status, 201);
   const shipmentId = createShipment.body.id;
+  assert.equal(createShipment.body.status, 'BOOKING_PENDING');
 
-  const markPending = await warehouseClient.request('/shipments/batch-status', {
+  const dealerBookings = await dealerClient.request('/bookings?status=SENT&limit=50');
+  assert.equal(dealerBookings.response.status, 200);
+
+  const autoBooking = dealerBookings.body.bookings.find((booking) =>
+    booking.shipments.some((entry) => entry.shipment.id === shipmentId)
+  );
+
+  assert.ok(autoBooking);
+
+  const approveBooking = await dealerClient.request(`/bookings/${autoBooking.id}/respond`, {
     method: 'PATCH',
     body: {
-      shipmentIds: [shipmentId],
-      status: 'PENDING',
+      action: 'APPROVE',
+      dealerNote: 'Tracking test approval',
     },
   });
-
-  assert.equal(markPending.response.status, 200);
-
-  const createBooking = await warehouseClient.request('/bookings', {
-    method: 'POST',
-    body: {
-      shipmentIds: [shipmentId],
-      truckId: createTruck.body.id,
-      quotedPrice: 16250,
-    },
-  });
-
-  assert.equal(createBooking.response.status, 201);
-
-  const approveBooking = await dealerClient.request(
-    `/bookings/${createBooking.body.id}/respond`,
-    {
-      method: 'PATCH',
-      body: {
-        action: 'APPROVE',
-        dealerNote: 'Tracking test approval',
-      },
-    }
-  );
 
   assert.equal(approveBooking.response.status, 200);
   assert.ok(approveBooking.body.trip);
@@ -97,10 +83,10 @@ before(async () => {
   dealerClient = createClient(testServer.baseUrl);
 
   const warehouseLogin = await warehouseClient.login(
-    'warehouse@stlos.dev',
+  'warehouse@trucksetu.dev',
     'Warehouse123'
   );
-  const dealerLogin = await dealerClient.login('dealer@stlos.dev', 'Dealer123');
+  const dealerLogin = await dealerClient.login('dealer@trucksetu.dev', 'Dealer123');
 
   assert.equal(warehouseLogin.response.status, 200);
   assert.equal(dealerLogin.response.status, 200);

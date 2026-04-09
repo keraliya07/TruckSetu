@@ -8,7 +8,7 @@ const ApiError = require('../utils/apiError.utils');
 
 const getIO = () => require('../config/socket').getIO?.() || null;
 
-const tripInclude = {
+const tripDetailInclude = {
   truck: {
     include: {
       dealer: true,
@@ -47,6 +47,35 @@ const tripInclude = {
   },
 };
 
+const tripSnapshotSelect = {
+  id: true,
+  dealerId: true,
+  truckId: true,
+  truck: {
+    select: {
+      id: true,
+      currentLat: true,
+      currentLng: true,
+    },
+  },
+  bookingRequest: {
+    select: {
+      warehouseId: true,
+    },
+  },
+  stops: {
+    orderBy: {
+      sequence: 'asc',
+    },
+  },
+  locations: {
+    orderBy: {
+      recordedAt: 'desc',
+    },
+    take: 1,
+  },
+};
+
 const getDealerProfile = async (userId) => {
   const dealer = await prisma.truckDealer.findUnique({
     where: { userId },
@@ -74,7 +103,20 @@ const getWarehouseProfile = async (userId) => {
 const getTripOrThrow = async (tripId) => {
   const trip = await prisma.trip.findUnique({
     where: { id: tripId },
-    include: tripInclude,
+    include: tripDetailInclude,
+  });
+
+  if (!trip) {
+    throw ApiError.notFound('Trip not found');
+  }
+
+  return trip;
+};
+
+const getTripSnapshotOrThrow = async (tripId) => {
+  const trip = await prisma.trip.findUnique({
+    where: { id: tripId },
+    select: tripSnapshotSelect,
   });
 
   if (!trip) {
@@ -147,7 +189,7 @@ const joinTripRoom = async (socket, tripId, user) => {
 };
 
 const getLatestLocation = async (tripId, user) => {
-  const trip = await getTripOrThrow(tripId);
+  const trip = await getTripSnapshotOrThrow(tripId);
   await assertTripAccess(trip, user);
 
   return {
@@ -169,7 +211,7 @@ const getLatestLocation = async (tripId, user) => {
 };
 
 const getLocationHistory = async (tripId, { limit }, user) => {
-  const trip = await getTripOrThrow(tripId);
+  const trip = await getTripSnapshotOrThrow(tripId);
   await assertTripAccess(trip, user);
 
   const locations = await prisma.tripLocation.findMany({
@@ -185,7 +227,7 @@ const getLocationHistory = async (tripId, { limit }, user) => {
 };
 
 const broadcastLocation = async (tripId, data, user) => {
-  const trip = await getTripOrThrow(tripId);
+  const trip = await getTripSnapshotOrThrow(tripId);
   await assertTripAccess(trip, user);
 
   if (user.role !== 'DEALER') {
@@ -248,11 +290,11 @@ const completeStop = async (tripId, stopId, user) => {
         tripId: updatedTrip.id,
       },
       email: {
-        subject: 'STLOS trip delivered',
+        subject: 'TruckSetu trip delivered',
         text: `Trip ${updatedTrip.id.slice(0, 8)} has been delivered successfully.`,
         html: `
           <p>Trip <strong>${updatedTrip.id.slice(0, 8)}</strong> has been delivered.</p>
-          <p>You can review the trip in your STLOS dashboard.</p>
+          <p>You can review the trip in your TruckSetu dashboard.</p>
         `,
       },
     });

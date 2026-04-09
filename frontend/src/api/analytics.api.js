@@ -16,10 +16,6 @@ export function getCO2Data(params) {
   return api.get('/analytics/co2', { params });
 }
 
-export function getDemandForecast(params) {
-  return api.get('/analytics/demand-forecast', { params });
-}
-
 export function downloadCO2Report(tripId) {
   return api.get('/analytics/co2-report/download', {
     params: { tripId },

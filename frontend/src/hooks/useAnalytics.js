@@ -1,14 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import {
-  getCO2Data,
-  getDashboardKPIs,
-  getDemandForecast,
-  getRevenueData,
-  getUtilizationData,
-} from '../api/analytics.api';
+import { getCO2Data, getDashboardKPIs, getRevenueData, getUtilizationData } from '../api/analytics.api';
 
-export function useAnalytics(scope = 'dealer', period = '30d') {
+export function useAnalytics(_scope = 'dealer', period = '30d') {
   const [state, setState] = useState({
     analytics: null,
     error: null,
@@ -27,18 +21,12 @@ export function useAnalytics(scope = 'dealer', period = '30d') {
 
       try {
         const baseParams = { period };
-        const requests = [
+        const [kpis, revenue, utilization, co2] = await Promise.all([
           getDashboardKPIs(baseParams),
           getRevenueData(baseParams),
           getUtilizationData(baseParams),
           getCO2Data(baseParams),
-        ];
-
-        if (scope === 'admin') {
-          requests.push(getDemandForecast({ horizon: '7d' }));
-        }
-
-        const [kpis, revenue, utilization, co2, forecast] = await Promise.all(requests);
+        ]);
 
         if (cancelled) {
           return;
@@ -56,8 +44,6 @@ export function useAnalytics(scope = 'dealer', period = '30d') {
               perTripAvg: co2.perTripAvg || 0,
               timeSeries: co2.timeSeries || [],
             },
-            heatmapData: forecast?.data || [],
-            forecastHorizon: forecast?.horizon || '7d',
           },
         });
       } catch (error) {
@@ -78,7 +64,7 @@ export function useAnalytics(scope = 'dealer', period = '30d') {
     return () => {
       cancelled = true;
     };
-  }, [period, scope]);
+  }, [period]);
 
   return state;
 }

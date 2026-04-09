@@ -2,12 +2,16 @@ const prisma = require('../config/db');
 const ApiError = require('../utils/apiError.utils');
 const invoiceService = require('./invoice.service');
 const { MlServiceError, forecastDemand: forecastDemandWithMl } = require('./ml.service');
+const { TtlCache } = require('../utils/cache.utils');
 
 const periodDaysMap = {
   '7d': 7,
   '30d': 30,
   '90d': 90,
 };
+const ANALYTICS_CACHE_TTL_MS = 60 * 1000;
+const analyticsDataCache = new TtlCache(ANALYTICS_CACHE_TTL_MS);
+const analyticsResultCache = new TtlCache(ANALYTICS_CACHE_TTL_MS);
 
 const getStartDate = (period = '30d') => {
   const days = periodDaysMap[period] || 30;
@@ -177,136 +181,204 @@ const mapCo2Series = (period, trips) => {
   });
 };
 
-const getDealerAnalyticsData = async (dealerId, period) => {
-  const startDate = getStartDate(period);
-  const [trips, trucks] = await Promise.all([
-    prisma.trip.findMany({
-      where: {
-        dealerId,
-        createdAt: {
-          gte: startDate,
-        },
-      },
-      include: {
-        bookingRequest: true,
-        truck: true,
-        shipments: {
-          include: {
-            shipment: true,
+const getDealerAnalyticsData = async (dealerId, period) =>
+  analyticsDataCache.getOrSet(['analytics', 'dealer', dealerId, period], async () => {
+    const startDate = getStartDate(period);
+    // Use select for lean queries — only fetch fields needed for metric calculations
+    const [trips, trucks] = await Promise.all([
+      prisma.trip.findMany({
+        where: {
+          dealerId,
+          createdAt: {
+            gte: startDate,
           },
         },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    }),
-    prisma.truck.findMany({
-      where: {
-        dealerId,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    }),
-  ]);
-
-  return { trips, trucks };
-};
-
-const getWarehouseAnalyticsData = async (warehouseId, period) => {
-  const startDate = getStartDate(period);
-  const [shipments, bookings, trips] = await Promise.all([
-    prisma.shipment.findMany({
-      where: {
-        warehouseId,
-        createdAt: {
-          gte: startDate,
-        },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    }),
-    prisma.bookingRequest.findMany({
-      where: {
-        warehouseId,
-        createdAt: {
-          gte: startDate,
-        },
-      },
-      include: {
-        truck: true,
-      },
-    }),
-    prisma.trip.findMany({
-      where: {
-        bookingRequest: {
-          is: {
-            warehouseId,
+        select: {
+          id: true,
+          status: true,
+          truckId: true,
+          estimatedCost: true,
+          actualCost: true,
+          baselineCo2Kg: true,
+          tripCo2Kg: true,
+          co2SavedKg: true,
+          createdAt: true,
+          completedAt: true,
+          bookingRequest: {
+            select: { finalPrice: true, quotedPrice: true },
+          },
+          truck: {
+            select: { id: true, maxWeightKg: true, registrationNo: true, status: true },
+          },
+          shipments: {
+            select: { shipment: { select: { weightKg: true } } },
           },
         },
-        createdAt: {
-          gte: startDate,
+        orderBy: {
+          createdAt: 'desc',
         },
-      },
-      include: {
-        bookingRequest: true,
-        truck: true,
-        shipments: {
-          include: {
-            shipment: true,
+      }),
+      prisma.truck.findMany({
+        where: {
+          dealerId,
+        },
+        select: {
+          id: true,
+          registrationNo: true,
+          status: true,
+          createdAt: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+    ]);
+
+    return { trips, trucks };
+  });
+
+const getWarehouseAnalyticsData = async (warehouseId, period) =>
+  analyticsDataCache.getOrSet(['analytics', 'warehouse', warehouseId, period], async () => {
+    const startDate = getStartDate(period);
+    // Use select for lean queries — only fetch fields used in metric calculations
+    const [shipments, bookings, trips] = await Promise.all([
+      prisma.shipment.findMany({
+        where: {
+          warehouseId,
+          createdAt: {
+            gte: startDate,
           },
         },
-      },
-    }),
-  ]);
-
-  return { shipments, bookings, trips };
-};
-
-const getAdminAnalyticsData = async (period) => {
-  const startDate = getStartDate(period);
-
-  const [shipments, trips, trucks, users] = await Promise.all([
-    prisma.shipment.findMany({
-      where: {
-        createdAt: {
-          gte: startDate,
+        select: {
+          id: true,
+          status: true,
+          destCity: true,
+          weightKg: true,
+          createdAt: true,
         },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    }),
-    prisma.trip.findMany({
-      where: {
-        createdAt: {
-          gte: startDate,
+        orderBy: {
+          createdAt: 'desc',
         },
-      },
-      include: {
-        bookingRequest: true,
-        truck: true,
-        shipments: {
-          include: {
-            shipment: true,
+      }),
+      prisma.bookingRequest.findMany({
+        where: {
+          warehouseId,
+          createdAt: {
+            gte: startDate,
           },
         },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    }),
-    prisma.truck.findMany({
-      orderBy: {
-        createdAt: 'desc',
-      },
-    }),
-    prisma.user.findMany(),
-  ]);
+        select: {
+          id: true,
+          finalPrice: true,
+          quotedPrice: true,
+        },
+      }),
+      prisma.trip.findMany({
+        where: {
+          bookingRequest: {
+            is: {
+              warehouseId,
+            },
+          },
+          createdAt: {
+            gte: startDate,
+          },
+        },
+        select: {
+          id: true,
+          status: true,
+          truckId: true,
+          estimatedCost: true,
+          actualCost: true,
+          baselineCo2Kg: true,
+          tripCo2Kg: true,
+          co2SavedKg: true,
+          createdAt: true,
+          completedAt: true,
+          bookingRequest: {
+            select: { finalPrice: true, quotedPrice: true },
+          },
+          truck: {
+            select: { id: true, maxWeightKg: true },
+          },
+          shipments: {
+            select: { shipment: { select: { weightKg: true } } },
+          },
+        },
+      }),
+    ]);
 
-  return { shipments, trips, trucks, users };
-};
+    return { shipments, bookings, trips };
+  });
+
+const getAdminAnalyticsData = async (period) =>
+  analyticsDataCache.getOrSet(['analytics', 'admin', period], async () => {
+    const startDate = getStartDate(period);
+    // Use select for lean queries — only fetch fields used in metric calculations
+    const [shipments, trips, trucks, users] = await Promise.all([
+      prisma.shipment.findMany({
+        where: {
+          createdAt: {
+            gte: startDate,
+          },
+        },
+        select: {
+          id: true,
+          status: true,
+          destCity: true,
+          weightKg: true,
+          createdAt: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+      prisma.trip.findMany({
+        where: {
+          createdAt: {
+            gte: startDate,
+          },
+        },
+        select: {
+          id: true,
+          status: true,
+          truckId: true,
+          estimatedCost: true,
+          actualCost: true,
+          baselineCo2Kg: true,
+          tripCo2Kg: true,
+          co2SavedKg: true,
+          createdAt: true,
+          completedAt: true,
+          bookingRequest: {
+            select: { finalPrice: true, quotedPrice: true },
+          },
+          truck: {
+            select: { id: true, maxWeightKg: true, registrationNo: true, status: true },
+          },
+          shipments: {
+            select: { shipment: { select: { weightKg: true } } },
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+      prisma.truck.findMany({
+        select: {
+          id: true,
+          status: true,
+          createdAt: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+      prisma.user.count(),
+    ]);
+
+    return { shipments, trips, trucks, userCount: users };
+  });
 
 const buildDealerMetrics = ({ trips, trucks }) => {
   const deliveredTrips = trips.filter((trip) => trip.status === 'DELIVERED');
@@ -414,7 +486,7 @@ const buildWarehouseMetrics = ({ shipments, bookings, trips }) => {
   };
 };
 
-const buildAdminMetrics = ({ shipments, trips, trucks, users }) => {
+const buildAdminMetrics = ({ shipments, trips, trucks, userCount }) => {
   const totalRevenue = trips.reduce((sum, trip) => sum + getTripRevenue(trip), 0);
   const totalCo2Saved = trips.reduce((sum, trip) => sum + getTripCo2Saved(trip), 0);
 
@@ -434,10 +506,10 @@ const buildAdminMetrics = ({ shipments, trips, trucks, users }) => {
     metrics: [
       {
         title: 'Total users',
-        value: users.length,
-        rawValue: users.length,
+        value: userCount,
+        rawValue: userCount,
         icon: 'activity',
-        change: users.length ? 5.1 : 0,
+        change: userCount ? 5.1 : 0,
       },
       {
         title: 'Platform revenue',
@@ -582,63 +654,74 @@ const getCO2 = async ({ period }, user) => {
 
 const getDemandForecast = async ({ period, city, horizon }, user) => {
   const scope = await resolveScope(user);
+  const scopeId =
+    scope.scope === 'dealer'
+      ? scope.dealer.id
+      : scope.scope === 'warehouse'
+        ? scope.warehouse.id
+        : 'all';
 
-  let shipments;
-  if (scope.scope === 'dealer') {
-    const startDate = getStartDate(period || '30d');
-    const trips = await prisma.trip.findMany({
-      where: {
-        dealerId: scope.dealer.id,
-        createdAt: {
-          gte: startDate,
-        },
-      },
-      include: {
-        shipments: {
-          include: {
-            shipment: true,
+  return analyticsResultCache.getOrSet(
+    ['analytics', 'forecast', scope.scope, scopeId, period || '30d', city || 'all', horizon],
+    async () => {
+      let shipments;
+      if (scope.scope === 'dealer') {
+        const startDate = getStartDate(period || '30d');
+        const trips = await prisma.trip.findMany({
+          where: {
+            dealerId: scope.dealer.id,
+            createdAt: {
+              gte: startDate,
+            },
           },
-        },
-      },
-    });
-    shipments = trips.flatMap((trip) => trip.shipments.map((entry) => entry.shipment));
-  } else if (scope.scope === 'warehouse') {
-    ({ shipments } = await getWarehouseAnalyticsData(scope.warehouse.id, period || '30d'));
-  } else {
-    ({ shipments } = await getAdminAnalyticsData(period || '30d'));
-  }
+          include: {
+            shipments: {
+              include: {
+                shipment: true,
+              },
+            },
+          },
+        });
+        shipments = trips.flatMap((trip) => trip.shipments.map((entry) => entry.shipment));
+      } else if (scope.scope === 'warehouse') {
+        ({ shipments } = await getWarehouseAnalyticsData(scope.warehouse.id, period || '30d'));
+      } else {
+        ({ shipments } = await getAdminAnalyticsData(period || '30d'));
+      }
 
-  const fallbackData = buildDemandForecast(shipments, { city, horizon });
-  const requestedCities = city
-    ? [city]
-    : [...new Set(shipments.map((shipment) => shipment.destCity).filter(Boolean))].slice(0, 6);
+      const fallbackData = buildDemandForecast(shipments, { city, horizon });
+      const requestedCities = city
+        ? [city]
+        : [...new Set(shipments.map((shipment) => shipment.destCity).filter(Boolean))].slice(0, 6);
 
-  try {
-    const forecasts = await forecastDemandWithMl({
-      cities: requestedCities,
-      horizon_days: horizon === '30d' ? 30 : 7,
-    });
+      try {
+        const forecasts = await forecastDemandWithMl({
+          cities: requestedCities,
+          horizon_days: horizon === '30d' ? 30 : 7,
+        });
 
-    return {
-      horizon,
-      source: 'ml',
-      data: toMlForecastRows(forecasts),
-    };
-  } catch (error) {
-    if (!(error instanceof MlServiceError)) {
-      throw error;
+        return {
+          horizon,
+          source: 'ml',
+          data: toMlForecastRows(forecasts),
+        };
+      } catch (error) {
+        if (!(error instanceof MlServiceError)) {
+          throw error;
+        }
+
+        console.warn(
+          `[analytics] ML forecast unavailable, falling back to heuristic forecast (${error.details.reason})`
+        );
+
+        return {
+          horizon,
+          source: 'heuristic',
+          data: fallbackData,
+        };
+      }
     }
-
-    console.warn(
-      `[analytics] ML forecast unavailable, falling back to heuristic forecast (${error.details.reason})`
-    );
-
-    return {
-      horizon,
-      source: 'heuristic',
-      data: fallbackData,
-    };
-  }
+  );
 };
 
 const downloadCO2Report = async ({ tripId }, user) => {

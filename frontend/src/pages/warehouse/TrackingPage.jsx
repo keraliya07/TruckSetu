@@ -22,7 +22,7 @@ export default function TrackingPage() {
         items={[
           { to: '/warehouse/shipments', label: 'Shipment board' },
           { to: '/warehouse/bookings', label: 'Bookings' },
-          { to: '/warehouse/optimization', label: 'Optimization' },
+          { to: '/warehouse/truck-estimation', label: 'Truck estimation' },
         ]}
       />
 

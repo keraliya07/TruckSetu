@@ -11,37 +11,37 @@ const {
 
 router.get(
   '/kpis',
-  requireRole('WAREHOUSE', 'DEALER', 'ADMIN'),
+  requireRole('WAREHOUSE', 'DEALER', 'ADMIN', 'ANALYST'),
   validate(analyticsQuerySchema, 'query'),
   controller.getKPIs
 );
 router.get(
   '/utilization',
-  requireRole('WAREHOUSE', 'DEALER', 'ADMIN'),
+  requireRole('WAREHOUSE', 'DEALER', 'ADMIN', 'ANALYST'),
   validate(analyticsQuerySchema, 'query'),
   controller.getUtilization
 );
 router.get(
   '/revenue',
-  requireRole('WAREHOUSE', 'DEALER', 'ADMIN'),
+  requireRole('WAREHOUSE', 'DEALER', 'ADMIN', 'ANALYST'),
   validate(analyticsQuerySchema, 'query'),
   controller.getRevenue
 );
 router.get(
   '/co2',
-  requireRole('WAREHOUSE', 'DEALER', 'ADMIN'),
+  requireRole('WAREHOUSE', 'DEALER', 'ADMIN', 'ANALYST'),
   validate(analyticsQuerySchema, 'query'),
   controller.getCO2
 );
 router.get(
   '/demand-forecast',
-  requireRole('WAREHOUSE', 'DEALER', 'ADMIN'),
+  requireRole('WAREHOUSE', 'DEALER', 'ADMIN', 'ANALYST'),
   validate(demandForecastQuerySchema, 'query'),
   controller.getDemandForecast
 );
 router.get(
   '/co2-report/download',
-  requireRole('WAREHOUSE', 'DEALER', 'ADMIN'),
+  requireRole('WAREHOUSE', 'DEALER', 'ADMIN', 'ANALYST'),
   validate(co2ReportQuerySchema, 'query'),
   controller.downloadCO2Report
 );

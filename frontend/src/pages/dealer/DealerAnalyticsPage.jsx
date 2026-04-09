@@ -26,7 +26,6 @@ export default function DealerAnalyticsPage() {
     >
       <PageTabs
         items={[
-          { to: '/dealer/fleet', label: 'Fleet' },
           { to: '/dealer/bookings', label: 'Booking requests' },
           { to: '/dealer/analytics', label: 'Analytics', active: true },
         ]}

@@ -1,7 +1,7 @@
+import { Menu } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useSocket } from '../../hooks/useSocket';
-import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 
 export default function DashboardShell({
@@ -29,7 +29,7 @@ export default function DashboardShell({
 
   return (
     <main className="min-h-screen bg-dashboard-grid bg-[size:24px_24px] px-3 py-3 sm:px-4 lg:px-5">
-      <div className="mx-auto flex max-w-[1500px] gap-4 lg:gap-6">
+      <div className="flex w-full items-start gap-4 lg:gap-6">
         <Sidebar
           isCollapsed={isSidebarCollapsed}
           isMobileOpen={isSidebarOpen}
@@ -37,12 +37,17 @@ export default function DashboardShell({
           onToggleCollapse={() => setIsSidebarCollapsed((current) => !current)}
         />
 
-        <div className="min-w-0 flex-1 space-y-4 lg:space-y-6">
-          <Navbar onOpenSidebar={() => setIsSidebarOpen(true)} />
-
+        <div className="min-w-0 flex-1 space-y-6">
           <header className="panel overflow-hidden">
             <div className="flex flex-col gap-6 p-6 lg:flex-row lg:items-end lg:justify-between lg:p-8">
               <div className="space-y-3">
+                <button
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 lg:hidden"
+                  onClick={() => setIsSidebarOpen(true)}
+                  type="button"
+                >
+                  <Menu className="h-5 w-5" />
+                </button>
                 <p className={`font-heading text-sm uppercase tracking-[0.35em] ${accent}`}>
                   {eyebrow}
                 </p>

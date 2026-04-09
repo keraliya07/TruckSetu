@@ -1,11 +1,13 @@
 export function getDashboardPath(role) {
   switch (role) {
     case 'WAREHOUSE':
-      return '/dashboard/warehouse';
+      return '/warehouse/shipments';
     case 'DEALER':
-      return '/dashboard/dealer';
+      return '/dealer/fleet';
     case 'ADMIN':
-      return '/dashboard/admin';
+      return '/admin/analytics';
+    case 'ANALYST':
+      return '/admin/analytics';
     default:
       return '/';
   }

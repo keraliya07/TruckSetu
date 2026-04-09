@@ -9,8 +9,8 @@ import { useSocket } from './hooks/useSocket';
 import { useAuthStore } from './store/authStore';
 import { getDashboardPath } from './utils/roleRoutes';
 
-const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
-const DisputePage = lazy(() => import('./pages/admin/DisputePage'));
+const AddAnalystPage = lazy(() => import('./pages/admin/AddAnalystPage'));
+const AnalystManagementPage = lazy(() => import('./pages/admin/AnalystManagementPage'));
 const SystemAnalyticsPage = lazy(() => import('./pages/admin/SystemAnalyticsPage'));
 const UserManagementPage = lazy(() => import('./pages/admin/UserManagementPage'));
 const ForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage'));
@@ -22,43 +22,18 @@ const VerifyEmailPage = lazy(() => import('./pages/auth/VerifyEmailPage'));
 const AddTruckPage = lazy(() => import('./pages/dealer/AddTruckPage'));
 const BookingRequestsPage = lazy(() => import('./pages/dealer/BookingRequestsPage'));
 const DealerAnalyticsPage = lazy(() => import('./pages/dealer/DealerAnalyticsPage'));
-const DealerDashboard = lazy(() => import('./pages/dealer/DealerDashboard'));
 const FleetPage = lazy(() => import('./pages/dealer/FleetPage'));
 const ReturnLoadPage = lazy(() => import('./pages/dealer/ReturnLoadPage'));
 const TripManagePage = lazy(() => import('./pages/dealer/TripManagePage'));
 const TruckDetailPage = lazy(() => import('./pages/dealer/TruckDetailPage'));
 const BookingDetailPage = lazy(() => import('./pages/shared/BookingDetailPage'));
-const AccountSecurityPage = lazy(() => import('./pages/shared/AccountSecurityPage'));
 const BookingPage = lazy(() => import('./pages/warehouse/BookingPage'));
 const CreateShipmentPage = lazy(() => import('./pages/warehouse/CreateShipmentPage'));
-const OptimizationPage = lazy(() => import('./pages/warehouse/OptimizationPage'));
 const ShipmentDetailPage = lazy(() => import('./pages/warehouse/ShipmentDetailPage'));
+const ShipmentHistoryPage = lazy(() => import('./pages/warehouse/ShipmentHistoryPage'));
 const ShipmentListPage = lazy(() => import('./pages/warehouse/ShipmentListPage'));
+const TruckEstimationPage = lazy(() => import('./pages/warehouse/TruckEstimationPage'));
 const TrackingPage = lazy(() => import('./pages/warehouse/TrackingPage'));
-const WarehouseDashboard = lazy(() => import('./pages/warehouse/WarehouseDashboard'));
-
-const phases = [
-  {
-    title: 'Phase 1-2',
-    summary: 'Foundation, persistent auth, Prisma data model, and database-backed sessions.',
-  },
-  {
-    title: 'Phase 3',
-    summary: 'Shipment, fleet, booking, trip, optimization, tracking, and analytics workflows.',
-  },
-  {
-    title: 'Phase 4-5',
-    summary: 'Realtime updates, Redis-backed Socket.IO pub-sub, and return-load matching.',
-  },
-  {
-    title: 'Phase 6-8',
-    summary: 'Admin analytics, PDFs, notifications, and local automation jobs.',
-  },
-  {
-    title: 'Phase 9-10',
-    summary: 'ML contract depth plus a shared UI shell with navigation, toasts, and error handling.',
-  },
-];
 
 function RouteLoader() {
   return (
@@ -89,14 +64,14 @@ function HomePage() {
         <section className="panel overflow-hidden">
           <div className="bg-gradient-to-br from-slate-950 via-freight-700 to-brand-600 p-8 text-white sm:p-10">
             <p className="font-heading text-sm uppercase tracking-[0.35em] text-white/65">
-              STLOS
+              TruckSetu
             </p>
             <h1 className="mt-5 max-w-3xl font-heading text-4xl leading-tight sm:text-5xl">
-              Smart Truck Loading Optimization System
+              Smart truck logistics for every route, load, and role.
             </h1>
             <p className="mt-4 max-w-2xl text-base text-white/80 sm:text-lg">
               A multi-role logistics platform with real shipment, fleet, booking, tracking,
-              optimization, and analytics foundations now running on live backend services.
+              truck estimation, and analytics foundations now running on live backend services.
             </p>
           </div>
 
@@ -136,65 +111,7 @@ function HomePage() {
               </Link>
             </div>
           </div>
-
-          <div className="panel p-6 sm:p-8">
-            <h2 className="font-heading text-2xl text-slate-950">Current rollout</h2>
-            <div className="mt-5 space-y-3">
-              {phases.map((phase) => (
-                <div
-                  key={phase.title}
-                  className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4"
-                >
-                  <p className="font-semibold text-slate-900">{phase.title}</p>
-                  <p className="mt-2 text-sm text-slate-600">{phase.summary}</p>
-                </div>
-              ))}
-            </div>
-            <Link className="mt-5 inline-block font-semibold text-freight-700" to="/status">
-              View detailed roadmap
-            </Link>
-          </div>
         </section>
-      </div>
-    </main>
-  );
-}
-
-function StatusPage() {
-  return (
-    <main className="min-h-screen px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-5xl space-y-6">
-        <section className="panel p-6 sm:p-8">
-          <p className="font-heading text-sm uppercase tracking-[0.3em] text-signal-600">
-            Project Status
-          </p>
-          <h1 className="mt-4 font-heading text-4xl text-slate-950">Delivery roadmap</h1>
-          <p className="mt-3 max-w-3xl text-slate-600">
-            The repository now spans persistent auth, operational CRUD modules, and the
-            product-grade detail, tracking, optimization, and analytics surfaces.
-          </p>
-        </section>
-
-        <section className="grid gap-4 md:grid-cols-3">
-          {phases.map((phase) => (
-            <article key={phase.title} className="panel p-5">
-              <p className="font-heading text-sm uppercase tracking-[0.25em] text-slate-500">
-                {phase.title}
-              </p>
-              <p className="mt-4 text-lg font-semibold text-slate-900">Live now</p>
-              <p className="mt-3 text-sm text-slate-600">{phase.summary}</p>
-            </article>
-          ))}
-        </section>
-
-        <div className="flex flex-wrap gap-3">
-          <Link className="btn-primary" to="/login">
-            Open the current build
-          </Link>
-          <Link className="btn-secondary" to="/">
-            Back home
-          </Link>
-        </div>
       </div>
     </main>
   );
@@ -221,7 +138,6 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
-      <Route path="/status" element={<StatusPage />} />
       <Route
         path="/login"
         element={
@@ -274,24 +190,11 @@ export default function App() {
       />
       <Route path="/dashboard" element={<DashboardRedirect />} />
       <Route
-        path="/account/security"
-        element={
-          <ProtectedRoute>
-            <LazyPage>
-              <AccountSecurityPage />
-            </LazyPage>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
         path="/dashboard/warehouse"
         element={
           <ProtectedRoute>
             <RoleGuard allowedRoles={['WAREHOUSE']}>
-              <LazyPage>
-                <WarehouseDashboard />
-              </LazyPage>
+              <Navigate replace to="/warehouse/shipments" />
             </RoleGuard>
           </ProtectedRoute>
         }
@@ -303,6 +206,18 @@ export default function App() {
             <RoleGuard allowedRoles={['WAREHOUSE']}>
               <LazyPage>
                 <ShipmentListPage />
+              </LazyPage>
+            </RoleGuard>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/warehouse/shipments/history"
+        element={
+          <ProtectedRoute>
+            <RoleGuard allowedRoles={['WAREHOUSE']}>
+              <LazyPage>
+                <ShipmentHistoryPage />
               </LazyPage>
             </RoleGuard>
           </ProtectedRoute>
@@ -361,8 +276,18 @@ export default function App() {
         element={
           <ProtectedRoute>
             <RoleGuard allowedRoles={['WAREHOUSE']}>
+              <Navigate replace to="/warehouse/bookings" />
+            </RoleGuard>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/warehouse/truck-estimation"
+        element={
+          <ProtectedRoute>
+            <RoleGuard allowedRoles={['WAREHOUSE']}>
               <LazyPage>
-                <OptimizationPage />
+                <TruckEstimationPage />
               </LazyPage>
             </RoleGuard>
           </ProtectedRoute>
@@ -386,9 +311,7 @@ export default function App() {
         element={
           <ProtectedRoute>
             <RoleGuard allowedRoles={['DEALER']}>
-              <LazyPage>
-                <DealerDashboard />
-              </LazyPage>
+              <Navigate replace to="/dealer/fleet" />
             </RoleGuard>
           </ProtectedRoute>
         }
@@ -491,22 +414,10 @@ export default function App() {
       />
 
       <Route
-        path="/dashboard/admin"
-        element={
-          <ProtectedRoute>
-            <RoleGuard allowedRoles={['ADMIN']}>
-              <LazyPage>
-                <AdminDashboard />
-              </LazyPage>
-            </RoleGuard>
-          </ProtectedRoute>
-        }
-      />
-      <Route
         path="/admin/analytics"
         element={
           <ProtectedRoute>
-            <RoleGuard allowedRoles={['ADMIN']}>
+            <RoleGuard allowedRoles={['ADMIN', 'ANALYST']}>
               <LazyPage>
                 <SystemAnalyticsPage />
               </LazyPage>
@@ -518,7 +429,7 @@ export default function App() {
         path="/admin/users"
         element={
           <ProtectedRoute>
-            <RoleGuard allowedRoles={['ADMIN']}>
+            <RoleGuard allowedRoles={['ADMIN', 'ANALYST']}>
               <LazyPage>
                 <UserManagementPage />
               </LazyPage>
@@ -527,18 +438,29 @@ export default function App() {
         }
       />
       <Route
-        path="/admin/disputes"
+        path="/admin/analysts"
         element={
           <ProtectedRoute>
             <RoleGuard allowedRoles={['ADMIN']}>
               <LazyPage>
-                <DisputePage />
+                <AnalystManagementPage />
               </LazyPage>
             </RoleGuard>
           </ProtectedRoute>
         }
       />
-
+      <Route
+        path="/admin/analysts/new"
+        element={
+          <ProtectedRoute>
+            <RoleGuard allowedRoles={['ADMIN']}>
+              <LazyPage>
+                <AddAnalystPage />
+              </LazyPage>
+            </RoleGuard>
+          </ProtectedRoute>
+        }
+      />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

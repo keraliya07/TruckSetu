@@ -9,6 +9,17 @@ export const cityOptions = [
   { city: 'Delhi', lat: 28.6139, lng: 77.209 },
 ];
 
+const cityAliases = new Map([
+  ['bombay', 'Mumbai'],
+  ['baroda', 'Vadodara'],
+  ['gujarat', 'Ahmedabad'],
+  ['gujrat', 'Ahmedabad'],
+]);
+
+function normalize(value = '') {
+  return String(value).trim().toLowerCase();
+}
+
 export const truckTypes = [
   { value: 'Mini Truck', weight: 1500, volume: 10, fuelEfficiency: 8 },
   { value: 'LCV', weight: 3500, volume: 18, fuelEfficiency: 7 },
@@ -18,7 +29,9 @@ export const truckTypes = [
 ];
 
 export function findCity(city) {
-  return cityOptions.find((item) => item.city === city);
+  const normalized = normalize(city);
+  const canonicalCity = cityAliases.get(normalized) || city;
+  return cityOptions.find((item) => normalize(item.city) === normalize(canonicalCity));
 }
 
 export function findTruckType(type) {

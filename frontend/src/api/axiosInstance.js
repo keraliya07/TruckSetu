@@ -73,7 +73,7 @@ api.interceptors.response.use(
       }
     }
 
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && !originalRequest.skipAuthRefresh) {
       clearStoredAuth();
       if (typeof window !== 'undefined') {
         window.location.assign('/login');

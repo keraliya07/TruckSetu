@@ -19,7 +19,7 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('STLOS UI render error', error, errorInfo);
+    console.error('TruckSetu UI render error', error, errorInfo);
   }
 
   reset = () => {

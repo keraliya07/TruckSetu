@@ -1,7 +1,13 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import clsx from 'clsx';
 
 export default function PageTabs({ items }) {
+  const { pathname } = useLocation();
+
+  if (pathname.startsWith('/warehouse') || pathname.startsWith('/dealer')) {
+    return null;
+  }
+
   return (
     <nav className="flex flex-wrap gap-3">
       {items.map((item) => (

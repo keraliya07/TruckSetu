@@ -1,13 +1,11 @@
 import { useState } from 'react';
 
 import CO2Chart from '../../components/analytics/CO2Chart';
-import DemandHeatmap from '../../components/analytics/DemandHeatmap';
 import KPICard from '../../components/analytics/KPICard';
 import RevenueChart from '../../components/analytics/RevenueChart';
 import UtilizationChart from '../../components/analytics/UtilizationChart';
 import DashboardShell from '../../components/common/DashboardShell';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
-import PageTabs from '../../components/common/PageTabs';
 import { useAnalytics } from '../../hooks/useAnalytics';
 import { formatNumber } from '../../utils/formatters';
 
@@ -22,16 +20,8 @@ export default function SystemAnalyticsPage() {
       accent="text-signal-600"
       eyebrow="Admin Control"
       title="System analytics"
-      subtitle="Review demand concentration, platform utilization, trip throughput, and sustainability impact across the operating network."
+      subtitle="Review platform utilization, trip throughput, and sustainability impact across the operating network."
     >
-      <PageTabs
-        items={[
-          { to: '/admin/analytics', label: 'Analytics', active: true },
-          { to: '/admin/users', label: 'Users' },
-          { to: '/admin/disputes', label: 'Disputes' },
-        ]}
-      />
-
       <section className="panel p-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
@@ -103,8 +93,6 @@ export default function SystemAnalyticsPage() {
               </div>
             </article>
           </section>
-
-          <DemandHeatmap data={analytics.heatmapData} horizon={analytics.forecastHorizon || '7d'} />
         </div>
       ) : null}
     </DashboardShell>

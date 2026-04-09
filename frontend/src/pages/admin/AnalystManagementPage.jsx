@@ -7,27 +7,22 @@ import DashboardShell from '../../components/common/DashboardShell';
 import EmptyState from '../../components/common/EmptyState';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import StatusBadge from '../../components/common/StatusBadge';
-import { useAuth } from '../../hooks/useAuth';
 import { formatDate, formatDateTime } from '../../utils/formatters';
 
-const statusOptions = ['ACTIVE', 'PENDING', 'SUSPENDED', 'DISABLED'];
-const roleOptions = ['ADMIN', 'ANALYST', 'WAREHOUSE', 'DEALER'];
+const statusOptions = ['ACTIVE', 'DISABLED'];
 
 function countLabel(value, label) {
   return `${value || 0} ${label}`;
 }
 
-export default function UserManagementPage() {
-  const { user: currentUser } = useAuth();
-  const canManageUsers = currentUser?.role === 'ADMIN';
+export default function AnalystManagementPage() {
   const [filters, setFilters] = useState({
     page: 1,
     limit: 12,
-    role: '',
-    status: '',
     search: '',
+    status: '',
   });
-  const [usersState, setUsersState] = useState({
+  const [analystsState, setAnalystsState] = useState({
     users: [],
     total: 0,
     isLoading: true,
@@ -39,15 +34,17 @@ export default function UserManagementPage() {
     isLoading: false,
     error: null,
   });
-  const [pendingStatusUpdate, setPendingStatusUpdate] = useState(null);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [pendingAccessUpdate, setPendingAccessUpdate] = useState(null);
+  const [managementFeedback, setManagementFeedback] = useState('');
+  const [managementError, setManagementError] = useState('');
+  const [isUpdatingAccess, setIsUpdatingAccess] = useState(false);
   const deferredSearch = useDeferredValue(filters.search);
 
   useEffect(() => {
     let cancelled = false;
 
-    async function loadUsers() {
-      setUsersState((current) => ({
+    async function loadAnalysts() {
+      setAnalystsState((current) => ({
         ...current,
         isLoading: true,
         error: null,
@@ -55,46 +52,47 @@ export default function UserManagementPage() {
 
       try {
         const result = await getUsers({
-          ...filters,
-          role: filters.role || undefined,
-          status: filters.status || undefined,
+          page: filters.page,
+          limit: filters.limit,
+          role: 'ANALYST',
           search: deferredSearch || undefined,
+          status: filters.status || undefined,
         });
 
         if (cancelled) {
           return;
         }
 
-        setUsersState({
+        setAnalystsState({
           users: result.users || [],
           total: result.total || 0,
           isLoading: false,
           error: null,
         });
 
-        if (!selectedUserId && result.users?.length) {
-          setSelectedUserId(result.users[0].id);
-        }
+        setSelectedUserId((current) =>
+          result.users?.some((user) => user.id === current) ? current : result.users?.[0]?.id || null
+        );
       } catch (error) {
         if (cancelled) {
           return;
         }
 
-        setUsersState({
+        setAnalystsState({
           users: [],
           total: 0,
           isLoading: false,
-          error: error.message || 'Failed to load users',
+          error: error.message || 'Failed to load analysts',
         });
       }
     }
 
-    loadUsers().catch(() => {});
+    loadAnalysts().catch(() => {});
 
     return () => {
       cancelled = true;
     };
-  }, [deferredSearch, filters.limit, filters.page, filters.role, filters.status]);
+  }, [deferredSearch, filters.limit, filters.page, filters.status]);
 
   useEffect(() => {
     if (!selectedUserId) {
@@ -135,7 +133,7 @@ export default function UserManagementPage() {
         setSelectedUserState({
           user: null,
           isLoading: false,
-          error: error.message || 'Failed to load user details',
+          error: error.message || 'Failed to load analyst details',
         });
       }
     }
@@ -147,19 +145,21 @@ export default function UserManagementPage() {
     };
   }, [selectedUserId]);
 
-  async function handleConfirmStatusUpdate() {
-    if (!pendingStatusUpdate) {
+  async function handleConfirmAccessUpdate() {
+    if (!pendingAccessUpdate) {
       return;
     }
 
-    setIsUpdating(true);
+    setIsUpdatingAccess(true);
+    setManagementFeedback('');
+    setManagementError('');
 
     try {
-      const updated = await updateUserStatus(pendingStatusUpdate.userId, {
-        accountStatus: pendingStatusUpdate.accountStatus,
+      const updated = await updateUserStatus(pendingAccessUpdate.userId, {
+        accountStatus: pendingAccessUpdate.accountStatus,
       });
 
-      setUsersState((current) => ({
+      setAnalystsState((current) => ({
         ...current,
         users: current.users.map((user) =>
           user.id === updated.id ? { ...user, accountStatus: updated.accountStatus } : user
@@ -173,33 +173,31 @@ export default function UserManagementPage() {
         }));
       }
 
-      setPendingStatusUpdate(null);
+      setManagementFeedback(
+        pendingAccessUpdate.accountStatus === 'DISABLED'
+          ? `Access revoked for ${pendingAccessUpdate.userName}.`
+          : `Access restored for ${pendingAccessUpdate.userName}.`
+      );
+      setPendingAccessUpdate(null);
     } catch (error) {
-      setUsersState((current) => ({
-        ...current,
-        error: error.message || 'Failed to update user status',
-      }));
+      setManagementError(error.message || 'Failed to update analyst access');
     } finally {
-      setIsUpdating(false);
+      setIsUpdatingAccess(false);
     }
   }
 
-  const totalPages = Math.max(1, Math.ceil((usersState.total || 0) / filters.limit));
+  const totalPages = Math.max(1, Math.ceil((analystsState.total || 0) / filters.limit));
   const selectedUser = selectedUserState.user;
 
   return (
     <DashboardShell
       accent="text-signal-600"
       eyebrow="Admin Control"
-      title="User management"
-      subtitle={
-        canManageUsers
-          ? 'Search platform accounts, inspect role-specific profiles, and update account status without leaving the admin workspace.'
-          : 'Search platform accounts and inspect role-specific profiles in read-only mode.'
-      }
+      title="Analyst management"
+      subtitle="Review analyst-only accounts, inspect full analyst details, and manage their access from one workspace."
     >
       <section className="panel p-6">
-        <div className="grid gap-4 xl:grid-cols-[1.2fr_0.9fr_0.9fr_0.6fr]">
+        <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr_0.6fr]">
           <input
             className="rounded-2xl border border-slate-300 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-freight-500"
             onChange={(event) =>
@@ -209,28 +207,10 @@ export default function UserManagementPage() {
                 search: event.target.value,
               }))
             }
-            placeholder="Search by name or email"
+            placeholder="Search analysts by name or email"
             type="search"
             value={filters.search}
           />
-          <select
-            className="rounded-2xl border border-slate-300 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-freight-500"
-            onChange={(event) =>
-              setFilters((current) => ({
-                ...current,
-                page: 1,
-                role: event.target.value,
-              }))
-            }
-            value={filters.role}
-          >
-            <option value="">All roles</option>
-            {roleOptions.map((role) => (
-              <option key={role} value={role}>
-                {role}
-              </option>
-            ))}
-          </select>
           <select
             className="rounded-2xl border border-slate-300 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-freight-500"
             onChange={(event) =>
@@ -242,7 +222,7 @@ export default function UserManagementPage() {
             }
             value={filters.status}
           >
-            <option value="">All statuses</option>
+            <option value="">All analyst statuses</option>
             {statusOptions.map((status) => (
               <option key={status} value={status}>
                 {status}
@@ -250,39 +230,49 @@ export default function UserManagementPage() {
             ))}
           </select>
           <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
-            {usersState.total} account(s)
+            {analystsState.total} analyst account(s)
           </div>
         </div>
       </section>
 
-      {usersState.error ? (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-          {usersState.error}
+      {managementFeedback ? (
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          {managementFeedback}
         </div>
       ) : null}
 
-      {usersState.isLoading ? <LoadingSpinner label="Loading user directory..." /> : null}
+      {managementError ? (
+        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          {managementError}
+        </div>
+      ) : null}
 
-      {!usersState.isLoading && !usersState.users.length ? (
+      {analystsState.error ? (
+        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          {analystsState.error}
+        </div>
+      ) : null}
+
+      {analystsState.isLoading ? <LoadingSpinner label="Loading analyst accounts..." /> : null}
+
+      {!analystsState.isLoading && !analystsState.users.length ? (
         <EmptyState
-          description="No users matched the current filters."
+          description="No analyst accounts matched the current filters."
           icon={Users}
-          title="No accounts found"
+          title="No analysts found"
         />
       ) : null}
 
-      {usersState.users.length ? (
+      {analystsState.users.length ? (
         <section className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
           <article className="panel p-5">
             <div>
-              <div>
-                <p className="text-sm uppercase tracking-[0.2em] text-slate-500">Accounts</p>
-                <h2 className="mt-2 font-heading text-2xl text-slate-950">Platform users</h2>
-              </div>
+              <p className="text-sm uppercase tracking-[0.2em] text-slate-500">Analysts</p>
+              <h2 className="mt-2 font-heading text-2xl text-slate-950">Analyst directory</h2>
             </div>
 
             <div className="mt-6 space-y-4">
-              {usersState.users.map((user) => (
+              {analystsState.users.map((user) => (
                 <button
                   key={user.id}
                   className={`w-full rounded-3xl border px-5 py-5 text-left transition ${
@@ -301,7 +291,6 @@ export default function UserManagementPage() {
                     <StatusBadge status={user.accountStatus} />
                   </div>
                   <div className="mt-4 flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                    <span>{user.role}</span>
                     <span>{formatDate(user.createdAt)}</span>
                     <span>{countLabel(user._count?.notifications, 'notification(s)')}</span>
                   </div>
@@ -344,7 +333,7 @@ export default function UserManagementPage() {
           </article>
 
           <article className="panel p-5">
-            {selectedUserState.isLoading ? <LoadingSpinner label="Loading user details..." /> : null}
+            {selectedUserState.isLoading ? <LoadingSpinner label="Loading analyst details..." /> : null}
 
             {selectedUserState.error ? (
               <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
@@ -376,114 +365,99 @@ export default function UserManagementPage() {
                   </div>
                 </div>
 
-                {selectedUser.warehouse ? (
-                  <div className="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-5">
-                    <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Warehouse profile</p>
-                    <p className="mt-2 font-semibold text-slate-950">
-                      {selectedUser.warehouse.warehouseName}
-                    </p>
-                    <p className="mt-1 text-sm text-slate-600">
-                      {selectedUser.warehouse.city} • {selectedUser.warehouse.address}
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4">
+                    <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Phone</p>
+                    <p className="mt-2 text-lg font-semibold text-slate-950">
+                      {selectedUser.phone || 'Not provided'}
                     </p>
                   </div>
-                ) : null}
-
-                {selectedUser.truckDealer ? (
-                  <div className="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-5">
-                    <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Dealer profile</p>
-                    <p className="mt-2 font-semibold text-slate-950">
-                      {selectedUser.truckDealer.companyName}
-                    </p>
-                    <p className="mt-1 text-sm text-slate-600">
-                      {selectedUser.truckDealer.primaryCity} • {selectedUser.truckDealer.trucks?.length || 0} truck(s)
+                  <div className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4">
+                    <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Email status</p>
+                    <p className="mt-2 text-lg font-semibold text-slate-950">
+                      {selectedUser.isEmailVerified ? 'Verified' : 'Pending'}
                     </p>
                   </div>
-                ) : null}
-
-                <div>
-                  <p className="text-sm uppercase tracking-[0.2em] text-slate-500">Account controls</p>
-                  {canManageUsers ? (
-                    <div className="mt-3 flex flex-wrap gap-3">
-                      {statusOptions
-                        .filter((status) => status !== selectedUser.accountStatus)
-                        .map((status) => (
-                          <button
-                            key={status}
-                            className="btn-secondary"
-                            onClick={() =>
-                              setPendingStatusUpdate({
-                                userId: selectedUser.id,
-                                userName: selectedUser.name,
-                                accountStatus: status,
-                              })
-                            }
-                            type="button"
-                          >
-                            Set {status}
-                          </button>
-                        ))}
-                    </div>
-                  ) : (
-                    <p className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-600">
-                      Analysts can review accounts here, but they cannot change status or role.
-                    </p>
-                  )}
                 </div>
 
                 <div>
-                    <p className="text-sm uppercase tracking-[0.2em] text-slate-500">Recent notifications</p>
-                    <div className="mt-3 space-y-3">
-                      {selectedUser.notifications?.length ? (
-                        selectedUser.notifications.map((notification) => (
-                          <div
-                            key={notification.id}
-                            className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-700"
-                          >
-                            <div className="flex items-center justify-between gap-3">
-                              <p className="font-semibold text-slate-900">{notification.title}</p>
-                              <StatusBadge status={notification.isRead ? 'ACTIVE' : 'PENDING'} />
-                            </div>
-                            <p className="mt-2 text-xs uppercase tracking-[0.14em] text-slate-500">
-                              {notification.type} • {formatDateTime(notification.createdAt)}
-                            </p>
+                  <p className="text-sm uppercase tracking-[0.2em] text-slate-500">Access controls</p>
+                  <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-600">
+                    {selectedUser.accountStatus === 'ACTIVE'
+                      ? 'Revoking access disables this analyst account and blocks future requests immediately.'
+                      : 'Restore access to let this analyst sign in again with the same email and password.'}
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-3">
+                    <button
+                      className={selectedUser.accountStatus === 'ACTIVE' ? 'btn-primary' : 'btn-secondary'}
+                      onClick={() =>
+                        setPendingAccessUpdate({
+                          userId: selectedUser.id,
+                          userName: selectedUser.name,
+                          accountStatus: selectedUser.accountStatus === 'ACTIVE' ? 'DISABLED' : 'ACTIVE',
+                        })
+                      }
+                      type="button"
+                    >
+                      {selectedUser.accountStatus === 'ACTIVE' ? 'Revoke access' : 'Restore access'}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-sm uppercase tracking-[0.2em] text-slate-500">Recent notifications</p>
+                  <div className="mt-3 space-y-3">
+                    {selectedUser.notifications?.length ? (
+                      selectedUser.notifications.map((notification) => (
+                        <div
+                          key={notification.id}
+                          className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-700"
+                        >
+                          <div className="flex items-center justify-between gap-3">
+                            <p className="font-semibold text-slate-900">{notification.title}</p>
+                            <StatusBadge status={notification.isRead ? 'ACTIVE' : 'PENDING'} />
                           </div>
-                        ))
-                      ) : (
-                        <p className="rounded-2xl border border-dashed border-slate-200 px-4 py-4 text-sm text-slate-500">
-                          No recent notifications found.
-                        </p>
-                      )}
-                    </div>
+                          <p className="mt-2 text-xs uppercase tracking-[0.14em] text-slate-500">
+                            {notification.type} | {formatDateTime(notification.createdAt)}
+                          </p>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="rounded-2xl border border-dashed border-slate-200 px-4 py-4 text-sm text-slate-500">
+                        No recent notifications found.
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
             ) : !selectedUserState.isLoading ? (
               <EmptyState
-                description="Select a user from the list to inspect profile and activity details."
+                description="Select an analyst to review details and manage access."
                 icon={ShieldCheck}
-                title="Choose an account"
+                title="Choose an analyst"
               />
             ) : null}
           </article>
         </section>
       ) : null}
 
-      {canManageUsers ? (
-        <ConfirmModal
-          cancelText="Keep current status"
-          confirmText={pendingStatusUpdate ? `Set ${pendingStatusUpdate.accountStatus}` : 'Confirm'}
-          isLoading={isUpdating}
-          isOpen={Boolean(pendingStatusUpdate)}
-          message={
-            pendingStatusUpdate
-              ? `Update ${pendingStatusUpdate.userName}'s account to ${pendingStatusUpdate.accountStatus}?`
-              : ''
-          }
-          onClose={() => setPendingStatusUpdate(null)}
-          onConfirm={handleConfirmStatusUpdate}
-          title="Update user status"
-          variant="warning"
-        />
-      ) : null}
+      <ConfirmModal
+        cancelText="Keep current access"
+        confirmText={pendingAccessUpdate?.accountStatus === 'DISABLED' ? 'Revoke access' : 'Restore access'}
+        isLoading={isUpdatingAccess}
+        isOpen={Boolean(pendingAccessUpdate)}
+        message={
+          pendingAccessUpdate
+            ? pendingAccessUpdate.accountStatus === 'DISABLED'
+              ? `Revoke analyst access for ${pendingAccessUpdate.userName}?`
+              : `Restore analyst access for ${pendingAccessUpdate.userName}?`
+            : ''
+        }
+        onClose={() => setPendingAccessUpdate(null)}
+        onConfirm={handleConfirmAccessUpdate}
+        title={pendingAccessUpdate?.accountStatus === 'DISABLED' ? 'Revoke analyst access' : 'Restore analyst access'}
+        variant={pendingAccessUpdate?.accountStatus === 'DISABLED' ? 'warning' : 'info'}
+      />
     </DashboardShell>
   );
 }

@@ -1,5 +1,7 @@
 const prisma = require('../config/db');
+const { hashPassword } = require('../utils/bcrypt.utils');
 const ApiError = require('../utils/apiError.utils');
+const { invalidateUserSessionCache } = require('../middleware/auth.middleware');
 
 const userInclude = {
   warehouse: true,
@@ -7,59 +9,20 @@ const userInclude = {
   _count: {
     select: {
       notifications: true,
-      sessions: true,
-      disputesRaised: true,
     },
   },
 };
 
-const disputeInclude = {
-  raisedBy: {
+const userListSelect = {
+  id: true,
+  name: true,
+  email: true,
+  role: true,
+  accountStatus: true,
+  createdAt: true,
+  _count: {
     select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-    },
-  },
-  resolvedBy: {
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-    },
-  },
-  shipment: {
-    select: {
-      id: true,
-      title: true,
-      referenceNo: true,
-      originCity: true,
-      destCity: true,
-      status: true,
-    },
-  },
-  trip: {
-    select: {
-      id: true,
-      status: true,
-      truck: {
-        select: {
-          registrationNo: true,
-        },
-      },
-    },
-  },
-  bookingRequest: {
-    select: {
-      id: true,
-      status: true,
-      truck: {
-        select: {
-          registrationNo: true,
-        },
-      },
+      notifications: true,
     },
   },
 };
@@ -90,7 +53,7 @@ const getUsers = async (filters) => {
       orderBy: {
         createdAt: 'desc',
       },
-      include: userInclude,
+      select: userListSelect,
     }),
     prisma.user.count({ where }),
   ]);
@@ -135,27 +98,9 @@ const getUserById = async (id) => {
           isRead: true,
         },
       },
-      sessions: {
-        where: {
-          revokedAt: null,
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
-        take: 10,
-        select: {
-          id: true,
-          userAgent: true,
-          ipAddress: true,
-          createdAt: true,
-          expiresAt: true,
-        },
-      },
       _count: {
         select: {
           notifications: true,
-          sessions: true,
-          disputesRaised: true,
           shipmentsCreated: true,
           bookingsRequested: true,
         },
@@ -179,69 +124,47 @@ const updateUserStatus = async (id, data) => {
     throw ApiError.notFound('User not found');
   }
 
-  return prisma.user.update({
+  const updated = await prisma.user.update({
     where: { id },
     data: {
       accountStatus: data.accountStatus,
     },
     include: userInclude,
   });
+
+  invalidateUserSessionCache(id);
+  return updated;
 };
 
-const getDisputes = async (filters) => {
-  const page = filters.page || 1;
-  const limit = filters.limit || 12;
-  const skip = (page - 1) * limit;
-
-  const where = {
-    ...(filters.status ? { status: filters.status } : {}),
-    ...(filters.type ? { type: filters.type } : {}),
-  };
-
-  const [disputes, total] = await prisma.$transaction([
-    prisma.dispute.findMany({
-      where,
-      skip,
-      take: limit,
-      orderBy: [{ status: 'asc' }, { createdAt: 'desc' }],
-      include: disputeInclude,
-    }),
-    prisma.dispute.count({ where }),
-  ]);
-
-  return {
-    disputes,
-    total,
-    page,
-    limit,
-  };
-};
-
-const resolveDispute = async (id, data, user) => {
-  const dispute = await prisma.dispute.findUnique({
-    where: { id },
+const createAnalyst = async ({ name, email, phone, password }) => {
+  const existingUser = await prisma.user.findUnique({
+    where: { email },
   });
 
-  if (!dispute) {
-    throw ApiError.notFound('Dispute not found');
+  if (existingUser) {
+    throw ApiError.conflict('Email already registered');
   }
 
-  return prisma.dispute.update({
-    where: { id },
+  const analyst = await prisma.user.create({
     data: {
-      status: data.status,
-      resolution: data.resolution,
-      resolvedById: user.userId,
-      resolvedAt: new Date(),
+      name,
+      email,
+      phone: phone || null,
+      passwordHash: await hashPassword(password),
+      role: 'ANALYST',
+      accountStatus: 'ACTIVE',
+      profileComplete: true,
+      isEmailVerified: true,
     },
-    include: disputeInclude,
+    include: userInclude,
   });
+
+  return analyst;
 };
 
 module.exports = {
-  getDisputes,
+  createAnalyst,
   getUserById,
   getUsers,
-  resolveDispute,
   updateUserStatus,
 };

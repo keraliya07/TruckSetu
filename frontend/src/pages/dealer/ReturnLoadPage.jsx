@@ -53,7 +53,6 @@ export default function ReturnLoadPage() {
     >
       <PageTabs
         items={[
-          { to: '/dealer/fleet', label: 'Fleet' },
           { to: '/dealer/bookings', label: 'Booking requests' },
           { to: '/dealer/return-loads', label: 'Return loads', active: true },
           { to: '/dealer/analytics', label: 'Analytics' },

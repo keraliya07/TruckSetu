@@ -36,7 +36,6 @@ export default function FleetPage() {
     >
       <PageTabs
         items={[
-          { to: '/dealer/fleet', label: 'Fleet', active: true },
           { to: '/dealer/fleet/new', label: 'Add truck' },
           { to: '/dealer/bookings', label: 'Booking requests' },
           { to: '/dealer/analytics', label: 'Analytics' },
@@ -44,48 +43,37 @@ export default function FleetPage() {
       />
 
       <section className="panel p-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label>
-              <span className="field-label">Status</span>
-              <select
-                className="input-base"
-                value={filters.status}
-                onChange={(event) => setFilter('status', event.target.value)}
-              >
-                <option value="">All trucks</option>
-                <option value="AVAILABLE">Available</option>
-                <option value="ON_TRIP">On trip</option>
-                <option value="MAINTENANCE">Maintenance</option>
-                <option value="INACTIVE">Inactive</option>
-              </select>
-            </label>
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-4 lg:items-end">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end lg:justify-end">
+              <label className="w-full sm:w-56">
+                <span className="field-label">Status</span>
+                <select
+                  className="input-base"
+                  value={filters.status}
+                  onChange={(event) => setFilter('status', event.target.value)}
+                >
+                  <option value="">All trucks</option>
+                  <option value="AVAILABLE">Available</option>
+                  <option value="ON_TRIP">On trip</option>
+                  <option value="MAINTENANCE">Maintenance</option>
+                  <option value="INACTIVE">Inactive</option>
+                </select>
+              </label>
 
-            <label>
-              <span className="field-label">Page size</span>
-              <select
-                className="input-base"
-                value={filters.limit}
-                onChange={(event) => setFilter('limit', Number(event.target.value))}
-              >
-                <option value={6}>6</option>
-                <option value={12}>12</option>
-                <option value={24}>24</option>
-              </select>
-            </label>
+              <div className="flex flex-wrap gap-3 sm:justify-end">
+                <button className="btn-secondary" onClick={() => fetchTrucks(filters)} type="button">
+                  Refresh
+                </button>
+                <Link className="btn-primary" to="/dealer/fleet/new">
+                  Add truck
+                </Link>
+              </div>
+            </div>
           </div>
 
-          <div className="flex flex-wrap gap-3">
-            <button className="btn-secondary" onClick={() => fetchTrucks(filters)} type="button">
-              Refresh
-            </button>
-            <Link className="btn-primary" to="/dealer/fleet/new">
-              Add truck
-            </Link>
-          </div>
+          <p className="text-sm text-slate-600">{total} truck(s) in this view</p>
         </div>
-
-        <p className="mt-6 text-sm text-slate-600">{total} truck(s) in this view</p>
       </section>
 
       {error ? (

@@ -72,9 +72,9 @@ describe('ReturnLoadPage', () => {
           trip: {
             id: 'trip-1',
             truck: {
-              registrationNo: 'GJ05STLOS1001',
+              registrationNo: 'GJ05TSETU1001',
               dealer: {
-                companyName: 'STLOS Dealer',
+                companyName: 'TruckSetu Dealer',
               },
             },
             stops: [

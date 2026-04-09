@@ -73,7 +73,6 @@ export default function TruckDetailPage() {
     >
       <PageTabs
         items={[
-          { to: '/dealer/fleet', label: 'Fleet' },
           { to: '/dealer/fleet/new', label: 'Add truck' },
           { to: '/dealer/bookings', label: 'Booking requests' },
           { to: '/dealer/analytics', label: 'Analytics' },

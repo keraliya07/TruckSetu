@@ -20,7 +20,6 @@ export default function TripManagePage() {
     >
       <PageTabs
         items={[
-          { to: '/dealer/fleet', label: 'Fleet' },
           { to: '/dealer/bookings', label: 'Booking requests' },
           { to: '/dealer/analytics', label: 'Analytics' },
         ]}

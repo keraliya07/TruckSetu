@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 
 import DashboardShell from '../../components/common/DashboardShell';
-import PageTabs from '../../components/common/PageTabs';
 import { cityOptions, findTruckType, truckTypes } from '../../data/logisticsOptions';
 import { useAuth } from '../../hooks/useAuth';
 import { useTruckStore } from '../../store/truckStore';
@@ -67,15 +66,7 @@ export default function AddTruckPage() {
       title="Add fleet vehicle"
       subtitle="Register a truck with realistic capacity and fuel assumptions so booking and route workflows can target it correctly."
     >
-      <PageTabs
-        items={[
-          { to: '/dealer/fleet', label: 'Fleet' },
-          { to: '/dealer/fleet/new', label: 'Add truck', active: true },
-          { to: '/dealer/bookings', label: 'Booking requests' },
-        ]}
-      />
-
-      <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+      <div>
         <section className="panel p-6 sm:p-8">
           <h2 className="font-heading text-3xl text-slate-950">Vehicle profile</h2>
 
@@ -157,36 +148,6 @@ export default function AddTruckPage() {
             </button>
           </form>
         </section>
-
-        <aside className="space-y-6">
-          <section className="panel p-6">
-            <p className="font-heading text-sm uppercase tracking-[0.3em] text-slate-500">
-              Dealer profile
-            </p>
-            <h3 className="mt-4 font-heading text-2xl text-slate-950">
-              {user?.truckDealer?.companyName || user?.name}
-            </h3>
-            <p className="mt-2 text-slate-600">
-              Primary city {user?.truckDealer?.primaryCity}
-            </p>
-            <p className="mt-1 text-sm text-freight-700">
-              Base rate Rs {user?.truckDealer?.baseRatePerKmTon || 0} / km-ton
-            </p>
-          </section>
-
-          <section className="panel p-6">
-            <p className="font-heading text-sm uppercase tracking-[0.3em] text-slate-500">
-              Capacity guidance
-            </p>
-            <div className="mt-5 rounded-[28px] bg-gradient-to-br from-slate-950 to-freight-700 p-5 text-white">
-              <p className="text-sm text-white/70">Suggested preset</p>
-              <p className="mt-2 font-heading text-2xl">{selectedTruckType}</p>
-              <p className="mt-4 text-sm text-white/80">
-                Capacity and fuel defaults shift automatically with truck type so you can register fleet faster and still keep the numbers realistic.
-              </p>
-            </div>
-          </section>
-        </aside>
       </div>
     </DashboardShell>
   );

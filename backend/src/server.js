@@ -11,11 +11,11 @@ initSocketServer(server);
 startBackgroundJobs();
 
 server.listen(PORT, () => {
-  console.log(`STLOS API running on port ${PORT}`);
+  console.log(`TruckSetu API running on port ${PORT}`);
 });
 
 const shutdown = (signal) => {
-  console.log(`Received ${signal}. Shutting down STLOS API...`);
+  console.log(`Received ${signal}. Shutting down TruckSetu API...`);
   server.close(() => {
     stopBackgroundJobs();
     closeSocketServer()

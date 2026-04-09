@@ -15,7 +15,7 @@ const adminRoutes = require('./admin.routes');
 
 router.get('/', (req, res) => {
   res.json({
-    service: 'stlos-api',
+    service: 'trucksetu-api',
     status: 'ok',
     phase: 'Phase 8 - Background Jobs And Automation',
     availableRoutes: [
@@ -29,9 +29,6 @@ router.get('/', (req, res) => {
       'GET /api/auth/me',
       'PUT /api/auth/me',
       'POST /api/auth/send-verification',
-      'GET /api/auth/sessions',
-      'DELETE /api/auth/sessions/:sessionId',
-      'DELETE /api/auth/sessions/others',
       'GET /api/shipments',
       'POST /api/shipments',
       'GET /api/trucks',
@@ -57,9 +54,8 @@ router.get('/', (req, res) => {
       'GET /api/analytics/demand-forecast',
       'GET /api/analytics/co2-report/download',
       'GET /api/admin/users',
+      'POST /api/admin/analysts',
       'PATCH /api/admin/users/:id/status',
-      'GET /api/admin/disputes',
-      'PATCH /api/admin/disputes/:id/resolve',
       'GET /api/optimization/history',
       'POST /api/optimization/score',
       'GET /api/optimization/result/:cacheKey',

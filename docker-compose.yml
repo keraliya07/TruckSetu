@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: stlos-postgres
+    container_name: trucksetu-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: stlos_user
@@ -19,7 +19,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: stlos-redis
+    container_name: trucksetu-redis
     restart: unless-stopped
     ports:
       - "6379:6379"
@@ -35,7 +35,7 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    container_name: stlos-node-api
+    container_name: trucksetu-node-api
     restart: unless-stopped
     depends_on:
       postgres:
@@ -45,10 +45,12 @@ services:
     environment:
       NODE_ENV: development
       PORT: 4000
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: 500
       CORS_ORIGIN: http://localhost:3000
       APP_BASE_URL: http://localhost:3000
-      DATABASE_URL: postgresql://stlos_user:stlos_pass@postgres:5432/stlos_db
-      DIRECT_URL: postgresql://stlos_user:stlos_pass@postgres:5432/stlos_db
+      DATABASE_URL: postgresql://postgres.rmltpmdwikneodahzfns:NCCGl8DwcCDOVo9w@aws-1-ap-south-1.pooler.supabase.com:6543/postgres?pgbouncer=true
+      DIRECT_URL: postgresql://postgres.rmltpmdwikneodahzfns:NCCGl8DwcCDOVo9w@aws-1-ap-south-1.pooler.supabase.com:5432/postgres
       REDIS_URL: redis://redis:6379
       JWT_SECRET: change-me-to-a-long-random-secret
       JWT_REFRESH_SECRET: change-me-to-a-different-long-random-refresh-secret
@@ -82,19 +84,19 @@ services:
     command: >
       sh -c "npx prisma generate --schema /app/prisma/schema.prisma &&
              npx prisma migrate deploy --schema /app/prisma/schema.prisma &&
-             npm run dev"
+             npm run dev -- --legacy-watch"
 
   python-ml:
     build:
       context: .
       dockerfile: ml-service/Dockerfile
-    container_name: stlos-python-ml
+    container_name: trucksetu-python-ml
     restart: unless-stopped
     depends_on:
       postgres:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://stlos_user:stlos_pass@postgres:5432/stlos_db
+      DATABASE_URL: postgresql://postgres.rmltpmdwikneodahzfns:NCCGl8DwcCDOVo9w@aws-1-ap-south-1.pooler.supabase.com:6543/postgres?pgbouncer=true
       OSRM_URL: http://osrm:5000
       PORT: 8000
       ENVIRONMENT: development
@@ -108,14 +110,16 @@ services:
     build:
       context: .
       dockerfile: frontend/Dockerfile
-    container_name: stlos-frontend
+    container_name: trucksetu-frontend
     restart: unless-stopped
     depends_on:
       - node-api
     environment:
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: 300
       VITE_API_URL: http://localhost:4000/api
       VITE_SOCKET_URL: http://localhost:4000
-      VITE_OSRM_URL: http://localhost:5000
+      VITE_OSRM_URL: http://router.project-osrm.org
       VITE_MAP_DEFAULT_CENTER_LAT: 21.1702
       VITE_MAP_DEFAULT_CENTER_LNG: 72.8311
       VITE_MAP_DEFAULT_ZOOM: 6
@@ -127,7 +131,7 @@ services:
 
   osrm:
     image: osrm/osrm-backend
-    container_name: stlos-osrm
+    container_name: trucksetu-osrm
     profiles: ["maps"]
     ports:
       - "5000:5000"
@@ -137,7 +141,7 @@ services:
 
   minio:
     image: minio/minio
-    container_name: stlos-minio
+    container_name: trucksetu-minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
     environment:

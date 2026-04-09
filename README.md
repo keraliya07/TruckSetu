@@ -1,6 +1,6 @@
-# Smart Truck Loading Optimization System (STLOS)
+# TruckSetu
 
-STLOS is a multi-role logistics platform for warehouses, truck dealers, and admins. The current repo includes persistent auth, operational shipment and booking foundations, trip workflows, and the frontend surfaces needed to exercise those flows.
+TruckSetu is a multi-role logistics platform for warehouses, truck dealers, and admins. The current repo includes persistent auth, operational shipment and booking foundations, trip workflows, and the frontend surfaces needed to exercise those flows.
 
 ## Tech Stack
 
@@ -30,7 +30,7 @@ STLOS is a multi-role logistics platform for warehouses, truck dealers, and admi
 - Role-based dashboards and protected routes
 - Full authenticated app shell with navbar, sidebar, notifications, toasts, and error boundary
 - Tracking, optimization, return-load, and analytics UI foundations
-- Admin user management and dispute resolution views
+- Admin user management views
 - Invoice and CO2 report PDF generation for trips
 - Notification email delivery hooks for booking, trip, and return-load events
 - Local background jobs for booking expiry, GPS simulation, return-load triggering, and ML retrain pings
@@ -137,7 +137,7 @@ uvicorn app.main:app --reload --port 8000
 ## Project Structure
 
 ```text
-stlos/
+trucksetu/
 |-- frontend/           React + Vite application
 |-- backend/            Express API
 |-- ml-service/         FastAPI ML microservice

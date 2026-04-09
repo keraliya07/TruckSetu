@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 
 import * as tripApi from '../api/trip.api';
-import * as trackingApi from '../api/tracking.api';
 
 const sortStops = (stops = []) => [...stops].sort((left, right) => left.sequence - right.sequence);
 
@@ -84,17 +83,13 @@ export const useTripStore = create((set, get) => ({
   fetchTripById: async (tripId) => {
     set({ isLoading: true, error: null });
     try {
-      const [trip, latest, history] = await Promise.all([
-        tripApi.getTripById(tripId),
-        trackingApi.getLatestLocation(tripId).catch(() => null),
-        trackingApi.getLocationHistory(tripId, { limit: 40 }).catch(() => ({ locations: [] })),
-      ]);
-      const locationHistory = sortLocations(history?.locations || trip.locations || []);
+      const trip = await tripApi.getTripById(tripId);
+      const locationHistory = sortLocations(trip.locations || []);
 
       set({
         activeTrip: trip,
         stops: sortStops(trip.stops),
-        truckLocation: latest?.truckPosition || resolveTruckPosition(trip),
+        truckLocation: resolveTruckPosition(trip),
         locationHistory,
         isLoading: false,
       });

@@ -2,7 +2,7 @@ const prisma = require('../config/db');
 const ApiError = require('../utils/apiError.utils');
 const { startSimulator } = require('../jobs/gpsSimulator.job');
 
-const tripInclude = {
+const tripDetailInclude = {
   truck: {
     include: {
       dealer: true,
@@ -33,7 +33,65 @@ const tripInclude = {
     orderBy: {
       recordedAt: 'desc',
     },
-    take: 10,
+    take: 40,
+  },
+};
+
+const tripListInclude = {
+  truck: {
+    select: {
+      id: true,
+      registrationNo: true,
+      status: true,
+      dealer: {
+        select: {
+          id: true,
+          companyName: true,
+        },
+      },
+    },
+  },
+  dealer: {
+    select: {
+      id: true,
+      companyName: true,
+    },
+  },
+  bookingRequest: {
+    select: {
+      id: true,
+      warehouse: {
+        select: {
+          id: true,
+          warehouseName: true,
+        },
+      },
+    },
+  },
+  shipments: {
+    include: {
+      shipment: {
+        select: {
+          id: true,
+          title: true,
+          originCity: true,
+          destCity: true,
+          weightKg: true,
+        },
+      },
+    },
+  },
+  stops: {
+    orderBy: {
+      sequence: 'asc',
+    },
+    select: {
+      id: true,
+      sequence: true,
+      status: true,
+      type: true,
+      city: true,
+    },
   },
 };
 
@@ -64,7 +122,7 @@ const getWarehouseProfile = async (userId) => {
 const getTripOrThrow = async (tripId) => {
   const trip = await prisma.trip.findUnique({
     where: { id: tripId },
-    include: tripInclude,
+    include: tripDetailInclude,
   });
 
   if (!trip) {
@@ -126,7 +184,7 @@ const getAll = async (filters, user) => {
       skip,
       take: limit,
       orderBy: { createdAt: 'desc' },
-      include: tripInclude,
+      include: tripListInclude,
     }),
     prisma.trip.count({ where }),
   ]);
@@ -172,20 +230,20 @@ const start = async (tripId, user) => {
     }),
   ]);
 
-  const startedTrip = await getTripOrThrow(tripId);
-
-  if (!startedTrip.locations.length) {
+  // Reuse already-fetched trip data for location seed check — saves 1 DB round-trip
+  if (!trip.locations.length) {
+    const pickupStop = trip.stops[0];
     await prisma.tripLocation.create({
       data: {
         tripId,
-        truckId: startedTrip.truckId,
+        truckId: trip.truckId,
         lat:
-          startedTrip.truck.currentLat ??
-          startedTrip.stops[0]?.lat ??
+          pickupStop?.lat ??
+          trip.truck.currentLat ??
           0,
         lng:
-          startedTrip.truck.currentLng ??
-          startedTrip.stops[0]?.lng ??
+          pickupStop?.lng ??
+          trip.truck.currentLng ??
           0,
         source: 'TRIP_START',
       },

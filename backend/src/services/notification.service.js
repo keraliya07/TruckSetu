@@ -64,6 +64,44 @@ const sendEmail = async ({ to, subject, html }) => {
   });
 };
 
+const queueEmailDelivery = ({ email, notificationData }) => {
+  if (!email) {
+    return;
+  }
+
+  setImmediate(async () => {
+    try {
+      const recipient =
+        email.to ||
+        (
+          await prisma.user.findUnique({
+            where: { id: notificationData.userId },
+            select: { email: true },
+          })
+        )?.email;
+
+      if (!recipient) {
+        return;
+      }
+
+      await sendEmail({
+        to: recipient,
+        subject: email.subject || notificationData.title,
+        html:
+          email.html ||
+          `
+              <p>${notificationData.title}</p>
+              <p>${notificationData.message}</p>
+            `,
+      });
+    } catch (error) {
+      console.warn(
+        `[notification] email delivery failed for user ${notificationData.userId}: ${error.message}`
+      );
+    }
+  });
+};
+
 const sendNotification = async (notification) => {
   const { email, ...notificationData } = notification;
   const created = await prisma.notification.create({
@@ -76,35 +114,7 @@ const sendNotification = async (notification) => {
     io.to(`user:${notificationData.userId}`).emit('notification:new', created);
   }
 
-  if (email) {
-    const recipient =
-      email.to ||
-      (
-        await prisma.user.findUnique({
-          where: { id: notificationData.userId },
-          select: { email: true, name: true },
-        })
-      )?.email;
-
-    if (recipient) {
-      try {
-        await sendEmail({
-          to: recipient,
-          subject: email.subject || notificationData.title,
-          html:
-            email.html ||
-            `
-              <p>${notificationData.title}</p>
-              <p>${notificationData.message}</p>
-            `,
-        });
-      } catch (error) {
-        console.warn(
-          `[notification] email delivery failed for user ${notificationData.userId}: ${error.message}`
-        );
-      }
-    }
-  }
+  queueEmailDelivery({ email, notificationData });
 
   return created;
 };

@@ -1,11 +1,30 @@
 const prisma = require('../config/db');
 const ApiError = require('../utils/apiError.utils');
+const { resolveCityCoordinates } = require('../utils/cityCoordinates');
 
 const truckInclude = {
   dealer: true,
   trips: {
     take: 10,
     orderBy: { createdAt: 'desc' },
+  },
+};
+
+const truckListInclude = {
+  dealer: {
+    select: {
+      id: true,
+      companyName: true,
+      primaryCity: true,
+    },
+  },
+  trips: {
+    take: 3,
+    orderBy: { createdAt: 'desc' },
+    select: {
+      id: true,
+      status: true,
+    },
   },
 };
 
@@ -43,7 +62,7 @@ const getAll = async (filters, user) => {
   const limit = Math.min(Number.parseInt(filters.limit || '10', 10), 100);
   const skip = (page - 1) * limit;
   let where;
-  let include = truckInclude;
+  let include = truckListInclude;
 
   if (user.role === 'DEALER') {
     const dealer = await getDealerProfile(user.userId);
@@ -58,7 +77,7 @@ const getAll = async (filters, user) => {
       ...(filters.status ? { status: filters.status } : { status: 'AVAILABLE' }),
     };
     include = {
-      dealer: true,
+      dealer: truckListInclude.dealer,
     };
   } else if (user.role === 'ADMIN') {
     where = {
@@ -112,6 +131,7 @@ const getById = async (truckId, user) => {
 
 const create = async (data, user) => {
   const dealer = await getDealerProfile(user.userId);
+  const currentLocation = resolveCityCoordinates(data.currentCity || dealer.primaryCity);
 
   const existingTruck = await prisma.truck.findUnique({
     where: { registrationNo: data.registrationNo },
@@ -130,9 +150,9 @@ const create = async (data, user) => {
       maxVolumeM3: data.maxVolumeM3,
       emissionFactor: data.emissionFactor ?? 2.68,
       fuelEfficiency: data.fuelEfficiency ?? 4.0,
-      currentCity: data.currentCity || dealer.primaryCity,
-      currentLat: data.currentLat ?? dealer.primaryLat,
-      currentLng: data.currentLng ?? dealer.primaryLng,
+      currentCity: currentLocation?.city || data.currentCity || dealer.primaryCity,
+      currentLat: data.currentLat ?? currentLocation?.lat ?? dealer.primaryLat ?? null,
+      currentLng: data.currentLng ?? currentLocation?.lng ?? dealer.primaryLng ?? null,
       status: 'AVAILABLE',
       isActive: true,
     },
@@ -143,6 +163,8 @@ const create = async (data, user) => {
 const update = async (truckId, data, user) => {
   const dealer = await getDealerProfile(user.userId);
   await getTruckById(truckId, dealer.id);
+  const currentLocation =
+    data.currentCity !== undefined ? resolveCityCoordinates(data.currentCity) : null;
 
   if (data.registrationNo) {
     const existingTruck = await prisma.truck.findFirst({
@@ -173,10 +195,18 @@ const update = async (truckId, data, user) => {
         ? { fuelEfficiency: data.fuelEfficiency }
         : {}),
       ...(data.currentCity !== undefined
-        ? { currentCity: data.currentCity || null }
+        ? { currentCity: currentLocation?.city || data.currentCity || null }
         : {}),
-      ...(data.currentLat !== undefined ? { currentLat: data.currentLat } : {}),
-      ...(data.currentLng !== undefined ? { currentLng: data.currentLng } : {}),
+      ...(data.currentLat !== undefined
+        ? { currentLat: data.currentLat }
+        : currentLocation
+          ? { currentLat: currentLocation.lat }
+          : {}),
+      ...(data.currentLng !== undefined
+        ? { currentLng: data.currentLng }
+        : currentLocation
+          ? { currentLng: currentLocation.lng }
+          : {}),
     },
     include: truckInclude,
   });

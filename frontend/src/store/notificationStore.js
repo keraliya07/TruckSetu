@@ -17,7 +17,16 @@ export const useNotificationStore = create((set, get) => ({
   isOpen: false,
   isLoading: false,
   error: null,
-  fetchNotifications: async (limit = 12) => {
+  lastFetchedAt: 0,
+  fetchNotifications: async (limit = 12, { force = false } = {}) => {
+    const { notifications, lastFetchedAt } = get();
+    if (!force && notifications.length && Date.now() - lastFetchedAt < 30 * 1000) {
+      return {
+        notifications,
+        unreadCount: get().unreadCount,
+      };
+    }
+
     set({ isLoading: true, error: null });
 
     try {
@@ -26,6 +35,7 @@ export const useNotificationStore = create((set, get) => ({
         notifications: result.notifications,
         unreadCount: result.unreadCount,
         isLoading: false,
+        lastFetchedAt: Date.now(),
       });
       return result;
     } catch (error) {
@@ -47,6 +57,7 @@ export const useNotificationStore = create((set, get) => ({
       notifications: state.notifications.map((notification) =>
         notification.id === notificationId ? result.notification : notification
       ),
+      lastFetchedAt: Date.now(),
       unreadCount: Math.max(
         0,
         state.notifications.some(
@@ -66,6 +77,7 @@ export const useNotificationStore = create((set, get) => ({
         isRead: true,
         readAt: notification.readAt || new Date().toISOString(),
       })),
+      lastFetchedAt: Date.now(),
       unreadCount: 0,
     }));
   },
@@ -74,6 +86,7 @@ export const useNotificationStore = create((set, get) => ({
       const notifications = upsertNotification(state.notifications, notification);
       return {
         notifications,
+        lastFetchedAt: Date.now(),
         unreadCount: notifications.filter((item) => !item.isRead).length,
       };
     }),
@@ -83,6 +96,7 @@ export const useNotificationStore = create((set, get) => ({
         ...notification,
         isRead: true,
       })),
+      lastFetchedAt: Date.now(),
       unreadCount: 0,
     })),
   togglePanel: () => set((state) => ({ isOpen: !state.isOpen })),

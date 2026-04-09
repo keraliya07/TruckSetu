@@ -37,7 +37,7 @@ const formatCurrency = (value) =>
 
 const generateInvoicePDF = async (tripData) =>
   collectPdfBuffer((doc) => {
-    doc.fillColor('#0f172a').font('Helvetica-Bold').fontSize(22).text('STLOS Invoice');
+    doc.fillColor('#0f172a').font('Helvetica-Bold').fontSize(22).text('TruckSetu Invoice');
     doc.moveDown(0.2);
     doc.font('Helvetica').fontSize(11).fillColor('#475569');
     doc.text(`Generated on ${new Date().toISOString()}`);
@@ -77,7 +77,7 @@ const generateInvoicePDF = async (tripData) =>
 
 const generateCO2ReportPDF = async (tripData) =>
   collectPdfBuffer((doc) => {
-    doc.fillColor('#0f172a').font('Helvetica-Bold').fontSize(22).text('STLOS CO2 Report');
+    doc.fillColor('#0f172a').font('Helvetica-Bold').fontSize(22).text('TruckSetu CO2 Report');
     doc.moveDown(0.2);
     doc.font('Helvetica').fontSize(11).fillColor('#475569');
     doc.text(`Generated on ${new Date().toISOString()}`);

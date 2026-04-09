@@ -295,7 +295,7 @@ const createReturnLoadNotification = async (trip, count) => {
       count,
     },
     email: {
-      subject: 'STLOS return load opportunities available',
+      subject: 'TruckSetu return load opportunities available',
       text: `${count} return load match(es) are now available for trip ${trip.id.slice(0, 8)}.`,
     },
   });
@@ -671,7 +671,7 @@ const acceptMatch = async (matchId, user) => {
       shipmentId: match.shipmentId,
     },
     email: {
-      subject: 'STLOS return load accepted',
+      subject: 'TruckSetu return load accepted',
       text: `A dealer accepted the return load for ${match.shipment.destCity}.`,
     },
   });

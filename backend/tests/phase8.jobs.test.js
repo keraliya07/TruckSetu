@@ -26,7 +26,8 @@ test('gps simulator builds waypoints from route geometry first', () => {
 test('booking timeout job expires stale bookings and notifies both sides', async () => {
   const sentNotifications = [];
   const updatedBookings = [];
-  const resetShipments = [];
+  const updatedShipments = [];
+  const bookingCounts = [];
 
   const prismaClient = {
     bookingRequest: {
@@ -55,10 +56,19 @@ test('booking timeout job expires stale bookings and notifies both sides', async
           update: async ({ where, data }) => {
             updatedBookings.push({ where, data });
           },
+          count: async (query) => {
+            bookingCounts.push(query);
+
+            if (query.where.status === 'APPROVED') {
+              return 0;
+            }
+
+            return 0;
+          },
         },
         shipment: {
-          updateMany: async ({ where, data }) => {
-            resetShipments.push({ where, data });
+          update: async ({ where, data }) => {
+            updatedShipments.push({ where, data });
           },
         },
       }),
@@ -78,7 +88,8 @@ test('booking timeout job expires stale bookings and notifies both sides', async
 
   assert.equal(result.expiredCount, 1);
   assert.equal(updatedBookings.length, 1);
-  assert.equal(resetShipments.length, 1);
+  assert.equal(updatedShipments.length, 2);
+  assert.equal(bookingCounts.length, 4);
   assert.equal(sentNotifications.length, 2);
   assert.equal(sentNotifications[0].type, 'BOOKING');
 });

@@ -25,6 +25,7 @@ const createPendingShipment = async (
       description: 'Phase 5 return load integration test',
       weightKg: 1800,
       volumeM3: 9,
+      autoDispatch: false,
       destCity,
       destAddress: `${destCity} logistics hub`,
       destLat,
@@ -72,10 +73,10 @@ before(async () => {
   dealerClient = createClient(testServer.baseUrl);
 
   const warehouseLogin = await warehouseClient.login(
-    'warehouse@stlos.dev',
+  'warehouse@trucksetu.dev',
     'Warehouse123'
   );
-  const dealerLogin = await dealerClient.login('dealer@stlos.dev', 'Dealer123');
+  const dealerLogin = await dealerClient.login('dealer@trucksetu.dev', 'Dealer123');
 
   assert.equal(warehouseLogin.response.status, 200);
   assert.equal(dealerLogin.response.status, 200);
@@ -113,6 +114,7 @@ test('dealer can review, reject, and accept return load matches after trip deliv
       description: 'Outbound trip for return load matching',
       weightKg: 2500,
       volumeM3: 10,
+      autoDispatch: false,
       destCity: 'Surat',
       destAddress: 'Adajan, Surat',
       destLat: 21.1702,

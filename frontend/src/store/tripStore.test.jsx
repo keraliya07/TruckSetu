@@ -1,10 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-const { trackingApiMocks, tripApiMocks } = vi.hoisted(() => ({
-  trackingApiMocks: {
-    getLatestLocation: vi.fn(),
-    getLocationHistory: vi.fn(),
-  },
+const { tripApiMocks } = vi.hoisted(() => ({
   tripApiMocks: {
     completeStop: vi.fn(),
     getTripById: vi.fn(),
@@ -13,7 +9,6 @@ const { trackingApiMocks, tripApiMocks } = vi.hoisted(() => ({
   },
 }));
 
-vi.mock('../api/tracking.api', () => trackingApiMocks);
 vi.mock('../api/trip.api', () => tripApiMocks);
 
 import { useTripStore } from './tripStore';
@@ -42,23 +37,13 @@ describe('useTripStore realtime state', () => {
       id: 'trip-1',
       truck: {
         registrationNo: 'GJ05TEST1001',
-        currentLat: 23.02,
-        currentLng: 72.57,
+        currentLat: 22.8,
+        currentLng: 72.4,
       },
       stops: [
         { id: 'stop-2', sequence: 2, status: 'PENDING' },
         { id: 'stop-1', sequence: 1, status: 'COMPLETED' },
       ],
-      locations: [],
-    });
-    trackingApiMocks.getLatestLocation.mockResolvedValue({
-      truckPosition: {
-        lat: 22.8,
-        lng: 72.4,
-        recordedAt: '2026-04-02T10:00:00.000Z',
-      },
-    });
-    trackingApiMocks.getLocationHistory.mockResolvedValue({
       locations: [
         {
           id: 'loc-2',

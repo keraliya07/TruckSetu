@@ -11,7 +11,7 @@ export const updateProfile = (payload) => api.put('/auth/me', payload);
 export const logout = () => api.post('/auth/logout');
 
 export const refreshSession = () =>
-  api.post('/auth/refresh', null, {
+  api.post('/auth/refresh', {}, {
     skipAuthRefresh: true,
   });
 
@@ -31,11 +31,5 @@ export const verifyEmail = (payload) =>
   api.post('/auth/verify-email', payload, {
     skipAuthRefresh: true,
   });
-
-export const getSessions = () => api.get('/auth/sessions');
-
-export const revokeSession = (sessionId) => api.delete(`/auth/sessions/${sessionId}`);
-
-export const revokeOtherSessions = () => api.delete('/auth/sessions/others');
 
 export const getDemoAccounts = () => api.get('/auth/demo-accounts');

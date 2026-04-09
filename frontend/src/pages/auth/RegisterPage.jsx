@@ -71,7 +71,7 @@ export default function RegisterPage() {
             Register
           </p>
           <h1 className="mt-4 font-heading text-4xl text-slate-950">
-            Create your STLOS workspace
+            Create your TruckSetu workspace
           </h1>
           <p className="mt-3 text-slate-600">
             This phase supports warehouse and dealer signup, then a lightweight onboarding
@@ -82,7 +82,7 @@ export default function RegisterPage() {
             <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
               <p className="font-semibold text-slate-900">Warehouse teams</p>
               <p className="mt-2 text-sm text-slate-600">
-                Create shipments, review planned optimization modules, and manage delivery visibility.
+                Create shipments, check truck estimation, and manage delivery visibility.
               </p>
             </div>
             <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">

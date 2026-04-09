@@ -56,7 +56,7 @@ export default function ForgotPasswordPage() {
               Reset a password without losing your workspace.
             </h1>
             <p className="mt-4 max-w-2xl text-base text-white/85 sm:text-lg">
-              Enter your account email and STLOS will generate a reset link. In local
+              Enter your account email and TruckSetu will generate a reset link. In local
               development, the link is shown directly here.
             </p>
           </div>

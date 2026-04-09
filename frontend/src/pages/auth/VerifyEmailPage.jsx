@@ -81,8 +81,8 @@ export default function VerifyEmailPage() {
             Confirm your account email
           </h1>
           <p className="mt-3 max-w-2xl text-slate-600">
-            Verification stays optional for the current build, but this closes the account
-            security loop and prepares the app for production-style auth.
+            Verification stays optional for the current build, but it helps prepare the app for
+            production-style authentication flows.
           </p>
 
           <div className="mt-8 rounded-3xl border border-slate-200 bg-slate-50 p-5">
@@ -122,11 +122,6 @@ export default function VerifyEmailPage() {
             <Link className="font-semibold text-freight-700" to="/login">
               Sign in
             </Link>
-            {isAuthenticated ? (
-              <Link className="font-semibold text-slate-700" to="/account/security">
-                Open account security
-              </Link>
-            ) : null}
           </div>
         </section>
       </div>

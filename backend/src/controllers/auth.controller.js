@@ -130,37 +130,3 @@ exports.resetPassword = async (req, res, next) => {
     next(error);
   }
 };
-
-exports.listSessions = async (req, res, next) => {
-  try {
-    const result = await service.listSessions(req.user.userId, req.user.sessionId);
-    res.status(200).json({ sessions: result });
-  } catch (error) {
-    next(error);
-  }
-};
-
-exports.revokeSession = async (req, res, next) => {
-  try {
-    const result = await service.revokeSession(
-      req.user.userId,
-      req.user.sessionId,
-      req.params.sessionId
-    );
-    res.status(200).json(result);
-  } catch (error) {
-    next(error);
-  }
-};
-
-exports.revokeOtherSessions = async (req, res, next) => {
-  try {
-    const result = await service.revokeOtherSessions(
-      req.user.userId,
-      req.user.sessionId
-    );
-    res.status(200).json(result);
-  } catch (error) {
-    next(error);
-  }
-};

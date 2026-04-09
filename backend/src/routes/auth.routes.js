@@ -7,7 +7,6 @@ const {
   loginSchema,
   registerSchema,
   resetPasswordSchema,
-  sessionParamsSchema,
   updateProfileSchema,
   verifyEmailSchema,
 } = require('../validators/auth.validator');
@@ -27,14 +26,6 @@ router.put(
   controller.updateProfile
 );
 router.post('/send-verification', authenticate, controller.sendVerificationEmail);
-router.get('/sessions', authenticate, controller.listSessions);
-router.delete('/sessions/others', authenticate, controller.revokeOtherSessions);
-router.delete(
-  '/sessions/:sessionId',
-  authenticate,
-  validate(sessionParamsSchema, 'params'),
-  controller.revokeSession
-);
 router.post('/logout', controller.logout);
 
 module.exports = router;

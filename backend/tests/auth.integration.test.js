@@ -15,8 +15,8 @@ after(async () => {
   await testServer.close();
 });
 
-test('auth flow supports register, verify, sessions, reset, relogin, and logout', async () => {
-  const email = `backend.auth.${Date.now()}@stlos.dev`;
+test('auth flow supports register, verify, reset, relogin, and logout', async () => {
+const email = `backend.auth.${Date.now()}@trucksetu.dev`;
   const firstPassword = 'Phase2Auth123';
   const secondPassword = 'Phase2Auth456';
 
@@ -48,15 +48,6 @@ test('auth flow supports register, verify, sessions, reset, relogin, and logout'
   assert.ok(client.cookie);
   assert.ok(client.token);
 
-  const sessionsResult = await client.request('/auth/sessions');
-  assert.equal(sessionsResult.response.status, 200);
-  assert.ok(Array.isArray(sessionsResult.body.sessions));
-  assert.ok(sessionsResult.body.sessions.length >= 1);
-  assert.equal(
-    sessionsResult.body.sessions.some((session) => session.isCurrent),
-    true
-  );
-
   const forgotResult = await client.request('/auth/forgot-password', {
     method: 'POST',
     body: { email },
@@ -73,9 +64,6 @@ test('auth flow supports register, verify, sessions, reset, relogin, and logout'
   });
   assert.equal(resetResult.response.status, 200);
 
-  const staleSessionResult = await client.request('/auth/sessions');
-  assert.equal(staleSessionResult.response.status, 401);
-
   const reloginResult = await client.login(email, secondPassword);
   assert.equal(reloginResult.response.status, 200);
 
@@ -84,4 +72,28 @@ test('auth flow supports register, verify, sessions, reset, relogin, and logout'
   });
   assert.equal(logoutResult.response.status, 200);
   assert.equal(logoutResult.body.success, true);
+});
+
+test('demo-domain aliases allow login across legacy and current branding', async () => {
+  const localPart = `demo.alias.${Date.now()}`;
+  const legacyEmail = `${localPart}@stlos.dev`;
+  const currentEmail = `${localPart}@trucksetu.dev`;
+  const password = 'TruckSetuAlias123';
+
+  const registerResult = await client.request('/auth/register', {
+    method: 'POST',
+    body: {
+      name: 'Demo Alias Test',
+      email: legacyEmail,
+      password,
+      phone: '9999912345',
+      role: 'WAREHOUSE',
+    },
+  });
+
+  assert.equal(registerResult.response.status, 201);
+
+  const loginResult = await client.login(currentEmail, password);
+  assert.equal(loginResult.response.status, 200);
+  assert.equal(loginResult.body.user.email, legacyEmail);
 });

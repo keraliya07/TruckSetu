@@ -5,7 +5,7 @@ const jsonHeaders = {
 };
 
 async function main() {
-  const email = `phase2.${Date.now()}@stlos.dev`;
+const email = `phase2.${Date.now()}@trucksetu.dev`;
   const originalPassword = 'Phase2Pass123';
   const nextPassword = 'Phase2Pass456';
 
@@ -55,17 +55,6 @@ async function main() {
 
       if (!loginResponse.ok || !loginBody.token || !loginCookie) {
         throw new Error(`login failed: ${loginResponse.status} ${JSON.stringify(loginBody)}`);
-      }
-
-      const sessionsResponse = await fetch(`${baseUrl}/auth/sessions`, {
-        headers: {
-          Authorization: `Bearer ${loginBody.token}`,
-        },
-      });
-      const sessionsBody = await sessionsResponse.json();
-
-      if (!sessionsResponse.ok || !Array.isArray(sessionsBody.sessions) || !sessionsBody.sessions.length) {
-        throw new Error(`sessions failed: ${sessionsResponse.status} ${JSON.stringify(sessionsBody)}`);
       }
 
       const forgotResponse = await fetch(`${baseUrl}/auth/forgot-password`, {
@@ -124,7 +113,6 @@ async function main() {
           register: registerResponse.status,
           verify: verifyResponse.status,
           login: loginResponse.status,
-          sessions: sessionsResponse.status,
           forgotPassword: forgotResponse.status,
           resetPassword: resetResponse.status,
           relogin: reloginResponse.status,

@@ -9,5 +9,6 @@ export function useAuth() {
     isWarehouse: store.user?.role === 'WAREHOUSE',
     isDealer: store.user?.role === 'DEALER',
     isAdmin: store.user?.role === 'ADMIN',
+    isAnalyst: store.user?.role === 'ANALYST',
   };
 }

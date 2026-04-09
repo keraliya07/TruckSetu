@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { Navigate, useNavigate } from 'react-router-dom';
 
+import { cityOptions } from '../../data/logisticsOptions';
 import { useAuth } from '../../hooks/useAuth';
 import { getDashboardPath } from '../../utils/roleRoutes';
 
@@ -60,7 +61,7 @@ export default function OnboardingPage() {
             Finish your role setup
           </h1>
           <p className="mt-3 max-w-2xl text-white/80">
-            This step stores a small role-specific profile so the current demo dashboards feel tailored instead of generic.
+            This step stores a small role-specific profile so the current demo workspace feels tailored instead of generic.
           </p>
         </section>
 
@@ -87,11 +88,17 @@ export default function OnboardingPage() {
                 <label className="field-label" htmlFor="city">
                   City
                 </label>
-                <input
+                <select
                   className="input-base"
                   id="city"
                   {...warehouseForm.register('city', { required: true })}
-                />
+                >
+                  {cityOptions.map((city) => (
+                    <option key={city.city} value={city.city}>
+                      {city.city}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>
@@ -139,11 +146,17 @@ export default function OnboardingPage() {
                 <label className="field-label" htmlFor="primaryCity">
                   Primary city
                 </label>
-                <input
+                <select
                   className="input-base"
                   id="primaryCity"
                   {...dealerForm.register('primaryCity', { required: true })}
-                />
+                >
+                  {cityOptions.map((city) => (
+                    <option key={city.city} value={city.city}>
+                      {city.city}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>

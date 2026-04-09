@@ -13,9 +13,9 @@ const schema = z.object({
 });
 
 const demoAccounts = [
-  { role: 'Warehouse', email: 'warehouse@stlos.dev', password: 'Warehouse123' },
-  { role: 'Dealer', email: 'dealer@stlos.dev', password: 'Dealer123' },
-  { role: 'Admin', email: 'admin@stlos.dev', password: 'Admin123' },
+  { role: 'Warehouse', email: 'warehouse@trucksetu.dev', password: 'Warehouse123' },
+  { role: 'Dealer', email: 'dealer@trucksetu.dev', password: 'Dealer123' },
+  { role: 'Admin', email: 'admin@trucksetu.dev', password: 'Admin123' },
 ];
 
 export default function LoginPage() {
@@ -50,13 +50,13 @@ export default function LoginPage() {
         <section className="panel overflow-hidden">
           <div className="bg-gradient-to-br from-freight-700 via-freight-600 to-brand-600 p-8 text-white sm:p-10">
             <p className="font-heading text-sm uppercase tracking-[0.35em] text-white/70">
-              STLOS
+              TruckSetu
             </p>
             <h1 className="mt-4 max-w-xl font-heading text-4xl leading-tight sm:text-5xl">
               Smart logistics execution starts with the right truck, route, and role.
             </h1>
             <p className="mt-4 max-w-2xl text-base text-white/85 sm:text-lg">
-              The current build includes persistent auth sessions, role-based dashboards,
+              The current build includes persistent auth sessions, role-based workspaces,
               and live logistics modules backed by Prisma and Supabase.
             </p>
           </div>
@@ -101,7 +101,7 @@ export default function LoginPage() {
               <input
                 className="input-base"
                 id="email"
-                placeholder="warehouse@stlos.dev"
+                placeholder="warehouse@trucksetu.dev"
                 {...register('email')}
               />
               {errors.email ? (
@@ -141,9 +141,6 @@ export default function LoginPage() {
                 Forgot password
               </Link>
             </div>
-            <Link className="font-semibold text-slate-700" to="/status">
-              View project roadmap
-            </Link>
           </div>
         </section>
       </div>

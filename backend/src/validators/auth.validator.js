@@ -32,10 +32,6 @@ const verifyEmailSchema = z.object({
   token: z.string().min(20),
 });
 
-const sessionParamsSchema = z.object({
-  sessionId: z.string().uuid(),
-});
-
 const updateProfileSchema = z
   .object({
     name: z.string().min(2).max(80).optional(),
@@ -67,7 +63,6 @@ module.exports = {
   loginSchema,
   registerSchema,
   resetPasswordSchema,
-  sessionParamsSchema,
   updateProfileSchema,
   verifyEmailSchema,
 };

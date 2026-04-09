@@ -10,34 +10,78 @@ const {
 const { comparePassword, hashPassword } = require('../utils/bcrypt.utils');
 const ApiError = require('../utils/apiError.utils');
 const {
+  invalidateSessionCache,
+  invalidateUserSessionCache,
+} = require('../middleware/auth.middleware');
+const {
   decodeToken,
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
 } = require('../utils/jwt.utils');
 const { sendMail } = require('../utils/mail.utils');
+const { resolveCityCoordinates } = require('../utils/cityCoordinates');
 
 const demoAccounts = [
   {
     role: 'WAREHOUSE',
-    email: 'warehouse@stlos.dev',
+    email: 'warehouse@trucksetu.dev',
     password: 'Warehouse123',
   },
   {
     role: 'DEALER',
-    email: 'dealer@stlos.dev',
+    email: 'dealer@trucksetu.dev',
     password: 'Dealer123',
   },
   {
     role: 'ADMIN',
-    email: 'admin@stlos.dev',
+    email: 'admin@trucksetu.dev',
     password: 'Admin123',
   },
 ];
 
+const LEGACY_DEMO_DOMAIN = 'stlos.dev';
+const CURRENT_DEMO_DOMAIN = 'trucksetu.dev';
+
 const userInclude = {
   warehouse: true,
   truckDealer: true,
+};
+
+const normalizeEmail = (email) => String(email || '').trim().toLowerCase();
+
+const getEmailCandidates = (email) => {
+  const normalizedEmail = normalizeEmail(email);
+
+  if (!normalizedEmail.includes('@')) {
+    return [normalizedEmail];
+  }
+
+  const [localPart, domain] = normalizedEmail.split('@');
+
+  if (!localPart || !domain) {
+    return [normalizedEmail];
+  }
+
+  const candidates = [normalizedEmail];
+
+  if (domain === CURRENT_DEMO_DOMAIN) {
+    candidates.push(`${localPart}@${LEGACY_DEMO_DOMAIN}`);
+  } else if (domain === LEGACY_DEMO_DOMAIN) {
+    candidates.push(`${localPart}@${CURRENT_DEMO_DOMAIN}`);
+  }
+
+  return candidates;
+};
+
+const findUserByEmail = async (email) => {
+  const candidates = getEmailCandidates(email);
+
+  // Single query with IN instead of sequential loop — saves 1 round-trip for dual-domain lookups
+  return prisma.user.findFirst({
+    where: { email: { in: candidates } },
+    include: userInclude,
+  });
 };
 
 const toSafeUser = (user) => {
@@ -123,11 +167,11 @@ const dispatchEmailVerification = async (user) => {
   try {
     emailSent = await sendMail({
       to: user.email,
-      subject: 'Verify your STLOS email',
+      subject: 'Verify your TruckSetu email',
       text: `Verify your email by opening this link: ${verificationUrl}`,
       html: `
         <p>Hello ${user.name},</p>
-        <p>Verify your STLOS email by opening the link below:</p>
+        <p>Verify your TruckSetu email by opening the link below:</p>
         <p><a href="${verificationUrl}">${verificationUrl}</a></p>
       `,
     });
@@ -169,15 +213,16 @@ const dispatchPasswordReset = async (user) => {
   try {
     emailSent = await sendMail({
       to: user.email,
-      subject: 'Reset your STLOS password',
+      subject: 'Reset your TruckSetu password',
       text: `Reset your password by opening this link: ${resetUrl}`,
       html: `
         <p>Hello ${user.name},</p>
-        <p>Reset your STLOS password by opening the link below:</p>
+        <p>Reset your TruckSetu password by opening the link below:</p>
         <p><a href="${resetUrl}">${resetUrl}</a></p>
       `,
     });
   } catch (error) {
+    console.error('[AUTH] Password reset email failed:', error.message);
     emailSent = false;
   }
 
@@ -191,32 +236,25 @@ const dispatchPasswordReset = async (user) => {
 };
 
 const createSessionTokens = async (user, context = {}) => {
-  const session = await prisma.refreshSession.create({
-    data: {
-      userId: user.id,
-      refreshTokenHash: '',
-      userAgent: context.userAgent || null,
-      ipAddress: context.ipAddress || null,
-      expiresAt: new Date(),
-      lastUsedAt: new Date(),
-    },
-  });
+  // Pre-generate session ID so we can build tokens before hitting DB — saves 1 round-trip
+  const sessionId = crypto.randomUUID();
 
   const accessToken = generateAccessToken({
     userId: user.id,
     email: user.email,
     role: user.role,
-    sessionId: session.id,
+    sessionId,
   });
   const refreshToken = generateRefreshToken({
     userId: user.id,
-    sessionId: session.id,
+    sessionId,
   });
   const refreshTokenExpiresAt = getTokenExpiryDate(refreshToken);
 
-  await prisma.refreshSession.update({
-    where: { id: session.id },
+  await prisma.refreshSession.create({
     data: {
+      id: sessionId,
+      userId: user.id,
       refreshTokenHash: hashToken(refreshToken),
       expiresAt: refreshTokenExpiresAt,
       lastUsedAt: new Date(),
@@ -234,9 +272,8 @@ const createSessionTokens = async (user, context = {}) => {
 };
 
 const register = async ({ email, password, name, phone, role }, context = {}) => {
-  const existingUser = await prisma.user.findUnique({
-    where: { email },
-  });
+  const normalizedEmail = normalizeEmail(email);
+  const existingUser = await findUserByEmail(normalizedEmail);
 
   if (existingUser) {
     throw ApiError.conflict('Email already registered');
@@ -244,7 +281,7 @@ const register = async ({ email, password, name, phone, role }, context = {}) =>
 
   const user = await prisma.user.create({
     data: {
-      email,
+      email: normalizedEmail,
       passwordHash: await hashPassword(password),
       name,
       phone: phone || null,
@@ -265,10 +302,7 @@ const register = async ({ email, password, name, phone, role }, context = {}) =>
 };
 
 const login = async ({ email, password }, context = {}) => {
-  const user = await prisma.user.findUnique({
-    where: { email },
-    include: userInclude,
-  });
+  const user = await findUserByEmail(email);
 
   assertActiveUser(user);
 
@@ -318,6 +352,7 @@ const refreshSession = async (refreshToken, context = {}) => {
   assertActiveUser(session.user);
 
   if (session.refreshTokenHash !== hashToken(refreshToken)) {
+    invalidateSessionCache(session.id);
     await prisma.refreshSession.update({
       where: { id: session.id },
       data: {
@@ -350,6 +385,7 @@ const refreshSession = async (refreshToken, context = {}) => {
       ipAddress: context.ipAddress || session.ipAddress,
     },
   });
+  invalidateSessionCache(session.id);
 
   return {
     accessToken,
@@ -379,6 +415,7 @@ const logout = async (refreshToken) => {
       return;
     }
 
+    invalidateSessionCache(session.id);
     await prisma.refreshSession.update({
       where: { id: session.id },
       data: {
@@ -413,58 +450,81 @@ const updateProfile = async (userId, updates) => {
     throw ApiError.notFound('User not found');
   }
 
-  await prisma.user.update({
-    where: { id: userId },
-    data: {
-      ...(updates.name ? { name: updates.name } : {}),
-      ...(typeof updates.phone === 'string' ? { phone: updates.phone || null } : {}),
-      ...(user.role === 'ADMIN' ? { profileComplete: true } : {}),
-    },
-  });
+  // Batch all writes in a single transaction — saves 2-3 sequential round-trips
+  const operations = [];
+
+  const userUpdateData = {
+    ...(updates.name ? { name: updates.name } : {}),
+    ...(typeof updates.phone === 'string' ? { phone: updates.phone || null } : {}),
+  };
+
+  const needsProfileComplete =
+    user.role === 'ADMIN' ||
+    (user.role === 'WAREHOUSE' && updates.warehouse) ||
+    (user.role === 'DEALER' && updates.truckDealer);
+
+  if (needsProfileComplete) {
+    userUpdateData.profileComplete = true;
+  }
+
+  operations.push(
+    prisma.user.update({
+      where: { id: userId },
+      data: userUpdateData,
+    })
+  );
 
   if (user.role === 'WAREHOUSE' && updates.warehouse) {
-    await prisma.warehouse.upsert({
-      where: { userId },
-      update: {
-        warehouseName: updates.warehouse.warehouseName,
-        city: updates.warehouse.city,
-        address: updates.warehouse.address,
-      },
-      create: {
-        userId,
-        warehouseName: updates.warehouse.warehouseName,
-        city: updates.warehouse.city,
-        address: updates.warehouse.address,
-      },
-    });
+    const warehouseLocation = resolveCityCoordinates(updates.warehouse.city);
 
-    await prisma.user.update({
-      where: { id: userId },
-      data: { profileComplete: true },
-    });
+    operations.push(
+      prisma.warehouse.upsert({
+        where: { userId },
+        update: {
+          warehouseName: updates.warehouse.warehouseName,
+          city: warehouseLocation?.city || updates.warehouse.city,
+          address: updates.warehouse.address,
+          latitude: warehouseLocation?.lat ?? null,
+          longitude: warehouseLocation?.lng ?? null,
+        },
+        create: {
+          userId,
+          warehouseName: updates.warehouse.warehouseName,
+          city: warehouseLocation?.city || updates.warehouse.city,
+          address: updates.warehouse.address,
+          latitude: warehouseLocation?.lat ?? null,
+          longitude: warehouseLocation?.lng ?? null,
+        },
+      })
+    );
   }
 
   if (user.role === 'DEALER' && updates.truckDealer) {
-    await prisma.truckDealer.upsert({
-      where: { userId },
-      update: {
-        companyName: updates.truckDealer.companyName,
-        primaryCity: updates.truckDealer.primaryCity,
-        baseRatePerKmTon: updates.truckDealer.baseRatePerKmTon,
-      },
-      create: {
-        userId,
-        companyName: updates.truckDealer.companyName,
-        primaryCity: updates.truckDealer.primaryCity,
-        baseRatePerKmTon: updates.truckDealer.baseRatePerKmTon,
-      },
-    });
+    const dealerLocation = resolveCityCoordinates(updates.truckDealer.primaryCity);
 
-    await prisma.user.update({
-      where: { id: userId },
-      data: { profileComplete: true },
-    });
+    operations.push(
+      prisma.truckDealer.upsert({
+        where: { userId },
+        update: {
+          companyName: updates.truckDealer.companyName,
+          primaryCity: dealerLocation?.city || updates.truckDealer.primaryCity,
+          baseRatePerKmTon: updates.truckDealer.baseRatePerKmTon,
+          primaryLat: dealerLocation?.lat ?? null,
+          primaryLng: dealerLocation?.lng ?? null,
+        },
+        create: {
+          userId,
+          companyName: updates.truckDealer.companyName,
+          primaryCity: dealerLocation?.city || updates.truckDealer.primaryCity,
+          baseRatePerKmTon: updates.truckDealer.baseRatePerKmTon,
+          primaryLat: dealerLocation?.lat ?? null,
+          primaryLng: dealerLocation?.lng ?? null,
+        },
+      })
+    );
   }
+
+  await prisma.$transaction(operations);
 
   return getProfile(userId);
 };
@@ -516,9 +576,7 @@ const verifyEmail = async (token) => {
 };
 
 const forgotPassword = async (email) => {
-  const user = await prisma.user.findUnique({
-    where: { email },
-  });
+  const user = await findUserByEmail(email);
 
   if (!user) {
     return {
@@ -559,73 +617,10 @@ const resetPassword = async ({ password, token }) => {
       },
     }),
   ]);
+  invalidateUserSessionCache(record.userId);
 
   return {
     message: 'Password reset successful. Please sign in again.',
-  };
-};
-
-const listSessions = async (userId, currentSessionId) => {
-  const sessions = await prisma.refreshSession.findMany({
-    where: { userId },
-    orderBy: { createdAt: 'desc' },
-  });
-
-  return sessions.map((session) => ({
-    id: session.id,
-    userAgent: session.userAgent,
-    ipAddress: session.ipAddress,
-    createdAt: session.createdAt,
-    lastUsedAt: session.lastUsedAt,
-    expiresAt: session.expiresAt,
-    revokedAt: session.revokedAt,
-    isCurrent: session.id === currentSessionId,
-  }));
-};
-
-const revokeSession = async (userId, currentSessionId, sessionId) => {
-  if (sessionId === currentSessionId) {
-    throw ApiError.badRequest('Use sign out to revoke the current session');
-  }
-
-  const session = await prisma.refreshSession.findFirst({
-    where: {
-      id: sessionId,
-      userId,
-    },
-  });
-
-  if (!session) {
-    throw ApiError.notFound('Session not found');
-  }
-
-  await prisma.refreshSession.update({
-    where: { id: sessionId },
-    data: {
-      revokedAt: new Date(),
-    },
-  });
-
-  return {
-    message: 'Session revoked.',
-  };
-};
-
-const revokeOtherSessions = async (userId, currentSessionId) => {
-  const result = await prisma.refreshSession.updateMany({
-    where: {
-      userId,
-      id: { not: currentSessionId },
-      revokedAt: null,
-    },
-    data: {
-      revokedAt: new Date(),
-    },
-  });
-
-  return {
-    message: 'Other sessions revoked.',
-    revokedCount: result.count,
   };
 };
 
@@ -635,14 +630,11 @@ module.exports = {
   forgotPassword,
   getProfile,
   listDemoAccounts,
-  listSessions,
   login,
   logout,
   refreshSession,
   register,
   resetPassword,
-  revokeOtherSessions,
-  revokeSession,
   sendVerificationEmail,
   updateProfile,
   verifyEmail,

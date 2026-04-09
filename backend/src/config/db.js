@@ -4,11 +4,13 @@ const { NODE_ENV } = require('./env');
 let prisma;
 
 if (NODE_ENV === 'production') {
-  prisma = new PrismaClient();
+  prisma = new PrismaClient({
+    log: ['warn', 'error'],
+  });
 } else {
   if (!globalThis.__prisma) {
     globalThis.__prisma = new PrismaClient({
-      log: ['warn', 'error'],
+      log: ['query', 'warn', 'error'],
     });
   }
 

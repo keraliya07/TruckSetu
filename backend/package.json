@@ -1,7 +1,7 @@
 {
-  "name": "stlos-backend",
+  "name": "trucksetu-backend",
   "version": "1.0.0",
-  "description": "STLOS Backend API - Node.js + Express",
+  "description": "TruckSetu Backend API - Node.js + Express",
   "main": "src/server.js",
   "scripts": {
     "dev": "nodemon src/server.js",

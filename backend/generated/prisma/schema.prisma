@@ -11,6 +11,7 @@ datasource db {
 
 enum UserRole {
   ADMIN
+  ANALYST
   WAREHOUSE
   DEALER
 }
@@ -94,21 +95,6 @@ enum DocumentType {
   OTHER
 }
 
-enum DisputeStatus {
-  OPEN
-  IN_REVIEW
-  RESOLVED
-  REJECTED
-}
-
-enum DisputeEntityType {
-  SHIPMENT
-  TRIP
-  BOOKING
-  PAYMENT
-  OTHER
-}
-
 enum OptimizationStatus {
   PENDING
   COMPLETED
@@ -131,8 +117,6 @@ model User {
   shipmentsCreated        Shipment[]               @relation("ShipmentCreatedBy")
   bookingsRequested       BookingRequest[]         @relation("BookingRequestedBy")
   optimizationRuns        OptimizationRun[]
-  disputesRaised          Dispute[]                @relation("DisputeRaisedBy")
-  disputesResolved        Dispute[]                @relation("DisputeResolvedBy")
   sessions                RefreshSession[]
   emailVerificationTokens EmailVerificationToken[]
   passwordResetTokens     PasswordResetToken[]
@@ -270,6 +254,10 @@ model Shipment {
   destLat             Float
   destLng             Float
   deadline            DateTime
+  pickupDeadline      DateTime?
+  shipmentType        String                    @default("STANDARD")
+  systemPrice         Float?
+  estimatedDistanceKm Float?
   fragile             Boolean                   @default(false)
   hazardous           Boolean                   @default(false)
   priority            Int                       @default(1)
@@ -281,7 +269,6 @@ model Shipment {
   tripShipments       TripShipment[]
   returnLoadMatches   ReturnLoadMatch[]
   optimizationRuns    OptimizationRunShipment[]
-  disputes            Dispute[]
   stopEvents          TripStop[]
   createdAt           DateTime                  @default(now())
   updatedAt           DateTime                  @updatedAt
@@ -366,7 +353,6 @@ model BookingRequest {
   optimizationCandidate   OptimizationCandidate? @relation(fields: [optimizationCandidateId], references: [id], onDelete: SetNull)
   shipments               BookingShipment[]
   trip                    Trip?
-  disputes                Dispute[]
   documents               Document[]
   createdAt               DateTime               @default(now())
   updatedAt               DateTime               @updatedAt
@@ -410,7 +396,6 @@ model Trip {
   locations            TripLocation[]
   returnLoadMatches    ReturnLoadMatch[]
   documents            Document[]
-  disputes             Dispute[]
   createdAt            DateTime          @default(now())
   updatedAt            DateTime          @updatedAt
 
@@ -504,31 +489,6 @@ model Notification {
 
   @@index([userId, isRead])
   @@index([type])
-}
-
-model Dispute {
-  id               String            @id @default(uuid())
-  type             DisputeEntityType
-  status           DisputeStatus     @default(OPEN)
-  title            String
-  description      String
-  raisedById       String
-  resolvedById     String?
-  shipmentId       String?
-  tripId           String?
-  bookingRequestId String?
-  resolution       String?
-  resolvedAt       DateTime?
-  raisedBy         User              @relation("DisputeRaisedBy", fields: [raisedById], references: [id], onDelete: Restrict)
-  resolvedBy       User?             @relation("DisputeResolvedBy", fields: [resolvedById], references: [id], onDelete: SetNull)
-  shipment         Shipment?         @relation(fields: [shipmentId], references: [id], onDelete: SetNull)
-  trip             Trip?             @relation(fields: [tripId], references: [id], onDelete: SetNull)
-  bookingRequest   BookingRequest?   @relation(fields: [bookingRequestId], references: [id], onDelete: SetNull)
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-
-  @@index([status, type])
-  @@index([raisedById])
 }
 
 model Document {

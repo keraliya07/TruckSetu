@@ -109,11 +109,6 @@ export type ReturnLoadMatch = $Result.DefaultSelection<Prisma.$ReturnLoadMatchPa
  */
 export type Notification = $Result.DefaultSelection<Prisma.$NotificationPayload>
 /**
- * Model Dispute
- * 
- */
-export type Dispute = $Result.DefaultSelection<Prisma.$DisputePayload>
-/**
  * Model Document
  * 
  */
@@ -125,6 +120,7 @@ export type Document = $Result.DefaultSelection<Prisma.$DocumentPayload>
 export namespace $Enums {
   export const UserRole: {
   ADMIN: 'ADMIN',
+  ANALYST: 'ANALYST',
   WAREHOUSE: 'WAREHOUSE',
   DEALER: 'DEALER'
 };
@@ -241,27 +237,6 @@ export const DocumentType: {
 export type DocumentType = (typeof DocumentType)[keyof typeof DocumentType]
 
 
-export const DisputeStatus: {
-  OPEN: 'OPEN',
-  IN_REVIEW: 'IN_REVIEW',
-  RESOLVED: 'RESOLVED',
-  REJECTED: 'REJECTED'
-};
-
-export type DisputeStatus = (typeof DisputeStatus)[keyof typeof DisputeStatus]
-
-
-export const DisputeEntityType: {
-  SHIPMENT: 'SHIPMENT',
-  TRIP: 'TRIP',
-  BOOKING: 'BOOKING',
-  PAYMENT: 'PAYMENT',
-  OTHER: 'OTHER'
-};
-
-export type DisputeEntityType = (typeof DisputeEntityType)[keyof typeof DisputeEntityType]
-
-
 export const OptimizationStatus: {
   PENDING: 'PENDING',
   COMPLETED: 'COMPLETED',
@@ -315,14 +290,6 @@ export const NotificationType: typeof $Enums.NotificationType
 export type DocumentType = $Enums.DocumentType
 
 export const DocumentType: typeof $Enums.DocumentType
-
-export type DisputeStatus = $Enums.DisputeStatus
-
-export const DisputeStatus: typeof $Enums.DisputeStatus
-
-export type DisputeEntityType = $Enums.DisputeEntityType
-
-export const DisputeEntityType: typeof $Enums.DisputeEntityType
 
 export type OptimizationStatus = $Enums.OptimizationStatus
 
@@ -635,16 +602,6 @@ export class PrismaClient<
     * ```
     */
   get notification(): Prisma.NotificationDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.dispute`: Exposes CRUD operations for the **Dispute** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more Disputes
-    * const disputes = await prisma.dispute.findMany()
-    * ```
-    */
-  get dispute(): Prisma.DisputeDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.document`: Exposes CRUD operations for the **Document** model.
@@ -1115,7 +1072,6 @@ export namespace Prisma {
     TripLocation: 'TripLocation',
     ReturnLoadMatch: 'ReturnLoadMatch',
     Notification: 'Notification',
-    Dispute: 'Dispute',
     Document: 'Document'
   };
 
@@ -1135,7 +1091,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "refreshSession" | "emailVerificationToken" | "passwordResetToken" | "warehouse" | "truckDealer" | "truck" | "shipment" | "optimizationRun" | "optimizationRunShipment" | "optimizationCandidate" | "bookingRequest" | "bookingShipment" | "trip" | "tripShipment" | "tripStop" | "tripLocation" | "returnLoadMatch" | "notification" | "dispute" | "document"
+      modelProps: "user" | "refreshSession" | "emailVerificationToken" | "passwordResetToken" | "warehouse" | "truckDealer" | "truck" | "shipment" | "optimizationRun" | "optimizationRunShipment" | "optimizationCandidate" | "bookingRequest" | "bookingShipment" | "trip" | "tripShipment" | "tripStop" | "tripLocation" | "returnLoadMatch" | "notification" | "document"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2545,80 +2501,6 @@ export namespace Prisma {
           }
         }
       }
-      Dispute: {
-        payload: Prisma.$DisputePayload<ExtArgs>
-        fields: Prisma.DisputeFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.DisputeFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DisputePayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.DisputeFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DisputePayload>
-          }
-          findFirst: {
-            args: Prisma.DisputeFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DisputePayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.DisputeFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DisputePayload>
-          }
-          findMany: {
-            args: Prisma.DisputeFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DisputePayload>[]
-          }
-          create: {
-            args: Prisma.DisputeCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DisputePayload>
-          }
-          createMany: {
-            args: Prisma.DisputeCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.DisputeCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DisputePayload>[]
-          }
-          delete: {
-            args: Prisma.DisputeDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DisputePayload>
-          }
-          update: {
-            args: Prisma.DisputeUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DisputePayload>
-          }
-          deleteMany: {
-            args: Prisma.DisputeDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.DisputeUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.DisputeUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DisputePayload>[]
-          }
-          upsert: {
-            args: Prisma.DisputeUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DisputePayload>
-          }
-          aggregate: {
-            args: Prisma.DisputeAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateDispute>
-          }
-          groupBy: {
-            args: Prisma.DisputeGroupByArgs<ExtArgs>
-            result: $Utils.Optional<DisputeGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.DisputeCountArgs<ExtArgs>
-            result: $Utils.Optional<DisputeCountAggregateOutputType> | number
-          }
-        }
-      }
       Document: {
         payload: Prisma.$DocumentPayload<ExtArgs>
         fields: Prisma.DocumentFieldRefs
@@ -2808,7 +2690,6 @@ export namespace Prisma {
     tripLocation?: TripLocationOmit
     returnLoadMatch?: ReturnLoadMatchOmit
     notification?: NotificationOmit
-    dispute?: DisputeOmit
     document?: DocumentOmit
   }
 
@@ -2894,8 +2775,6 @@ export namespace Prisma {
     shipmentsCreated: number
     bookingsRequested: number
     optimizationRuns: number
-    disputesRaised: number
-    disputesResolved: number
     sessions: number
     emailVerificationTokens: number
     passwordResetTokens: number
@@ -2906,8 +2785,6 @@ export namespace Prisma {
     shipmentsCreated?: boolean | UserCountOutputTypeCountShipmentsCreatedArgs
     bookingsRequested?: boolean | UserCountOutputTypeCountBookingsRequestedArgs
     optimizationRuns?: boolean | UserCountOutputTypeCountOptimizationRunsArgs
-    disputesRaised?: boolean | UserCountOutputTypeCountDisputesRaisedArgs
-    disputesResolved?: boolean | UserCountOutputTypeCountDisputesResolvedArgs
     sessions?: boolean | UserCountOutputTypeCountSessionsArgs
     emailVerificationTokens?: boolean | UserCountOutputTypeCountEmailVerificationTokensArgs
     passwordResetTokens?: boolean | UserCountOutputTypeCountPasswordResetTokensArgs
@@ -2950,20 +2827,6 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountOptimizationRunsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: OptimizationRunWhereInput
-  }
-
-  /**
-   * UserCountOutputType without action
-   */
-  export type UserCountOutputTypeCountDisputesRaisedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: DisputeWhereInput
-  }
-
-  /**
-   * UserCountOutputType without action
-   */
-  export type UserCountOutputTypeCountDisputesResolvedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: DisputeWhereInput
   }
 
   /**
@@ -3144,7 +3007,6 @@ export namespace Prisma {
     tripShipments: number
     returnLoadMatches: number
     optimizationRuns: number
-    disputes: number
     stopEvents: number
   }
 
@@ -3153,7 +3015,6 @@ export namespace Prisma {
     tripShipments?: boolean | ShipmentCountOutputTypeCountTripShipmentsArgs
     returnLoadMatches?: boolean | ShipmentCountOutputTypeCountReturnLoadMatchesArgs
     optimizationRuns?: boolean | ShipmentCountOutputTypeCountOptimizationRunsArgs
-    disputes?: boolean | ShipmentCountOutputTypeCountDisputesArgs
     stopEvents?: boolean | ShipmentCountOutputTypeCountStopEventsArgs
   }
 
@@ -3194,13 +3055,6 @@ export namespace Prisma {
    */
   export type ShipmentCountOutputTypeCountOptimizationRunsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: OptimizationRunShipmentWhereInput
-  }
-
-  /**
-   * ShipmentCountOutputType without action
-   */
-  export type ShipmentCountOutputTypeCountDisputesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: DisputeWhereInput
   }
 
   /**
@@ -3297,13 +3151,11 @@ export namespace Prisma {
 
   export type BookingRequestCountOutputType = {
     shipments: number
-    disputes: number
     documents: number
   }
 
   export type BookingRequestCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     shipments?: boolean | BookingRequestCountOutputTypeCountShipmentsArgs
-    disputes?: boolean | BookingRequestCountOutputTypeCountDisputesArgs
     documents?: boolean | BookingRequestCountOutputTypeCountDocumentsArgs
   }
 
@@ -3328,13 +3180,6 @@ export namespace Prisma {
   /**
    * BookingRequestCountOutputType without action
    */
-  export type BookingRequestCountOutputTypeCountDisputesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: DisputeWhereInput
-  }
-
-  /**
-   * BookingRequestCountOutputType without action
-   */
   export type BookingRequestCountOutputTypeCountDocumentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: DocumentWhereInput
   }
@@ -3350,7 +3195,6 @@ export namespace Prisma {
     locations: number
     returnLoadMatches: number
     documents: number
-    disputes: number
   }
 
   export type TripCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3359,7 +3203,6 @@ export namespace Prisma {
     locations?: boolean | TripCountOutputTypeCountLocationsArgs
     returnLoadMatches?: boolean | TripCountOutputTypeCountReturnLoadMatchesArgs
     documents?: boolean | TripCountOutputTypeCountDocumentsArgs
-    disputes?: boolean | TripCountOutputTypeCountDisputesArgs
   }
 
   // Custom InputTypes
@@ -3406,13 +3249,6 @@ export namespace Prisma {
    */
   export type TripCountOutputTypeCountDocumentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: DocumentWhereInput
-  }
-
-  /**
-   * TripCountOutputType without action
-   */
-  export type TripCountOutputTypeCountDisputesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: DisputeWhereInput
   }
 
 
@@ -3638,8 +3474,6 @@ export namespace Prisma {
     shipmentsCreated?: boolean | User$shipmentsCreatedArgs<ExtArgs>
     bookingsRequested?: boolean | User$bookingsRequestedArgs<ExtArgs>
     optimizationRuns?: boolean | User$optimizationRunsArgs<ExtArgs>
-    disputesRaised?: boolean | User$disputesRaisedArgs<ExtArgs>
-    disputesResolved?: boolean | User$disputesResolvedArgs<ExtArgs>
     sessions?: boolean | User$sessionsArgs<ExtArgs>
     emailVerificationTokens?: boolean | User$emailVerificationTokensArgs<ExtArgs>
     passwordResetTokens?: boolean | User$passwordResetTokensArgs<ExtArgs>
@@ -3696,8 +3530,6 @@ export namespace Prisma {
     shipmentsCreated?: boolean | User$shipmentsCreatedArgs<ExtArgs>
     bookingsRequested?: boolean | User$bookingsRequestedArgs<ExtArgs>
     optimizationRuns?: boolean | User$optimizationRunsArgs<ExtArgs>
-    disputesRaised?: boolean | User$disputesRaisedArgs<ExtArgs>
-    disputesResolved?: boolean | User$disputesResolvedArgs<ExtArgs>
     sessions?: boolean | User$sessionsArgs<ExtArgs>
     emailVerificationTokens?: boolean | User$emailVerificationTokensArgs<ExtArgs>
     passwordResetTokens?: boolean | User$passwordResetTokensArgs<ExtArgs>
@@ -3715,8 +3547,6 @@ export namespace Prisma {
       shipmentsCreated: Prisma.$ShipmentPayload<ExtArgs>[]
       bookingsRequested: Prisma.$BookingRequestPayload<ExtArgs>[]
       optimizationRuns: Prisma.$OptimizationRunPayload<ExtArgs>[]
-      disputesRaised: Prisma.$DisputePayload<ExtArgs>[]
-      disputesResolved: Prisma.$DisputePayload<ExtArgs>[]
       sessions: Prisma.$RefreshSessionPayload<ExtArgs>[]
       emailVerificationTokens: Prisma.$EmailVerificationTokenPayload<ExtArgs>[]
       passwordResetTokens: Prisma.$PasswordResetTokenPayload<ExtArgs>[]
@@ -4133,8 +3963,6 @@ export namespace Prisma {
     shipmentsCreated<T extends User$shipmentsCreatedArgs<ExtArgs> = {}>(args?: Subset<T, User$shipmentsCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShipmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     bookingsRequested<T extends User$bookingsRequestedArgs<ExtArgs> = {}>(args?: Subset<T, User$bookingsRequestedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BookingRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     optimizationRuns<T extends User$optimizationRunsArgs<ExtArgs> = {}>(args?: Subset<T, User$optimizationRunsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OptimizationRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    disputesRaised<T extends User$disputesRaisedArgs<ExtArgs> = {}>(args?: Subset<T, User$disputesRaisedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DisputePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    disputesResolved<T extends User$disputesResolvedArgs<ExtArgs> = {}>(args?: Subset<T, User$disputesResolvedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DisputePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     sessions<T extends User$sessionsArgs<ExtArgs> = {}>(args?: Subset<T, User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RefreshSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     emailVerificationTokens<T extends User$emailVerificationTokensArgs<ExtArgs> = {}>(args?: Subset<T, User$emailVerificationTokensArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailVerificationTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     passwordResetTokens<T extends User$passwordResetTokensArgs<ExtArgs> = {}>(args?: Subset<T, User$passwordResetTokensArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PasswordResetTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -4697,54 +4525,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: OptimizationRunScalarFieldEnum | OptimizationRunScalarFieldEnum[]
-  }
-
-  /**
-   * User.disputesRaised
-   */
-  export type User$disputesRaisedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Dispute
-     */
-    select?: DisputeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Dispute
-     */
-    omit?: DisputeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DisputeInclude<ExtArgs> | null
-    where?: DisputeWhereInput
-    orderBy?: DisputeOrderByWithRelationInput | DisputeOrderByWithRelationInput[]
-    cursor?: DisputeWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: DisputeScalarFieldEnum | DisputeScalarFieldEnum[]
-  }
-
-  /**
-   * User.disputesResolved
-   */
-  export type User$disputesResolvedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Dispute
-     */
-    select?: DisputeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Dispute
-     */
-    omit?: DisputeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DisputeInclude<ExtArgs> | null
-    where?: DisputeWhereInput
-    orderBy?: DisputeOrderByWithRelationInput | DisputeOrderByWithRelationInput[]
-    cursor?: DisputeWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: DisputeScalarFieldEnum | DisputeScalarFieldEnum[]
   }
 
   /**
@@ -11966,6 +11746,8 @@ export namespace Prisma {
     originLng: number | null
     destLat: number | null
     destLng: number | null
+    systemPrice: number | null
+    estimatedDistanceKm: number | null
     priority: number | null
   }
 
@@ -11976,6 +11758,8 @@ export namespace Prisma {
     originLng: number | null
     destLat: number | null
     destLng: number | null
+    systemPrice: number | null
+    estimatedDistanceKm: number | null
     priority: number | null
   }
 
@@ -11997,6 +11781,10 @@ export namespace Prisma {
     destLat: number | null
     destLng: number | null
     deadline: Date | null
+    pickupDeadline: Date | null
+    shipmentType: string | null
+    systemPrice: number | null
+    estimatedDistanceKm: number | null
     fragile: boolean | null
     hazardous: boolean | null
     priority: number | null
@@ -12024,6 +11812,10 @@ export namespace Prisma {
     destLat: number | null
     destLng: number | null
     deadline: Date | null
+    pickupDeadline: Date | null
+    shipmentType: string | null
+    systemPrice: number | null
+    estimatedDistanceKm: number | null
     fragile: boolean | null
     hazardous: boolean | null
     priority: number | null
@@ -12051,6 +11843,10 @@ export namespace Prisma {
     destLat: number
     destLng: number
     deadline: number
+    pickupDeadline: number
+    shipmentType: number
+    systemPrice: number
+    estimatedDistanceKm: number
     fragile: number
     hazardous: number
     priority: number
@@ -12069,6 +11865,8 @@ export namespace Prisma {
     originLng?: true
     destLat?: true
     destLng?: true
+    systemPrice?: true
+    estimatedDistanceKm?: true
     priority?: true
   }
 
@@ -12079,6 +11877,8 @@ export namespace Prisma {
     originLng?: true
     destLat?: true
     destLng?: true
+    systemPrice?: true
+    estimatedDistanceKm?: true
     priority?: true
   }
 
@@ -12100,6 +11900,10 @@ export namespace Prisma {
     destLat?: true
     destLng?: true
     deadline?: true
+    pickupDeadline?: true
+    shipmentType?: true
+    systemPrice?: true
+    estimatedDistanceKm?: true
     fragile?: true
     hazardous?: true
     priority?: true
@@ -12127,6 +11931,10 @@ export namespace Prisma {
     destLat?: true
     destLng?: true
     deadline?: true
+    pickupDeadline?: true
+    shipmentType?: true
+    systemPrice?: true
+    estimatedDistanceKm?: true
     fragile?: true
     hazardous?: true
     priority?: true
@@ -12154,6 +11962,10 @@ export namespace Prisma {
     destLat?: true
     destLng?: true
     deadline?: true
+    pickupDeadline?: true
+    shipmentType?: true
+    systemPrice?: true
+    estimatedDistanceKm?: true
     fragile?: true
     hazardous?: true
     priority?: true
@@ -12268,6 +12080,10 @@ export namespace Prisma {
     destLat: number
     destLng: number
     deadline: Date
+    pickupDeadline: Date | null
+    shipmentType: string
+    systemPrice: number | null
+    estimatedDistanceKm: number | null
     fragile: boolean
     hazardous: boolean
     priority: number
@@ -12314,6 +12130,10 @@ export namespace Prisma {
     destLat?: boolean
     destLng?: boolean
     deadline?: boolean
+    pickupDeadline?: boolean
+    shipmentType?: boolean
+    systemPrice?: boolean
+    estimatedDistanceKm?: boolean
     fragile?: boolean
     hazardous?: boolean
     priority?: boolean
@@ -12327,7 +12147,6 @@ export namespace Prisma {
     tripShipments?: boolean | Shipment$tripShipmentsArgs<ExtArgs>
     returnLoadMatches?: boolean | Shipment$returnLoadMatchesArgs<ExtArgs>
     optimizationRuns?: boolean | Shipment$optimizationRunsArgs<ExtArgs>
-    disputes?: boolean | Shipment$disputesArgs<ExtArgs>
     stopEvents?: boolean | Shipment$stopEventsArgs<ExtArgs>
     _count?: boolean | ShipmentCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["shipment"]>
@@ -12350,6 +12169,10 @@ export namespace Prisma {
     destLat?: boolean
     destLng?: boolean
     deadline?: boolean
+    pickupDeadline?: boolean
+    shipmentType?: boolean
+    systemPrice?: boolean
+    estimatedDistanceKm?: boolean
     fragile?: boolean
     hazardous?: boolean
     priority?: boolean
@@ -12379,6 +12202,10 @@ export namespace Prisma {
     destLat?: boolean
     destLng?: boolean
     deadline?: boolean
+    pickupDeadline?: boolean
+    shipmentType?: boolean
+    systemPrice?: boolean
+    estimatedDistanceKm?: boolean
     fragile?: boolean
     hazardous?: boolean
     priority?: boolean
@@ -12408,6 +12235,10 @@ export namespace Prisma {
     destLat?: boolean
     destLng?: boolean
     deadline?: boolean
+    pickupDeadline?: boolean
+    shipmentType?: boolean
+    systemPrice?: boolean
+    estimatedDistanceKm?: boolean
     fragile?: boolean
     hazardous?: boolean
     priority?: boolean
@@ -12417,7 +12248,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type ShipmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "warehouseId" | "createdById" | "referenceNo" | "title" | "description" | "weightKg" | "volumeM3" | "originCity" | "originAddress" | "originLat" | "originLng" | "destCity" | "destAddress" | "destLat" | "destLng" | "deadline" | "fragile" | "hazardous" | "priority" | "status" | "specialInstructions" | "createdAt" | "updatedAt", ExtArgs["result"]["shipment"]>
+  export type ShipmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "warehouseId" | "createdById" | "referenceNo" | "title" | "description" | "weightKg" | "volumeM3" | "originCity" | "originAddress" | "originLat" | "originLng" | "destCity" | "destAddress" | "destLat" | "destLng" | "deadline" | "pickupDeadline" | "shipmentType" | "systemPrice" | "estimatedDistanceKm" | "fragile" | "hazardous" | "priority" | "status" | "specialInstructions" | "createdAt" | "updatedAt", ExtArgs["result"]["shipment"]>
   export type ShipmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     warehouse?: boolean | WarehouseDefaultArgs<ExtArgs>
     createdBy?: boolean | Shipment$createdByArgs<ExtArgs>
@@ -12425,7 +12256,6 @@ export namespace Prisma {
     tripShipments?: boolean | Shipment$tripShipmentsArgs<ExtArgs>
     returnLoadMatches?: boolean | Shipment$returnLoadMatchesArgs<ExtArgs>
     optimizationRuns?: boolean | Shipment$optimizationRunsArgs<ExtArgs>
-    disputes?: boolean | Shipment$disputesArgs<ExtArgs>
     stopEvents?: boolean | Shipment$stopEventsArgs<ExtArgs>
     _count?: boolean | ShipmentCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -12447,7 +12277,6 @@ export namespace Prisma {
       tripShipments: Prisma.$TripShipmentPayload<ExtArgs>[]
       returnLoadMatches: Prisma.$ReturnLoadMatchPayload<ExtArgs>[]
       optimizationRuns: Prisma.$OptimizationRunShipmentPayload<ExtArgs>[]
-      disputes: Prisma.$DisputePayload<ExtArgs>[]
       stopEvents: Prisma.$TripStopPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -12468,6 +12297,10 @@ export namespace Prisma {
       destLat: number
       destLng: number
       deadline: Date
+      pickupDeadline: Date | null
+      shipmentType: string
+      systemPrice: number | null
+      estimatedDistanceKm: number | null
       fragile: boolean
       hazardous: boolean
       priority: number
@@ -12875,7 +12708,6 @@ export namespace Prisma {
     tripShipments<T extends Shipment$tripShipmentsArgs<ExtArgs> = {}>(args?: Subset<T, Shipment$tripShipmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TripShipmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     returnLoadMatches<T extends Shipment$returnLoadMatchesArgs<ExtArgs> = {}>(args?: Subset<T, Shipment$returnLoadMatchesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReturnLoadMatchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     optimizationRuns<T extends Shipment$optimizationRunsArgs<ExtArgs> = {}>(args?: Subset<T, Shipment$optimizationRunsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OptimizationRunShipmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    disputes<T extends Shipment$disputesArgs<ExtArgs> = {}>(args?: Subset<T, Shipment$disputesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DisputePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     stopEvents<T extends Shipment$stopEventsArgs<ExtArgs> = {}>(args?: Subset<T, Shipment$stopEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TripStopPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -12923,6 +12755,10 @@ export namespace Prisma {
     readonly destLat: FieldRef<"Shipment", 'Float'>
     readonly destLng: FieldRef<"Shipment", 'Float'>
     readonly deadline: FieldRef<"Shipment", 'DateTime'>
+    readonly pickupDeadline: FieldRef<"Shipment", 'DateTime'>
+    readonly shipmentType: FieldRef<"Shipment", 'String'>
+    readonly systemPrice: FieldRef<"Shipment", 'Float'>
+    readonly estimatedDistanceKm: FieldRef<"Shipment", 'Float'>
     readonly fragile: FieldRef<"Shipment", 'Boolean'>
     readonly hazardous: FieldRef<"Shipment", 'Boolean'>
     readonly priority: FieldRef<"Shipment", 'Int'>
@@ -13438,30 +13274,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: OptimizationRunShipmentScalarFieldEnum | OptimizationRunShipmentScalarFieldEnum[]
-  }
-
-  /**
-   * Shipment.disputes
-   */
-  export type Shipment$disputesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Dispute
-     */
-    select?: DisputeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Dispute
-     */
-    omit?: DisputeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DisputeInclude<ExtArgs> | null
-    where?: DisputeWhereInput
-    orderBy?: DisputeOrderByWithRelationInput | DisputeOrderByWithRelationInput[]
-    cursor?: DisputeWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: DisputeScalarFieldEnum | DisputeScalarFieldEnum[]
   }
 
   /**
@@ -17305,7 +17117,6 @@ export namespace Prisma {
     optimizationCandidate?: boolean | BookingRequest$optimizationCandidateArgs<ExtArgs>
     shipments?: boolean | BookingRequest$shipmentsArgs<ExtArgs>
     trip?: boolean | BookingRequest$tripArgs<ExtArgs>
-    disputes?: boolean | BookingRequest$disputesArgs<ExtArgs>
     documents?: boolean | BookingRequest$documentsArgs<ExtArgs>
     _count?: boolean | BookingRequestCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["bookingRequest"]>
@@ -17389,7 +17200,6 @@ export namespace Prisma {
     optimizationCandidate?: boolean | BookingRequest$optimizationCandidateArgs<ExtArgs>
     shipments?: boolean | BookingRequest$shipmentsArgs<ExtArgs>
     trip?: boolean | BookingRequest$tripArgs<ExtArgs>
-    disputes?: boolean | BookingRequest$disputesArgs<ExtArgs>
     documents?: boolean | BookingRequest$documentsArgs<ExtArgs>
     _count?: boolean | BookingRequestCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -17418,7 +17228,6 @@ export namespace Prisma {
       optimizationCandidate: Prisma.$OptimizationCandidatePayload<ExtArgs> | null
       shipments: Prisma.$BookingShipmentPayload<ExtArgs>[]
       trip: Prisma.$TripPayload<ExtArgs> | null
-      disputes: Prisma.$DisputePayload<ExtArgs>[]
       documents: Prisma.$DocumentPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -17840,7 +17649,6 @@ export namespace Prisma {
     optimizationCandidate<T extends BookingRequest$optimizationCandidateArgs<ExtArgs> = {}>(args?: Subset<T, BookingRequest$optimizationCandidateArgs<ExtArgs>>): Prisma__OptimizationCandidateClient<$Result.GetResult<Prisma.$OptimizationCandidatePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     shipments<T extends BookingRequest$shipmentsArgs<ExtArgs> = {}>(args?: Subset<T, BookingRequest$shipmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BookingShipmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     trip<T extends BookingRequest$tripArgs<ExtArgs> = {}>(args?: Subset<T, BookingRequest$tripArgs<ExtArgs>>): Prisma__TripClient<$Result.GetResult<Prisma.$TripPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    disputes<T extends BookingRequest$disputesArgs<ExtArgs> = {}>(args?: Subset<T, BookingRequest$disputesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DisputePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     documents<T extends BookingRequest$documentsArgs<ExtArgs> = {}>(args?: Subset<T, BookingRequest$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -18362,30 +18170,6 @@ export namespace Prisma {
      */
     include?: TripInclude<ExtArgs> | null
     where?: TripWhereInput
-  }
-
-  /**
-   * BookingRequest.disputes
-   */
-  export type BookingRequest$disputesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Dispute
-     */
-    select?: DisputeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Dispute
-     */
-    omit?: DisputeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DisputeInclude<ExtArgs> | null
-    where?: DisputeWhereInput
-    orderBy?: DisputeOrderByWithRelationInput | DisputeOrderByWithRelationInput[]
-    cursor?: DisputeWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: DisputeScalarFieldEnum | DisputeScalarFieldEnum[]
   }
 
   /**
@@ -19784,7 +19568,6 @@ export namespace Prisma {
     locations?: boolean | Trip$locationsArgs<ExtArgs>
     returnLoadMatches?: boolean | Trip$returnLoadMatchesArgs<ExtArgs>
     documents?: boolean | Trip$documentsArgs<ExtArgs>
-    disputes?: boolean | Trip$disputesArgs<ExtArgs>
     _count?: boolean | TripCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["trip"]>
 
@@ -19867,7 +19650,6 @@ export namespace Prisma {
     locations?: boolean | Trip$locationsArgs<ExtArgs>
     returnLoadMatches?: boolean | Trip$returnLoadMatchesArgs<ExtArgs>
     documents?: boolean | Trip$documentsArgs<ExtArgs>
-    disputes?: boolean | Trip$disputesArgs<ExtArgs>
     _count?: boolean | TripCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type TripIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -19892,7 +19674,6 @@ export namespace Prisma {
       locations: Prisma.$TripLocationPayload<ExtArgs>[]
       returnLoadMatches: Prisma.$ReturnLoadMatchPayload<ExtArgs>[]
       documents: Prisma.$DocumentPayload<ExtArgs>[]
-      disputes: Prisma.$DisputePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -20315,7 +20096,6 @@ export namespace Prisma {
     locations<T extends Trip$locationsArgs<ExtArgs> = {}>(args?: Subset<T, Trip$locationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TripLocationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     returnLoadMatches<T extends Trip$returnLoadMatchesArgs<ExtArgs> = {}>(args?: Subset<T, Trip$returnLoadMatchesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReturnLoadMatchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     documents<T extends Trip$documentsArgs<ExtArgs> = {}>(args?: Subset<T, Trip$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    disputes<T extends Trip$disputesArgs<ExtArgs> = {}>(args?: Subset<T, Trip$disputesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DisputePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -20895,30 +20675,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: DocumentScalarFieldEnum | DocumentScalarFieldEnum[]
-  }
-
-  /**
-   * Trip.disputes
-   */
-  export type Trip$disputesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Dispute
-     */
-    select?: DisputeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Dispute
-     */
-    omit?: DisputeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DisputeInclude<ExtArgs> | null
-    where?: DisputeWhereInput
-    orderBy?: DisputeOrderByWithRelationInput | DisputeOrderByWithRelationInput[]
-    cursor?: DisputeWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: DisputeScalarFieldEnum | DisputeScalarFieldEnum[]
   }
 
   /**
@@ -26724,1289 +26480,6 @@ export namespace Prisma {
 
 
   /**
-   * Model Dispute
-   */
-
-  export type AggregateDispute = {
-    _count: DisputeCountAggregateOutputType | null
-    _min: DisputeMinAggregateOutputType | null
-    _max: DisputeMaxAggregateOutputType | null
-  }
-
-  export type DisputeMinAggregateOutputType = {
-    id: string | null
-    type: $Enums.DisputeEntityType | null
-    status: $Enums.DisputeStatus | null
-    title: string | null
-    description: string | null
-    raisedById: string | null
-    resolvedById: string | null
-    shipmentId: string | null
-    tripId: string | null
-    bookingRequestId: string | null
-    resolution: string | null
-    resolvedAt: Date | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type DisputeMaxAggregateOutputType = {
-    id: string | null
-    type: $Enums.DisputeEntityType | null
-    status: $Enums.DisputeStatus | null
-    title: string | null
-    description: string | null
-    raisedById: string | null
-    resolvedById: string | null
-    shipmentId: string | null
-    tripId: string | null
-    bookingRequestId: string | null
-    resolution: string | null
-    resolvedAt: Date | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type DisputeCountAggregateOutputType = {
-    id: number
-    type: number
-    status: number
-    title: number
-    description: number
-    raisedById: number
-    resolvedById: number
-    shipmentId: number
-    tripId: number
-    bookingRequestId: number
-    resolution: number
-    resolvedAt: number
-    createdAt: number
-    updatedAt: number
-    _all: number
-  }
-
-
-  export type DisputeMinAggregateInputType = {
-    id?: true
-    type?: true
-    status?: true
-    title?: true
-    description?: true
-    raisedById?: true
-    resolvedById?: true
-    shipmentId?: true
-    tripId?: true
-    bookingRequestId?: true
-    resolution?: true
-    resolvedAt?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type DisputeMaxAggregateInputType = {
-    id?: true
-    type?: true
-    status?: true
-    title?: true
-    description?: true
-    raisedById?: true
-    resolvedById?: true
-    shipmentId?: true
-    tripId?: true
-    bookingRequestId?: true
-    resolution?: true
-    resolvedAt?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type DisputeCountAggregateInputType = {
-    id?: true
-    type?: true
-    status?: true
-    title?: true
-    description?: true
-    raisedById?: true
-    resolvedById?: true
-    shipmentId?: true
-    tripId?: true
-    bookingRequestId?: true
-    resolution?: true
-    resolvedAt?: true
-    createdAt?: true
-    updatedAt?: true
-    _all?: true
-  }
-
-  export type DisputeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Dispute to aggregate.
-     */
-    where?: DisputeWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Disputes to fetch.
-     */
-    orderBy?: DisputeOrderByWithRelationInput | DisputeOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: DisputeWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Disputes from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Disputes.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned Disputes
-    **/
-    _count?: true | DisputeCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: DisputeMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: DisputeMaxAggregateInputType
-  }
-
-  export type GetDisputeAggregateType<T extends DisputeAggregateArgs> = {
-        [P in keyof T & keyof AggregateDispute]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateDispute[P]>
-      : GetScalarType<T[P], AggregateDispute[P]>
-  }
-
-
-
-
-  export type DisputeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: DisputeWhereInput
-    orderBy?: DisputeOrderByWithAggregationInput | DisputeOrderByWithAggregationInput[]
-    by: DisputeScalarFieldEnum[] | DisputeScalarFieldEnum
-    having?: DisputeScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: DisputeCountAggregateInputType | true
-    _min?: DisputeMinAggregateInputType
-    _max?: DisputeMaxAggregateInputType
-  }
-
-  export type DisputeGroupByOutputType = {
-    id: string
-    type: $Enums.DisputeEntityType
-    status: $Enums.DisputeStatus
-    title: string
-    description: string
-    raisedById: string
-    resolvedById: string | null
-    shipmentId: string | null
-    tripId: string | null
-    bookingRequestId: string | null
-    resolution: string | null
-    resolvedAt: Date | null
-    createdAt: Date
-    updatedAt: Date
-    _count: DisputeCountAggregateOutputType | null
-    _min: DisputeMinAggregateOutputType | null
-    _max: DisputeMaxAggregateOutputType | null
-  }
-
-  type GetDisputeGroupByPayload<T extends DisputeGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<DisputeGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof DisputeGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], DisputeGroupByOutputType[P]>
-            : GetScalarType<T[P], DisputeGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type DisputeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    type?: boolean
-    status?: boolean
-    title?: boolean
-    description?: boolean
-    raisedById?: boolean
-    resolvedById?: boolean
-    shipmentId?: boolean
-    tripId?: boolean
-    bookingRequestId?: boolean
-    resolution?: boolean
-    resolvedAt?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    raisedBy?: boolean | UserDefaultArgs<ExtArgs>
-    resolvedBy?: boolean | Dispute$resolvedByArgs<ExtArgs>
-    shipment?: boolean | Dispute$shipmentArgs<ExtArgs>
-    trip?: boolean | Dispute$tripArgs<ExtArgs>
-    bookingRequest?: boolean | Dispute$bookingRequestArgs<ExtArgs>
-  }, ExtArgs["result"]["dispute"]>
-
-  export type DisputeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    type?: boolean
-    status?: boolean
-    title?: boolean
-    description?: boolean
-    raisedById?: boolean
-    resolvedById?: boolean
-    shipmentId?: boolean
-    tripId?: boolean
-    bookingRequestId?: boolean
-    resolution?: boolean
-    resolvedAt?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    raisedBy?: boolean | UserDefaultArgs<ExtArgs>
-    resolvedBy?: boolean | Dispute$resolvedByArgs<ExtArgs>
-    shipment?: boolean | Dispute$shipmentArgs<ExtArgs>
-    trip?: boolean | Dispute$tripArgs<ExtArgs>
-    bookingRequest?: boolean | Dispute$bookingRequestArgs<ExtArgs>
-  }, ExtArgs["result"]["dispute"]>
-
-  export type DisputeSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    type?: boolean
-    status?: boolean
-    title?: boolean
-    description?: boolean
-    raisedById?: boolean
-    resolvedById?: boolean
-    shipmentId?: boolean
-    tripId?: boolean
-    bookingRequestId?: boolean
-    resolution?: boolean
-    resolvedAt?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    raisedBy?: boolean | UserDefaultArgs<ExtArgs>
-    resolvedBy?: boolean | Dispute$resolvedByArgs<ExtArgs>
-    shipment?: boolean | Dispute$shipmentArgs<ExtArgs>
-    trip?: boolean | Dispute$tripArgs<ExtArgs>
-    bookingRequest?: boolean | Dispute$bookingRequestArgs<ExtArgs>
-  }, ExtArgs["result"]["dispute"]>
-
-  export type DisputeSelectScalar = {
-    id?: boolean
-    type?: boolean
-    status?: boolean
-    title?: boolean
-    description?: boolean
-    raisedById?: boolean
-    resolvedById?: boolean
-    shipmentId?: boolean
-    tripId?: boolean
-    bookingRequestId?: boolean
-    resolution?: boolean
-    resolvedAt?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }
-
-  export type DisputeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "type" | "status" | "title" | "description" | "raisedById" | "resolvedById" | "shipmentId" | "tripId" | "bookingRequestId" | "resolution" | "resolvedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["dispute"]>
-  export type DisputeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    raisedBy?: boolean | UserDefaultArgs<ExtArgs>
-    resolvedBy?: boolean | Dispute$resolvedByArgs<ExtArgs>
-    shipment?: boolean | Dispute$shipmentArgs<ExtArgs>
-    trip?: boolean | Dispute$tripArgs<ExtArgs>
-    bookingRequest?: boolean | Dispute$bookingRequestArgs<ExtArgs>
-  }
-  export type DisputeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    raisedBy?: boolean | UserDefaultArgs<ExtArgs>
-    resolvedBy?: boolean | Dispute$resolvedByArgs<ExtArgs>
-    shipment?: boolean | Dispute$shipmentArgs<ExtArgs>
-    trip?: boolean | Dispute$tripArgs<ExtArgs>
-    bookingRequest?: boolean | Dispute$bookingRequestArgs<ExtArgs>
-  }
-  export type DisputeIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    raisedBy?: boolean | UserDefaultArgs<ExtArgs>
-    resolvedBy?: boolean | Dispute$resolvedByArgs<ExtArgs>
-    shipment?: boolean | Dispute$shipmentArgs<ExtArgs>
-    trip?: boolean | Dispute$tripArgs<ExtArgs>
-    bookingRequest?: boolean | Dispute$bookingRequestArgs<ExtArgs>
-  }
-
-  export type $DisputePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "Dispute"
-    objects: {
-      raisedBy: Prisma.$UserPayload<ExtArgs>
-      resolvedBy: Prisma.$UserPayload<ExtArgs> | null
-      shipment: Prisma.$ShipmentPayload<ExtArgs> | null
-      trip: Prisma.$TripPayload<ExtArgs> | null
-      bookingRequest: Prisma.$BookingRequestPayload<ExtArgs> | null
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      type: $Enums.DisputeEntityType
-      status: $Enums.DisputeStatus
-      title: string
-      description: string
-      raisedById: string
-      resolvedById: string | null
-      shipmentId: string | null
-      tripId: string | null
-      bookingRequestId: string | null
-      resolution: string | null
-      resolvedAt: Date | null
-      createdAt: Date
-      updatedAt: Date
-    }, ExtArgs["result"]["dispute"]>
-    composites: {}
-  }
-
-  type DisputeGetPayload<S extends boolean | null | undefined | DisputeDefaultArgs> = $Result.GetResult<Prisma.$DisputePayload, S>
-
-  type DisputeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<DisputeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: DisputeCountAggregateInputType | true
-    }
-
-  export interface DisputeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Dispute'], meta: { name: 'Dispute' } }
-    /**
-     * Find zero or one Dispute that matches the filter.
-     * @param {DisputeFindUniqueArgs} args - Arguments to find a Dispute
-     * @example
-     * // Get one Dispute
-     * const dispute = await prisma.dispute.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends DisputeFindUniqueArgs>(args: SelectSubset<T, DisputeFindUniqueArgs<ExtArgs>>): Prisma__DisputeClient<$Result.GetResult<Prisma.$DisputePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one Dispute that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {DisputeFindUniqueOrThrowArgs} args - Arguments to find a Dispute
-     * @example
-     * // Get one Dispute
-     * const dispute = await prisma.dispute.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends DisputeFindUniqueOrThrowArgs>(args: SelectSubset<T, DisputeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DisputeClient<$Result.GetResult<Prisma.$DisputePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first Dispute that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {DisputeFindFirstArgs} args - Arguments to find a Dispute
-     * @example
-     * // Get one Dispute
-     * const dispute = await prisma.dispute.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends DisputeFindFirstArgs>(args?: SelectSubset<T, DisputeFindFirstArgs<ExtArgs>>): Prisma__DisputeClient<$Result.GetResult<Prisma.$DisputePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first Dispute that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {DisputeFindFirstOrThrowArgs} args - Arguments to find a Dispute
-     * @example
-     * // Get one Dispute
-     * const dispute = await prisma.dispute.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends DisputeFindFirstOrThrowArgs>(args?: SelectSubset<T, DisputeFindFirstOrThrowArgs<ExtArgs>>): Prisma__DisputeClient<$Result.GetResult<Prisma.$DisputePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more Disputes that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {DisputeFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all Disputes
-     * const disputes = await prisma.dispute.findMany()
-     * 
-     * // Get first 10 Disputes
-     * const disputes = await prisma.dispute.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const disputeWithIdOnly = await prisma.dispute.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends DisputeFindManyArgs>(args?: SelectSubset<T, DisputeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DisputePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a Dispute.
-     * @param {DisputeCreateArgs} args - Arguments to create a Dispute.
-     * @example
-     * // Create one Dispute
-     * const Dispute = await prisma.dispute.create({
-     *   data: {
-     *     // ... data to create a Dispute
-     *   }
-     * })
-     * 
-     */
-    create<T extends DisputeCreateArgs>(args: SelectSubset<T, DisputeCreateArgs<ExtArgs>>): Prisma__DisputeClient<$Result.GetResult<Prisma.$DisputePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many Disputes.
-     * @param {DisputeCreateManyArgs} args - Arguments to create many Disputes.
-     * @example
-     * // Create many Disputes
-     * const dispute = await prisma.dispute.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends DisputeCreateManyArgs>(args?: SelectSubset<T, DisputeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many Disputes and returns the data saved in the database.
-     * @param {DisputeCreateManyAndReturnArgs} args - Arguments to create many Disputes.
-     * @example
-     * // Create many Disputes
-     * const dispute = await prisma.dispute.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many Disputes and only return the `id`
-     * const disputeWithIdOnly = await prisma.dispute.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends DisputeCreateManyAndReturnArgs>(args?: SelectSubset<T, DisputeCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DisputePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a Dispute.
-     * @param {DisputeDeleteArgs} args - Arguments to delete one Dispute.
-     * @example
-     * // Delete one Dispute
-     * const Dispute = await prisma.dispute.delete({
-     *   where: {
-     *     // ... filter to delete one Dispute
-     *   }
-     * })
-     * 
-     */
-    delete<T extends DisputeDeleteArgs>(args: SelectSubset<T, DisputeDeleteArgs<ExtArgs>>): Prisma__DisputeClient<$Result.GetResult<Prisma.$DisputePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one Dispute.
-     * @param {DisputeUpdateArgs} args - Arguments to update one Dispute.
-     * @example
-     * // Update one Dispute
-     * const dispute = await prisma.dispute.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends DisputeUpdateArgs>(args: SelectSubset<T, DisputeUpdateArgs<ExtArgs>>): Prisma__DisputeClient<$Result.GetResult<Prisma.$DisputePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more Disputes.
-     * @param {DisputeDeleteManyArgs} args - Arguments to filter Disputes to delete.
-     * @example
-     * // Delete a few Disputes
-     * const { count } = await prisma.dispute.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends DisputeDeleteManyArgs>(args?: SelectSubset<T, DisputeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more Disputes.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {DisputeUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many Disputes
-     * const dispute = await prisma.dispute.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends DisputeUpdateManyArgs>(args: SelectSubset<T, DisputeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more Disputes and returns the data updated in the database.
-     * @param {DisputeUpdateManyAndReturnArgs} args - Arguments to update many Disputes.
-     * @example
-     * // Update many Disputes
-     * const dispute = await prisma.dispute.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more Disputes and only return the `id`
-     * const disputeWithIdOnly = await prisma.dispute.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends DisputeUpdateManyAndReturnArgs>(args: SelectSubset<T, DisputeUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DisputePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one Dispute.
-     * @param {DisputeUpsertArgs} args - Arguments to update or create a Dispute.
-     * @example
-     * // Update or create a Dispute
-     * const dispute = await prisma.dispute.upsert({
-     *   create: {
-     *     // ... data to create a Dispute
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the Dispute we want to update
-     *   }
-     * })
-     */
-    upsert<T extends DisputeUpsertArgs>(args: SelectSubset<T, DisputeUpsertArgs<ExtArgs>>): Prisma__DisputeClient<$Result.GetResult<Prisma.$DisputePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of Disputes.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {DisputeCountArgs} args - Arguments to filter Disputes to count.
-     * @example
-     * // Count the number of Disputes
-     * const count = await prisma.dispute.count({
-     *   where: {
-     *     // ... the filter for the Disputes we want to count
-     *   }
-     * })
-    **/
-    count<T extends DisputeCountArgs>(
-      args?: Subset<T, DisputeCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], DisputeCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a Dispute.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {DisputeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends DisputeAggregateArgs>(args: Subset<T, DisputeAggregateArgs>): Prisma.PrismaPromise<GetDisputeAggregateType<T>>
-
-    /**
-     * Group by Dispute.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {DisputeGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends DisputeGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: DisputeGroupByArgs['orderBy'] }
-        : { orderBy?: DisputeGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, DisputeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDisputeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the Dispute model
-   */
-  readonly fields: DisputeFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for Dispute.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__DisputeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    raisedBy<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    resolvedBy<T extends Dispute$resolvedByArgs<ExtArgs> = {}>(args?: Subset<T, Dispute$resolvedByArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    shipment<T extends Dispute$shipmentArgs<ExtArgs> = {}>(args?: Subset<T, Dispute$shipmentArgs<ExtArgs>>): Prisma__ShipmentClient<$Result.GetResult<Prisma.$ShipmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    trip<T extends Dispute$tripArgs<ExtArgs> = {}>(args?: Subset<T, Dispute$tripArgs<ExtArgs>>): Prisma__TripClient<$Result.GetResult<Prisma.$TripPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    bookingRequest<T extends Dispute$bookingRequestArgs<ExtArgs> = {}>(args?: Subset<T, Dispute$bookingRequestArgs<ExtArgs>>): Prisma__BookingRequestClient<$Result.GetResult<Prisma.$BookingRequestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the Dispute model
-   */
-  interface DisputeFieldRefs {
-    readonly id: FieldRef<"Dispute", 'String'>
-    readonly type: FieldRef<"Dispute", 'DisputeEntityType'>
-    readonly status: FieldRef<"Dispute", 'DisputeStatus'>
-    readonly title: FieldRef<"Dispute", 'String'>
-    readonly description: FieldRef<"Dispute", 'String'>
-    readonly raisedById: FieldRef<"Dispute", 'String'>
-    readonly resolvedById: FieldRef<"Dispute", 'String'>
-    readonly shipmentId: FieldRef<"Dispute", 'String'>
-    readonly tripId: FieldRef<"Dispute", 'String'>
-    readonly bookingRequestId: FieldRef<"Dispute", 'String'>
-    readonly resolution: FieldRef<"Dispute", 'String'>
-    readonly resolvedAt: FieldRef<"Dispute", 'DateTime'>
-    readonly createdAt: FieldRef<"Dispute", 'DateTime'>
-    readonly updatedAt: FieldRef<"Dispute", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * Dispute findUnique
-   */
-  export type DisputeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Dispute
-     */
-    select?: DisputeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Dispute
-     */
-    omit?: DisputeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DisputeInclude<ExtArgs> | null
-    /**
-     * Filter, which Dispute to fetch.
-     */
-    where: DisputeWhereUniqueInput
-  }
-
-  /**
-   * Dispute findUniqueOrThrow
-   */
-  export type DisputeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Dispute
-     */
-    select?: DisputeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Dispute
-     */
-    omit?: DisputeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DisputeInclude<ExtArgs> | null
-    /**
-     * Filter, which Dispute to fetch.
-     */
-    where: DisputeWhereUniqueInput
-  }
-
-  /**
-   * Dispute findFirst
-   */
-  export type DisputeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Dispute
-     */
-    select?: DisputeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Dispute
-     */
-    omit?: DisputeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DisputeInclude<ExtArgs> | null
-    /**
-     * Filter, which Dispute to fetch.
-     */
-    where?: DisputeWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Disputes to fetch.
-     */
-    orderBy?: DisputeOrderByWithRelationInput | DisputeOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Disputes.
-     */
-    cursor?: DisputeWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Disputes from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Disputes.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Disputes.
-     */
-    distinct?: DisputeScalarFieldEnum | DisputeScalarFieldEnum[]
-  }
-
-  /**
-   * Dispute findFirstOrThrow
-   */
-  export type DisputeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Dispute
-     */
-    select?: DisputeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Dispute
-     */
-    omit?: DisputeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DisputeInclude<ExtArgs> | null
-    /**
-     * Filter, which Dispute to fetch.
-     */
-    where?: DisputeWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Disputes to fetch.
-     */
-    orderBy?: DisputeOrderByWithRelationInput | DisputeOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Disputes.
-     */
-    cursor?: DisputeWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Disputes from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Disputes.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Disputes.
-     */
-    distinct?: DisputeScalarFieldEnum | DisputeScalarFieldEnum[]
-  }
-
-  /**
-   * Dispute findMany
-   */
-  export type DisputeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Dispute
-     */
-    select?: DisputeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Dispute
-     */
-    omit?: DisputeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DisputeInclude<ExtArgs> | null
-    /**
-     * Filter, which Disputes to fetch.
-     */
-    where?: DisputeWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Disputes to fetch.
-     */
-    orderBy?: DisputeOrderByWithRelationInput | DisputeOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing Disputes.
-     */
-    cursor?: DisputeWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Disputes from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Disputes.
-     */
-    skip?: number
-    distinct?: DisputeScalarFieldEnum | DisputeScalarFieldEnum[]
-  }
-
-  /**
-   * Dispute create
-   */
-  export type DisputeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Dispute
-     */
-    select?: DisputeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Dispute
-     */
-    omit?: DisputeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DisputeInclude<ExtArgs> | null
-    /**
-     * The data needed to create a Dispute.
-     */
-    data: XOR<DisputeCreateInput, DisputeUncheckedCreateInput>
-  }
-
-  /**
-   * Dispute createMany
-   */
-  export type DisputeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many Disputes.
-     */
-    data: DisputeCreateManyInput | DisputeCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * Dispute createManyAndReturn
-   */
-  export type DisputeCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Dispute
-     */
-    select?: DisputeSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the Dispute
-     */
-    omit?: DisputeOmit<ExtArgs> | null
-    /**
-     * The data used to create many Disputes.
-     */
-    data: DisputeCreateManyInput | DisputeCreateManyInput[]
-    skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DisputeIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * Dispute update
-   */
-  export type DisputeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Dispute
-     */
-    select?: DisputeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Dispute
-     */
-    omit?: DisputeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DisputeInclude<ExtArgs> | null
-    /**
-     * The data needed to update a Dispute.
-     */
-    data: XOR<DisputeUpdateInput, DisputeUncheckedUpdateInput>
-    /**
-     * Choose, which Dispute to update.
-     */
-    where: DisputeWhereUniqueInput
-  }
-
-  /**
-   * Dispute updateMany
-   */
-  export type DisputeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update Disputes.
-     */
-    data: XOR<DisputeUpdateManyMutationInput, DisputeUncheckedUpdateManyInput>
-    /**
-     * Filter which Disputes to update
-     */
-    where?: DisputeWhereInput
-    /**
-     * Limit how many Disputes to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * Dispute updateManyAndReturn
-   */
-  export type DisputeUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Dispute
-     */
-    select?: DisputeSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the Dispute
-     */
-    omit?: DisputeOmit<ExtArgs> | null
-    /**
-     * The data used to update Disputes.
-     */
-    data: XOR<DisputeUpdateManyMutationInput, DisputeUncheckedUpdateManyInput>
-    /**
-     * Filter which Disputes to update
-     */
-    where?: DisputeWhereInput
-    /**
-     * Limit how many Disputes to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DisputeIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * Dispute upsert
-   */
-  export type DisputeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Dispute
-     */
-    select?: DisputeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Dispute
-     */
-    omit?: DisputeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DisputeInclude<ExtArgs> | null
-    /**
-     * The filter to search for the Dispute to update in case it exists.
-     */
-    where: DisputeWhereUniqueInput
-    /**
-     * In case the Dispute found by the `where` argument doesn't exist, create a new Dispute with this data.
-     */
-    create: XOR<DisputeCreateInput, DisputeUncheckedCreateInput>
-    /**
-     * In case the Dispute was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<DisputeUpdateInput, DisputeUncheckedUpdateInput>
-  }
-
-  /**
-   * Dispute delete
-   */
-  export type DisputeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Dispute
-     */
-    select?: DisputeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Dispute
-     */
-    omit?: DisputeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DisputeInclude<ExtArgs> | null
-    /**
-     * Filter which Dispute to delete.
-     */
-    where: DisputeWhereUniqueInput
-  }
-
-  /**
-   * Dispute deleteMany
-   */
-  export type DisputeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Disputes to delete
-     */
-    where?: DisputeWhereInput
-    /**
-     * Limit how many Disputes to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * Dispute.resolvedBy
-   */
-  export type Dispute$resolvedByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the User
-     */
-    select?: UserSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the User
-     */
-    omit?: UserOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: UserInclude<ExtArgs> | null
-    where?: UserWhereInput
-  }
-
-  /**
-   * Dispute.shipment
-   */
-  export type Dispute$shipmentArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Shipment
-     */
-    select?: ShipmentSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Shipment
-     */
-    omit?: ShipmentOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ShipmentInclude<ExtArgs> | null
-    where?: ShipmentWhereInput
-  }
-
-  /**
-   * Dispute.trip
-   */
-  export type Dispute$tripArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Trip
-     */
-    select?: TripSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Trip
-     */
-    omit?: TripOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TripInclude<ExtArgs> | null
-    where?: TripWhereInput
-  }
-
-  /**
-   * Dispute.bookingRequest
-   */
-  export type Dispute$bookingRequestArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the BookingRequest
-     */
-    select?: BookingRequestSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the BookingRequest
-     */
-    omit?: BookingRequestOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: BookingRequestInclude<ExtArgs> | null
-    where?: BookingRequestWhereInput
-  }
-
-  /**
-   * Dispute without action
-   */
-  export type DisputeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Dispute
-     */
-    select?: DisputeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Dispute
-     */
-    omit?: DisputeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DisputeInclude<ExtArgs> | null
-  }
-
-
-  /**
    * Model Document
    */
 
@@ -29340,6 +27813,10 @@ export namespace Prisma {
     destLat: 'destLat',
     destLng: 'destLng',
     deadline: 'deadline',
+    pickupDeadline: 'pickupDeadline',
+    shipmentType: 'shipmentType',
+    systemPrice: 'systemPrice',
+    estimatedDistanceKm: 'estimatedDistanceKm',
     fragile: 'fragile',
     hazardous: 'hazardous',
     priority: 'priority',
@@ -29526,26 +28003,6 @@ export namespace Prisma {
   };
 
   export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
-
-
-  export const DisputeScalarFieldEnum: {
-    id: 'id',
-    type: 'type',
-    status: 'status',
-    title: 'title',
-    description: 'description',
-    raisedById: 'raisedById',
-    resolvedById: 'resolvedById',
-    shipmentId: 'shipmentId',
-    tripId: 'tripId',
-    bookingRequestId: 'bookingRequestId',
-    resolution: 'resolution',
-    resolvedAt: 'resolvedAt',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  };
-
-  export type DisputeScalarFieldEnum = (typeof DisputeScalarFieldEnum)[keyof typeof DisputeScalarFieldEnum]
 
 
   export const DocumentScalarFieldEnum: {
@@ -29841,34 +28298,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'DisputeEntityType'
-   */
-  export type EnumDisputeEntityTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DisputeEntityType'>
-    
-
-
-  /**
-   * Reference to a field of type 'DisputeEntityType[]'
-   */
-  export type ListEnumDisputeEntityTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DisputeEntityType[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'DisputeStatus'
-   */
-  export type EnumDisputeStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DisputeStatus'>
-    
-
-
-  /**
-   * Reference to a field of type 'DisputeStatus[]'
-   */
-  export type ListEnumDisputeStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DisputeStatus[]'>
-    
-
-
-  /**
    * Reference to a field of type 'DocumentType'
    */
   export type EnumDocumentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DocumentType'>
@@ -29906,8 +28335,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentListRelationFilter
     bookingsRequested?: BookingRequestListRelationFilter
     optimizationRuns?: OptimizationRunListRelationFilter
-    disputesRaised?: DisputeListRelationFilter
-    disputesResolved?: DisputeListRelationFilter
     sessions?: RefreshSessionListRelationFilter
     emailVerificationTokens?: EmailVerificationTokenListRelationFilter
     passwordResetTokens?: PasswordResetTokenListRelationFilter
@@ -29931,8 +28358,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentOrderByRelationAggregateInput
     bookingsRequested?: BookingRequestOrderByRelationAggregateInput
     optimizationRuns?: OptimizationRunOrderByRelationAggregateInput
-    disputesRaised?: DisputeOrderByRelationAggregateInput
-    disputesResolved?: DisputeOrderByRelationAggregateInput
     sessions?: RefreshSessionOrderByRelationAggregateInput
     emailVerificationTokens?: EmailVerificationTokenOrderByRelationAggregateInput
     passwordResetTokens?: PasswordResetTokenOrderByRelationAggregateInput
@@ -29959,8 +28384,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentListRelationFilter
     bookingsRequested?: BookingRequestListRelationFilter
     optimizationRuns?: OptimizationRunListRelationFilter
-    disputesRaised?: DisputeListRelationFilter
-    disputesResolved?: DisputeListRelationFilter
     sessions?: RefreshSessionListRelationFilter
     emailVerificationTokens?: EmailVerificationTokenListRelationFilter
     passwordResetTokens?: PasswordResetTokenListRelationFilter
@@ -30529,6 +28952,10 @@ export namespace Prisma {
     destLat?: FloatFilter<"Shipment"> | number
     destLng?: FloatFilter<"Shipment"> | number
     deadline?: DateTimeFilter<"Shipment"> | Date | string
+    pickupDeadline?: DateTimeNullableFilter<"Shipment"> | Date | string | null
+    shipmentType?: StringFilter<"Shipment"> | string
+    systemPrice?: FloatNullableFilter<"Shipment"> | number | null
+    estimatedDistanceKm?: FloatNullableFilter<"Shipment"> | number | null
     fragile?: BoolFilter<"Shipment"> | boolean
     hazardous?: BoolFilter<"Shipment"> | boolean
     priority?: IntFilter<"Shipment"> | number
@@ -30542,7 +28969,6 @@ export namespace Prisma {
     tripShipments?: TripShipmentListRelationFilter
     returnLoadMatches?: ReturnLoadMatchListRelationFilter
     optimizationRuns?: OptimizationRunShipmentListRelationFilter
-    disputes?: DisputeListRelationFilter
     stopEvents?: TripStopListRelationFilter
   }
 
@@ -30564,6 +28990,10 @@ export namespace Prisma {
     destLat?: SortOrder
     destLng?: SortOrder
     deadline?: SortOrder
+    pickupDeadline?: SortOrderInput | SortOrder
+    shipmentType?: SortOrder
+    systemPrice?: SortOrderInput | SortOrder
+    estimatedDistanceKm?: SortOrderInput | SortOrder
     fragile?: SortOrder
     hazardous?: SortOrder
     priority?: SortOrder
@@ -30577,7 +29007,6 @@ export namespace Prisma {
     tripShipments?: TripShipmentOrderByRelationAggregateInput
     returnLoadMatches?: ReturnLoadMatchOrderByRelationAggregateInput
     optimizationRuns?: OptimizationRunShipmentOrderByRelationAggregateInput
-    disputes?: DisputeOrderByRelationAggregateInput
     stopEvents?: TripStopOrderByRelationAggregateInput
   }
 
@@ -30602,6 +29031,10 @@ export namespace Prisma {
     destLat?: FloatFilter<"Shipment"> | number
     destLng?: FloatFilter<"Shipment"> | number
     deadline?: DateTimeFilter<"Shipment"> | Date | string
+    pickupDeadline?: DateTimeNullableFilter<"Shipment"> | Date | string | null
+    shipmentType?: StringFilter<"Shipment"> | string
+    systemPrice?: FloatNullableFilter<"Shipment"> | number | null
+    estimatedDistanceKm?: FloatNullableFilter<"Shipment"> | number | null
     fragile?: BoolFilter<"Shipment"> | boolean
     hazardous?: BoolFilter<"Shipment"> | boolean
     priority?: IntFilter<"Shipment"> | number
@@ -30615,7 +29048,6 @@ export namespace Prisma {
     tripShipments?: TripShipmentListRelationFilter
     returnLoadMatches?: ReturnLoadMatchListRelationFilter
     optimizationRuns?: OptimizationRunShipmentListRelationFilter
-    disputes?: DisputeListRelationFilter
     stopEvents?: TripStopListRelationFilter
   }, "id" | "referenceNo">
 
@@ -30637,6 +29069,10 @@ export namespace Prisma {
     destLat?: SortOrder
     destLng?: SortOrder
     deadline?: SortOrder
+    pickupDeadline?: SortOrderInput | SortOrder
+    shipmentType?: SortOrder
+    systemPrice?: SortOrderInput | SortOrder
+    estimatedDistanceKm?: SortOrderInput | SortOrder
     fragile?: SortOrder
     hazardous?: SortOrder
     priority?: SortOrder
@@ -30672,6 +29108,10 @@ export namespace Prisma {
     destLat?: FloatWithAggregatesFilter<"Shipment"> | number
     destLng?: FloatWithAggregatesFilter<"Shipment"> | number
     deadline?: DateTimeWithAggregatesFilter<"Shipment"> | Date | string
+    pickupDeadline?: DateTimeNullableWithAggregatesFilter<"Shipment"> | Date | string | null
+    shipmentType?: StringWithAggregatesFilter<"Shipment"> | string
+    systemPrice?: FloatNullableWithAggregatesFilter<"Shipment"> | number | null
+    estimatedDistanceKm?: FloatNullableWithAggregatesFilter<"Shipment"> | number | null
     fragile?: BoolWithAggregatesFilter<"Shipment"> | boolean
     hazardous?: BoolWithAggregatesFilter<"Shipment"> | boolean
     priority?: IntWithAggregatesFilter<"Shipment"> | number
@@ -30943,7 +29383,6 @@ export namespace Prisma {
     optimizationCandidate?: XOR<OptimizationCandidateNullableScalarRelationFilter, OptimizationCandidateWhereInput> | null
     shipments?: BookingShipmentListRelationFilter
     trip?: XOR<TripNullableScalarRelationFilter, TripWhereInput> | null
-    disputes?: DisputeListRelationFilter
     documents?: DocumentListRelationFilter
   }
 
@@ -30972,7 +29411,6 @@ export namespace Prisma {
     optimizationCandidate?: OptimizationCandidateOrderByWithRelationInput
     shipments?: BookingShipmentOrderByRelationAggregateInput
     trip?: TripOrderByWithRelationInput
-    disputes?: DisputeOrderByRelationAggregateInput
     documents?: DocumentOrderByRelationAggregateInput
   }
 
@@ -31004,7 +29442,6 @@ export namespace Prisma {
     optimizationCandidate?: XOR<OptimizationCandidateNullableScalarRelationFilter, OptimizationCandidateWhereInput> | null
     shipments?: BookingShipmentListRelationFilter
     trip?: XOR<TripNullableScalarRelationFilter, TripWhereInput> | null
-    disputes?: DisputeListRelationFilter
     documents?: DocumentListRelationFilter
   }, "id">
 
@@ -31130,7 +29567,6 @@ export namespace Prisma {
     locations?: TripLocationListRelationFilter
     returnLoadMatches?: ReturnLoadMatchListRelationFilter
     documents?: DocumentListRelationFilter
-    disputes?: DisputeListRelationFilter
   }
 
   export type TripOrderByWithRelationInput = {
@@ -31160,7 +29596,6 @@ export namespace Prisma {
     locations?: TripLocationOrderByRelationAggregateInput
     returnLoadMatches?: ReturnLoadMatchOrderByRelationAggregateInput
     documents?: DocumentOrderByRelationAggregateInput
-    disputes?: DisputeOrderByRelationAggregateInput
   }
 
   export type TripWhereUniqueInput = Prisma.AtLeast<{
@@ -31193,7 +29628,6 @@ export namespace Prisma {
     locations?: TripLocationListRelationFilter
     returnLoadMatches?: ReturnLoadMatchListRelationFilter
     documents?: DocumentListRelationFilter
-    disputes?: DisputeListRelationFilter
   }, "id" | "bookingRequestId">
 
   export type TripOrderByWithAggregationInput = {
@@ -31661,118 +30095,6 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"Notification"> | Date | string
   }
 
-  export type DisputeWhereInput = {
-    AND?: DisputeWhereInput | DisputeWhereInput[]
-    OR?: DisputeWhereInput[]
-    NOT?: DisputeWhereInput | DisputeWhereInput[]
-    id?: StringFilter<"Dispute"> | string
-    type?: EnumDisputeEntityTypeFilter<"Dispute"> | $Enums.DisputeEntityType
-    status?: EnumDisputeStatusFilter<"Dispute"> | $Enums.DisputeStatus
-    title?: StringFilter<"Dispute"> | string
-    description?: StringFilter<"Dispute"> | string
-    raisedById?: StringFilter<"Dispute"> | string
-    resolvedById?: StringNullableFilter<"Dispute"> | string | null
-    shipmentId?: StringNullableFilter<"Dispute"> | string | null
-    tripId?: StringNullableFilter<"Dispute"> | string | null
-    bookingRequestId?: StringNullableFilter<"Dispute"> | string | null
-    resolution?: StringNullableFilter<"Dispute"> | string | null
-    resolvedAt?: DateTimeNullableFilter<"Dispute"> | Date | string | null
-    createdAt?: DateTimeFilter<"Dispute"> | Date | string
-    updatedAt?: DateTimeFilter<"Dispute"> | Date | string
-    raisedBy?: XOR<UserScalarRelationFilter, UserWhereInput>
-    resolvedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
-    shipment?: XOR<ShipmentNullableScalarRelationFilter, ShipmentWhereInput> | null
-    trip?: XOR<TripNullableScalarRelationFilter, TripWhereInput> | null
-    bookingRequest?: XOR<BookingRequestNullableScalarRelationFilter, BookingRequestWhereInput> | null
-  }
-
-  export type DisputeOrderByWithRelationInput = {
-    id?: SortOrder
-    type?: SortOrder
-    status?: SortOrder
-    title?: SortOrder
-    description?: SortOrder
-    raisedById?: SortOrder
-    resolvedById?: SortOrderInput | SortOrder
-    shipmentId?: SortOrderInput | SortOrder
-    tripId?: SortOrderInput | SortOrder
-    bookingRequestId?: SortOrderInput | SortOrder
-    resolution?: SortOrderInput | SortOrder
-    resolvedAt?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    raisedBy?: UserOrderByWithRelationInput
-    resolvedBy?: UserOrderByWithRelationInput
-    shipment?: ShipmentOrderByWithRelationInput
-    trip?: TripOrderByWithRelationInput
-    bookingRequest?: BookingRequestOrderByWithRelationInput
-  }
-
-  export type DisputeWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: DisputeWhereInput | DisputeWhereInput[]
-    OR?: DisputeWhereInput[]
-    NOT?: DisputeWhereInput | DisputeWhereInput[]
-    type?: EnumDisputeEntityTypeFilter<"Dispute"> | $Enums.DisputeEntityType
-    status?: EnumDisputeStatusFilter<"Dispute"> | $Enums.DisputeStatus
-    title?: StringFilter<"Dispute"> | string
-    description?: StringFilter<"Dispute"> | string
-    raisedById?: StringFilter<"Dispute"> | string
-    resolvedById?: StringNullableFilter<"Dispute"> | string | null
-    shipmentId?: StringNullableFilter<"Dispute"> | string | null
-    tripId?: StringNullableFilter<"Dispute"> | string | null
-    bookingRequestId?: StringNullableFilter<"Dispute"> | string | null
-    resolution?: StringNullableFilter<"Dispute"> | string | null
-    resolvedAt?: DateTimeNullableFilter<"Dispute"> | Date | string | null
-    createdAt?: DateTimeFilter<"Dispute"> | Date | string
-    updatedAt?: DateTimeFilter<"Dispute"> | Date | string
-    raisedBy?: XOR<UserScalarRelationFilter, UserWhereInput>
-    resolvedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
-    shipment?: XOR<ShipmentNullableScalarRelationFilter, ShipmentWhereInput> | null
-    trip?: XOR<TripNullableScalarRelationFilter, TripWhereInput> | null
-    bookingRequest?: XOR<BookingRequestNullableScalarRelationFilter, BookingRequestWhereInput> | null
-  }, "id">
-
-  export type DisputeOrderByWithAggregationInput = {
-    id?: SortOrder
-    type?: SortOrder
-    status?: SortOrder
-    title?: SortOrder
-    description?: SortOrder
-    raisedById?: SortOrder
-    resolvedById?: SortOrderInput | SortOrder
-    shipmentId?: SortOrderInput | SortOrder
-    tripId?: SortOrderInput | SortOrder
-    bookingRequestId?: SortOrderInput | SortOrder
-    resolution?: SortOrderInput | SortOrder
-    resolvedAt?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    _count?: DisputeCountOrderByAggregateInput
-    _max?: DisputeMaxOrderByAggregateInput
-    _min?: DisputeMinOrderByAggregateInput
-  }
-
-  export type DisputeScalarWhereWithAggregatesInput = {
-    AND?: DisputeScalarWhereWithAggregatesInput | DisputeScalarWhereWithAggregatesInput[]
-    OR?: DisputeScalarWhereWithAggregatesInput[]
-    NOT?: DisputeScalarWhereWithAggregatesInput | DisputeScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"Dispute"> | string
-    type?: EnumDisputeEntityTypeWithAggregatesFilter<"Dispute"> | $Enums.DisputeEntityType
-    status?: EnumDisputeStatusWithAggregatesFilter<"Dispute"> | $Enums.DisputeStatus
-    title?: StringWithAggregatesFilter<"Dispute"> | string
-    description?: StringWithAggregatesFilter<"Dispute"> | string
-    raisedById?: StringWithAggregatesFilter<"Dispute"> | string
-    resolvedById?: StringNullableWithAggregatesFilter<"Dispute"> | string | null
-    shipmentId?: StringNullableWithAggregatesFilter<"Dispute"> | string | null
-    tripId?: StringNullableWithAggregatesFilter<"Dispute"> | string | null
-    bookingRequestId?: StringNullableWithAggregatesFilter<"Dispute"> | string | null
-    resolution?: StringNullableWithAggregatesFilter<"Dispute"> | string | null
-    resolvedAt?: DateTimeNullableWithAggregatesFilter<"Dispute"> | Date | string | null
-    createdAt?: DateTimeWithAggregatesFilter<"Dispute"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"Dispute"> | Date | string
-  }
-
   export type DocumentWhereInput = {
     AND?: DocumentWhereInput | DocumentWhereInput[]
     OR?: DocumentWhereInput[]
@@ -31871,8 +30193,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentCreateNestedManyWithoutCreatedByInput
     bookingsRequested?: BookingRequestCreateNestedManyWithoutRequestedByInput
     optimizationRuns?: OptimizationRunCreateNestedManyWithoutRequestedByInput
-    disputesRaised?: DisputeCreateNestedManyWithoutRaisedByInput
-    disputesResolved?: DisputeCreateNestedManyWithoutResolvedByInput
     sessions?: RefreshSessionCreateNestedManyWithoutUserInput
     emailVerificationTokens?: EmailVerificationTokenCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -31896,8 +30216,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentUncheckedCreateNestedManyWithoutCreatedByInput
     bookingsRequested?: BookingRequestUncheckedCreateNestedManyWithoutRequestedByInput
     optimizationRuns?: OptimizationRunUncheckedCreateNestedManyWithoutRequestedByInput
-    disputesRaised?: DisputeUncheckedCreateNestedManyWithoutRaisedByInput
-    disputesResolved?: DisputeUncheckedCreateNestedManyWithoutResolvedByInput
     sessions?: RefreshSessionUncheckedCreateNestedManyWithoutUserInput
     emailVerificationTokens?: EmailVerificationTokenUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -31921,8 +30239,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentUpdateManyWithoutCreatedByNestedInput
     bookingsRequested?: BookingRequestUpdateManyWithoutRequestedByNestedInput
     optimizationRuns?: OptimizationRunUpdateManyWithoutRequestedByNestedInput
-    disputesRaised?: DisputeUpdateManyWithoutRaisedByNestedInput
-    disputesResolved?: DisputeUpdateManyWithoutResolvedByNestedInput
     sessions?: RefreshSessionUpdateManyWithoutUserNestedInput
     emailVerificationTokens?: EmailVerificationTokenUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -31946,8 +30262,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentUncheckedUpdateManyWithoutCreatedByNestedInput
     bookingsRequested?: BookingRequestUncheckedUpdateManyWithoutRequestedByNestedInput
     optimizationRuns?: OptimizationRunUncheckedUpdateManyWithoutRequestedByNestedInput
-    disputesRaised?: DisputeUncheckedUpdateManyWithoutRaisedByNestedInput
-    disputesResolved?: DisputeUncheckedUpdateManyWithoutResolvedByNestedInput
     sessions?: RefreshSessionUncheckedUpdateManyWithoutUserNestedInput
     emailVerificationTokens?: EmailVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -32580,6 +30894,10 @@ export namespace Prisma {
     destLat: number
     destLng: number
     deadline: Date | string
+    pickupDeadline?: Date | string | null
+    shipmentType?: string
+    systemPrice?: number | null
+    estimatedDistanceKm?: number | null
     fragile?: boolean
     hazardous?: boolean
     priority?: number
@@ -32593,7 +30911,6 @@ export namespace Prisma {
     tripShipments?: TripShipmentCreateNestedManyWithoutShipmentInput
     returnLoadMatches?: ReturnLoadMatchCreateNestedManyWithoutShipmentInput
     optimizationRuns?: OptimizationRunShipmentCreateNestedManyWithoutShipmentInput
-    disputes?: DisputeCreateNestedManyWithoutShipmentInput
     stopEvents?: TripStopCreateNestedManyWithoutShipmentInput
   }
 
@@ -32615,6 +30932,10 @@ export namespace Prisma {
     destLat: number
     destLng: number
     deadline: Date | string
+    pickupDeadline?: Date | string | null
+    shipmentType?: string
+    systemPrice?: number | null
+    estimatedDistanceKm?: number | null
     fragile?: boolean
     hazardous?: boolean
     priority?: number
@@ -32626,7 +30947,6 @@ export namespace Prisma {
     tripShipments?: TripShipmentUncheckedCreateNestedManyWithoutShipmentInput
     returnLoadMatches?: ReturnLoadMatchUncheckedCreateNestedManyWithoutShipmentInput
     optimizationRuns?: OptimizationRunShipmentUncheckedCreateNestedManyWithoutShipmentInput
-    disputes?: DisputeUncheckedCreateNestedManyWithoutShipmentInput
     stopEvents?: TripStopUncheckedCreateNestedManyWithoutShipmentInput
   }
 
@@ -32646,6 +30966,10 @@ export namespace Prisma {
     destLat?: FloatFieldUpdateOperationsInput | number
     destLng?: FloatFieldUpdateOperationsInput | number
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
+    pickupDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shipmentType?: StringFieldUpdateOperationsInput | string
+    systemPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimatedDistanceKm?: NullableFloatFieldUpdateOperationsInput | number | null
     fragile?: BoolFieldUpdateOperationsInput | boolean
     hazardous?: BoolFieldUpdateOperationsInput | boolean
     priority?: IntFieldUpdateOperationsInput | number
@@ -32659,7 +30983,6 @@ export namespace Prisma {
     tripShipments?: TripShipmentUpdateManyWithoutShipmentNestedInput
     returnLoadMatches?: ReturnLoadMatchUpdateManyWithoutShipmentNestedInput
     optimizationRuns?: OptimizationRunShipmentUpdateManyWithoutShipmentNestedInput
-    disputes?: DisputeUpdateManyWithoutShipmentNestedInput
     stopEvents?: TripStopUpdateManyWithoutShipmentNestedInput
   }
 
@@ -32681,6 +31004,10 @@ export namespace Prisma {
     destLat?: FloatFieldUpdateOperationsInput | number
     destLng?: FloatFieldUpdateOperationsInput | number
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
+    pickupDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shipmentType?: StringFieldUpdateOperationsInput | string
+    systemPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimatedDistanceKm?: NullableFloatFieldUpdateOperationsInput | number | null
     fragile?: BoolFieldUpdateOperationsInput | boolean
     hazardous?: BoolFieldUpdateOperationsInput | boolean
     priority?: IntFieldUpdateOperationsInput | number
@@ -32692,7 +31019,6 @@ export namespace Prisma {
     tripShipments?: TripShipmentUncheckedUpdateManyWithoutShipmentNestedInput
     returnLoadMatches?: ReturnLoadMatchUncheckedUpdateManyWithoutShipmentNestedInput
     optimizationRuns?: OptimizationRunShipmentUncheckedUpdateManyWithoutShipmentNestedInput
-    disputes?: DisputeUncheckedUpdateManyWithoutShipmentNestedInput
     stopEvents?: TripStopUncheckedUpdateManyWithoutShipmentNestedInput
   }
 
@@ -32714,6 +31040,10 @@ export namespace Prisma {
     destLat: number
     destLng: number
     deadline: Date | string
+    pickupDeadline?: Date | string | null
+    shipmentType?: string
+    systemPrice?: number | null
+    estimatedDistanceKm?: number | null
     fragile?: boolean
     hazardous?: boolean
     priority?: number
@@ -32739,6 +31069,10 @@ export namespace Prisma {
     destLat?: FloatFieldUpdateOperationsInput | number
     destLng?: FloatFieldUpdateOperationsInput | number
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
+    pickupDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shipmentType?: StringFieldUpdateOperationsInput | string
+    systemPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimatedDistanceKm?: NullableFloatFieldUpdateOperationsInput | number | null
     fragile?: BoolFieldUpdateOperationsInput | boolean
     hazardous?: BoolFieldUpdateOperationsInput | boolean
     priority?: IntFieldUpdateOperationsInput | number
@@ -32766,6 +31100,10 @@ export namespace Prisma {
     destLat?: FloatFieldUpdateOperationsInput | number
     destLng?: FloatFieldUpdateOperationsInput | number
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
+    pickupDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shipmentType?: StringFieldUpdateOperationsInput | string
+    systemPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimatedDistanceKm?: NullableFloatFieldUpdateOperationsInput | number | null
     fragile?: BoolFieldUpdateOperationsInput | boolean
     hazardous?: BoolFieldUpdateOperationsInput | boolean
     priority?: IntFieldUpdateOperationsInput | number
@@ -33037,7 +31375,6 @@ export namespace Prisma {
     optimizationCandidate?: OptimizationCandidateCreateNestedOneWithoutBookingRequestsInput
     shipments?: BookingShipmentCreateNestedManyWithoutBookingRequestInput
     trip?: TripCreateNestedOneWithoutBookingRequestInput
-    disputes?: DisputeCreateNestedManyWithoutBookingRequestInput
     documents?: DocumentCreateNestedManyWithoutBookingRequestInput
   }
 
@@ -33061,7 +31398,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     shipments?: BookingShipmentUncheckedCreateNestedManyWithoutBookingRequestInput
     trip?: TripUncheckedCreateNestedOneWithoutBookingRequestInput
-    disputes?: DisputeUncheckedCreateNestedManyWithoutBookingRequestInput
     documents?: DocumentUncheckedCreateNestedManyWithoutBookingRequestInput
   }
 
@@ -33085,7 +31421,6 @@ export namespace Prisma {
     optimizationCandidate?: OptimizationCandidateUpdateOneWithoutBookingRequestsNestedInput
     shipments?: BookingShipmentUpdateManyWithoutBookingRequestNestedInput
     trip?: TripUpdateOneWithoutBookingRequestNestedInput
-    disputes?: DisputeUpdateManyWithoutBookingRequestNestedInput
     documents?: DocumentUpdateManyWithoutBookingRequestNestedInput
   }
 
@@ -33109,7 +31444,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     shipments?: BookingShipmentUncheckedUpdateManyWithoutBookingRequestNestedInput
     trip?: TripUncheckedUpdateOneWithoutBookingRequestNestedInput
-    disputes?: DisputeUncheckedUpdateManyWithoutBookingRequestNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutBookingRequestNestedInput
   }
 
@@ -33226,7 +31560,6 @@ export namespace Prisma {
     locations?: TripLocationCreateNestedManyWithoutTripInput
     returnLoadMatches?: ReturnLoadMatchCreateNestedManyWithoutTripInput
     documents?: DocumentCreateNestedManyWithoutTripInput
-    disputes?: DisputeCreateNestedManyWithoutTripInput
   }
 
   export type TripUncheckedCreateInput = {
@@ -33253,7 +31586,6 @@ export namespace Prisma {
     locations?: TripLocationUncheckedCreateNestedManyWithoutTripInput
     returnLoadMatches?: ReturnLoadMatchUncheckedCreateNestedManyWithoutTripInput
     documents?: DocumentUncheckedCreateNestedManyWithoutTripInput
-    disputes?: DisputeUncheckedCreateNestedManyWithoutTripInput
   }
 
   export type TripUpdateInput = {
@@ -33280,7 +31612,6 @@ export namespace Prisma {
     locations?: TripLocationUpdateManyWithoutTripNestedInput
     returnLoadMatches?: ReturnLoadMatchUpdateManyWithoutTripNestedInput
     documents?: DocumentUpdateManyWithoutTripNestedInput
-    disputes?: DisputeUpdateManyWithoutTripNestedInput
   }
 
   export type TripUncheckedUpdateInput = {
@@ -33307,7 +31638,6 @@ export namespace Prisma {
     locations?: TripLocationUncheckedUpdateManyWithoutTripNestedInput
     returnLoadMatches?: ReturnLoadMatchUncheckedUpdateManyWithoutTripNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutTripNestedInput
-    disputes?: DisputeUncheckedUpdateManyWithoutTripNestedInput
   }
 
   export type TripCreateManyInput = {
@@ -33809,120 +32139,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type DisputeCreateInput = {
-    id?: string
-    type: $Enums.DisputeEntityType
-    status?: $Enums.DisputeStatus
-    title: string
-    description: string
-    resolution?: string | null
-    resolvedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    raisedBy: UserCreateNestedOneWithoutDisputesRaisedInput
-    resolvedBy?: UserCreateNestedOneWithoutDisputesResolvedInput
-    shipment?: ShipmentCreateNestedOneWithoutDisputesInput
-    trip?: TripCreateNestedOneWithoutDisputesInput
-    bookingRequest?: BookingRequestCreateNestedOneWithoutDisputesInput
-  }
-
-  export type DisputeUncheckedCreateInput = {
-    id?: string
-    type: $Enums.DisputeEntityType
-    status?: $Enums.DisputeStatus
-    title: string
-    description: string
-    raisedById: string
-    resolvedById?: string | null
-    shipmentId?: string | null
-    tripId?: string | null
-    bookingRequestId?: string | null
-    resolution?: string | null
-    resolvedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type DisputeUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: EnumDisputeEntityTypeFieldUpdateOperationsInput | $Enums.DisputeEntityType
-    status?: EnumDisputeStatusFieldUpdateOperationsInput | $Enums.DisputeStatus
-    title?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    resolution?: NullableStringFieldUpdateOperationsInput | string | null
-    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    raisedBy?: UserUpdateOneRequiredWithoutDisputesRaisedNestedInput
-    resolvedBy?: UserUpdateOneWithoutDisputesResolvedNestedInput
-    shipment?: ShipmentUpdateOneWithoutDisputesNestedInput
-    trip?: TripUpdateOneWithoutDisputesNestedInput
-    bookingRequest?: BookingRequestUpdateOneWithoutDisputesNestedInput
-  }
-
-  export type DisputeUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: EnumDisputeEntityTypeFieldUpdateOperationsInput | $Enums.DisputeEntityType
-    status?: EnumDisputeStatusFieldUpdateOperationsInput | $Enums.DisputeStatus
-    title?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    raisedById?: StringFieldUpdateOperationsInput | string
-    resolvedById?: NullableStringFieldUpdateOperationsInput | string | null
-    shipmentId?: NullableStringFieldUpdateOperationsInput | string | null
-    tripId?: NullableStringFieldUpdateOperationsInput | string | null
-    bookingRequestId?: NullableStringFieldUpdateOperationsInput | string | null
-    resolution?: NullableStringFieldUpdateOperationsInput | string | null
-    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type DisputeCreateManyInput = {
-    id?: string
-    type: $Enums.DisputeEntityType
-    status?: $Enums.DisputeStatus
-    title: string
-    description: string
-    raisedById: string
-    resolvedById?: string | null
-    shipmentId?: string | null
-    tripId?: string | null
-    bookingRequestId?: string | null
-    resolution?: string | null
-    resolvedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type DisputeUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: EnumDisputeEntityTypeFieldUpdateOperationsInput | $Enums.DisputeEntityType
-    status?: EnumDisputeStatusFieldUpdateOperationsInput | $Enums.DisputeStatus
-    title?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    resolution?: NullableStringFieldUpdateOperationsInput | string | null
-    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type DisputeUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: EnumDisputeEntityTypeFieldUpdateOperationsInput | $Enums.DisputeEntityType
-    status?: EnumDisputeStatusFieldUpdateOperationsInput | $Enums.DisputeStatus
-    title?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    raisedById?: StringFieldUpdateOperationsInput | string
-    resolvedById?: NullableStringFieldUpdateOperationsInput | string | null
-    shipmentId?: NullableStringFieldUpdateOperationsInput | string | null
-    tripId?: NullableStringFieldUpdateOperationsInput | string | null
-    bookingRequestId?: NullableStringFieldUpdateOperationsInput | string | null
-    resolution?: NullableStringFieldUpdateOperationsInput | string | null
-    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
   export type DocumentCreateInput = {
     id?: string
     type: $Enums.DocumentType
@@ -34099,12 +32315,6 @@ export namespace Prisma {
     none?: OptimizationRunWhereInput
   }
 
-  export type DisputeListRelationFilter = {
-    every?: DisputeWhereInput
-    some?: DisputeWhereInput
-    none?: DisputeWhereInput
-  }
-
   export type RefreshSessionListRelationFilter = {
     every?: RefreshSessionWhereInput
     some?: RefreshSessionWhereInput
@@ -34141,10 +32351,6 @@ export namespace Prisma {
   }
 
   export type OptimizationRunOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type DisputeOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -34797,6 +33003,10 @@ export namespace Prisma {
     destLat?: SortOrder
     destLng?: SortOrder
     deadline?: SortOrder
+    pickupDeadline?: SortOrder
+    shipmentType?: SortOrder
+    systemPrice?: SortOrder
+    estimatedDistanceKm?: SortOrder
     fragile?: SortOrder
     hazardous?: SortOrder
     priority?: SortOrder
@@ -34813,6 +33023,8 @@ export namespace Prisma {
     originLng?: SortOrder
     destLat?: SortOrder
     destLng?: SortOrder
+    systemPrice?: SortOrder
+    estimatedDistanceKm?: SortOrder
     priority?: SortOrder
   }
 
@@ -34834,6 +33046,10 @@ export namespace Prisma {
     destLat?: SortOrder
     destLng?: SortOrder
     deadline?: SortOrder
+    pickupDeadline?: SortOrder
+    shipmentType?: SortOrder
+    systemPrice?: SortOrder
+    estimatedDistanceKm?: SortOrder
     fragile?: SortOrder
     hazardous?: SortOrder
     priority?: SortOrder
@@ -34861,6 +33077,10 @@ export namespace Prisma {
     destLat?: SortOrder
     destLng?: SortOrder
     deadline?: SortOrder
+    pickupDeadline?: SortOrder
+    shipmentType?: SortOrder
+    systemPrice?: SortOrder
+    estimatedDistanceKm?: SortOrder
     fragile?: SortOrder
     hazardous?: SortOrder
     priority?: SortOrder
@@ -34877,6 +33097,8 @@ export namespace Prisma {
     originLng?: SortOrder
     destLat?: SortOrder
     destLng?: SortOrder
+    systemPrice?: SortOrder
+    estimatedDistanceKm?: SortOrder
     priority?: SortOrder
   }
 
@@ -35696,91 +33918,6 @@ export namespace Prisma {
     _max?: NestedEnumNotificationTypeFilter<$PrismaModel>
   }
 
-  export type EnumDisputeEntityTypeFilter<$PrismaModel = never> = {
-    equals?: $Enums.DisputeEntityType | EnumDisputeEntityTypeFieldRefInput<$PrismaModel>
-    in?: $Enums.DisputeEntityType[] | ListEnumDisputeEntityTypeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.DisputeEntityType[] | ListEnumDisputeEntityTypeFieldRefInput<$PrismaModel>
-    not?: NestedEnumDisputeEntityTypeFilter<$PrismaModel> | $Enums.DisputeEntityType
-  }
-
-  export type EnumDisputeStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.DisputeStatus | EnumDisputeStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.DisputeStatus[] | ListEnumDisputeStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.DisputeStatus[] | ListEnumDisputeStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumDisputeStatusFilter<$PrismaModel> | $Enums.DisputeStatus
-  }
-
-  export type DisputeCountOrderByAggregateInput = {
-    id?: SortOrder
-    type?: SortOrder
-    status?: SortOrder
-    title?: SortOrder
-    description?: SortOrder
-    raisedById?: SortOrder
-    resolvedById?: SortOrder
-    shipmentId?: SortOrder
-    tripId?: SortOrder
-    bookingRequestId?: SortOrder
-    resolution?: SortOrder
-    resolvedAt?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type DisputeMaxOrderByAggregateInput = {
-    id?: SortOrder
-    type?: SortOrder
-    status?: SortOrder
-    title?: SortOrder
-    description?: SortOrder
-    raisedById?: SortOrder
-    resolvedById?: SortOrder
-    shipmentId?: SortOrder
-    tripId?: SortOrder
-    bookingRequestId?: SortOrder
-    resolution?: SortOrder
-    resolvedAt?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type DisputeMinOrderByAggregateInput = {
-    id?: SortOrder
-    type?: SortOrder
-    status?: SortOrder
-    title?: SortOrder
-    description?: SortOrder
-    raisedById?: SortOrder
-    resolvedById?: SortOrder
-    shipmentId?: SortOrder
-    tripId?: SortOrder
-    bookingRequestId?: SortOrder
-    resolution?: SortOrder
-    resolvedAt?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type EnumDisputeEntityTypeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.DisputeEntityType | EnumDisputeEntityTypeFieldRefInput<$PrismaModel>
-    in?: $Enums.DisputeEntityType[] | ListEnumDisputeEntityTypeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.DisputeEntityType[] | ListEnumDisputeEntityTypeFieldRefInput<$PrismaModel>
-    not?: NestedEnumDisputeEntityTypeWithAggregatesFilter<$PrismaModel> | $Enums.DisputeEntityType
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumDisputeEntityTypeFilter<$PrismaModel>
-    _max?: NestedEnumDisputeEntityTypeFilter<$PrismaModel>
-  }
-
-  export type EnumDisputeStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.DisputeStatus | EnumDisputeStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.DisputeStatus[] | ListEnumDisputeStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.DisputeStatus[] | ListEnumDisputeStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumDisputeStatusWithAggregatesFilter<$PrismaModel> | $Enums.DisputeStatus
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumDisputeStatusFilter<$PrismaModel>
-    _max?: NestedEnumDisputeStatusFilter<$PrismaModel>
-  }
-
   export type EnumDocumentTypeFilter<$PrismaModel = never> = {
     equals?: $Enums.DocumentType | EnumDocumentTypeFieldRefInput<$PrismaModel>
     in?: $Enums.DocumentType[] | ListEnumDocumentTypeFieldRefInput<$PrismaModel>
@@ -35882,20 +34019,6 @@ export namespace Prisma {
     connect?: OptimizationRunWhereUniqueInput | OptimizationRunWhereUniqueInput[]
   }
 
-  export type DisputeCreateNestedManyWithoutRaisedByInput = {
-    create?: XOR<DisputeCreateWithoutRaisedByInput, DisputeUncheckedCreateWithoutRaisedByInput> | DisputeCreateWithoutRaisedByInput[] | DisputeUncheckedCreateWithoutRaisedByInput[]
-    connectOrCreate?: DisputeCreateOrConnectWithoutRaisedByInput | DisputeCreateOrConnectWithoutRaisedByInput[]
-    createMany?: DisputeCreateManyRaisedByInputEnvelope
-    connect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-  }
-
-  export type DisputeCreateNestedManyWithoutResolvedByInput = {
-    create?: XOR<DisputeCreateWithoutResolvedByInput, DisputeUncheckedCreateWithoutResolvedByInput> | DisputeCreateWithoutResolvedByInput[] | DisputeUncheckedCreateWithoutResolvedByInput[]
-    connectOrCreate?: DisputeCreateOrConnectWithoutResolvedByInput | DisputeCreateOrConnectWithoutResolvedByInput[]
-    createMany?: DisputeCreateManyResolvedByInputEnvelope
-    connect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-  }
-
   export type RefreshSessionCreateNestedManyWithoutUserInput = {
     create?: XOR<RefreshSessionCreateWithoutUserInput, RefreshSessionUncheckedCreateWithoutUserInput> | RefreshSessionCreateWithoutUserInput[] | RefreshSessionUncheckedCreateWithoutUserInput[]
     connectOrCreate?: RefreshSessionCreateOrConnectWithoutUserInput | RefreshSessionCreateOrConnectWithoutUserInput[]
@@ -35955,20 +34078,6 @@ export namespace Prisma {
     connectOrCreate?: OptimizationRunCreateOrConnectWithoutRequestedByInput | OptimizationRunCreateOrConnectWithoutRequestedByInput[]
     createMany?: OptimizationRunCreateManyRequestedByInputEnvelope
     connect?: OptimizationRunWhereUniqueInput | OptimizationRunWhereUniqueInput[]
-  }
-
-  export type DisputeUncheckedCreateNestedManyWithoutRaisedByInput = {
-    create?: XOR<DisputeCreateWithoutRaisedByInput, DisputeUncheckedCreateWithoutRaisedByInput> | DisputeCreateWithoutRaisedByInput[] | DisputeUncheckedCreateWithoutRaisedByInput[]
-    connectOrCreate?: DisputeCreateOrConnectWithoutRaisedByInput | DisputeCreateOrConnectWithoutRaisedByInput[]
-    createMany?: DisputeCreateManyRaisedByInputEnvelope
-    connect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-  }
-
-  export type DisputeUncheckedCreateNestedManyWithoutResolvedByInput = {
-    create?: XOR<DisputeCreateWithoutResolvedByInput, DisputeUncheckedCreateWithoutResolvedByInput> | DisputeCreateWithoutResolvedByInput[] | DisputeUncheckedCreateWithoutResolvedByInput[]
-    connectOrCreate?: DisputeCreateOrConnectWithoutResolvedByInput | DisputeCreateOrConnectWithoutResolvedByInput[]
-    createMany?: DisputeCreateManyResolvedByInputEnvelope
-    connect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
   }
 
   export type RefreshSessionUncheckedCreateNestedManyWithoutUserInput = {
@@ -36092,34 +34201,6 @@ export namespace Prisma {
     deleteMany?: OptimizationRunScalarWhereInput | OptimizationRunScalarWhereInput[]
   }
 
-  export type DisputeUpdateManyWithoutRaisedByNestedInput = {
-    create?: XOR<DisputeCreateWithoutRaisedByInput, DisputeUncheckedCreateWithoutRaisedByInput> | DisputeCreateWithoutRaisedByInput[] | DisputeUncheckedCreateWithoutRaisedByInput[]
-    connectOrCreate?: DisputeCreateOrConnectWithoutRaisedByInput | DisputeCreateOrConnectWithoutRaisedByInput[]
-    upsert?: DisputeUpsertWithWhereUniqueWithoutRaisedByInput | DisputeUpsertWithWhereUniqueWithoutRaisedByInput[]
-    createMany?: DisputeCreateManyRaisedByInputEnvelope
-    set?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    disconnect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    delete?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    connect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    update?: DisputeUpdateWithWhereUniqueWithoutRaisedByInput | DisputeUpdateWithWhereUniqueWithoutRaisedByInput[]
-    updateMany?: DisputeUpdateManyWithWhereWithoutRaisedByInput | DisputeUpdateManyWithWhereWithoutRaisedByInput[]
-    deleteMany?: DisputeScalarWhereInput | DisputeScalarWhereInput[]
-  }
-
-  export type DisputeUpdateManyWithoutResolvedByNestedInput = {
-    create?: XOR<DisputeCreateWithoutResolvedByInput, DisputeUncheckedCreateWithoutResolvedByInput> | DisputeCreateWithoutResolvedByInput[] | DisputeUncheckedCreateWithoutResolvedByInput[]
-    connectOrCreate?: DisputeCreateOrConnectWithoutResolvedByInput | DisputeCreateOrConnectWithoutResolvedByInput[]
-    upsert?: DisputeUpsertWithWhereUniqueWithoutResolvedByInput | DisputeUpsertWithWhereUniqueWithoutResolvedByInput[]
-    createMany?: DisputeCreateManyResolvedByInputEnvelope
-    set?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    disconnect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    delete?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    connect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    update?: DisputeUpdateWithWhereUniqueWithoutResolvedByInput | DisputeUpdateWithWhereUniqueWithoutResolvedByInput[]
-    updateMany?: DisputeUpdateManyWithWhereWithoutResolvedByInput | DisputeUpdateManyWithWhereWithoutResolvedByInput[]
-    deleteMany?: DisputeScalarWhereInput | DisputeScalarWhereInput[]
-  }
-
   export type RefreshSessionUpdateManyWithoutUserNestedInput = {
     create?: XOR<RefreshSessionCreateWithoutUserInput, RefreshSessionUncheckedCreateWithoutUserInput> | RefreshSessionCreateWithoutUserInput[] | RefreshSessionUncheckedCreateWithoutUserInput[]
     connectOrCreate?: RefreshSessionCreateOrConnectWithoutUserInput | RefreshSessionCreateOrConnectWithoutUserInput[]
@@ -36236,34 +34317,6 @@ export namespace Prisma {
     update?: OptimizationRunUpdateWithWhereUniqueWithoutRequestedByInput | OptimizationRunUpdateWithWhereUniqueWithoutRequestedByInput[]
     updateMany?: OptimizationRunUpdateManyWithWhereWithoutRequestedByInput | OptimizationRunUpdateManyWithWhereWithoutRequestedByInput[]
     deleteMany?: OptimizationRunScalarWhereInput | OptimizationRunScalarWhereInput[]
-  }
-
-  export type DisputeUncheckedUpdateManyWithoutRaisedByNestedInput = {
-    create?: XOR<DisputeCreateWithoutRaisedByInput, DisputeUncheckedCreateWithoutRaisedByInput> | DisputeCreateWithoutRaisedByInput[] | DisputeUncheckedCreateWithoutRaisedByInput[]
-    connectOrCreate?: DisputeCreateOrConnectWithoutRaisedByInput | DisputeCreateOrConnectWithoutRaisedByInput[]
-    upsert?: DisputeUpsertWithWhereUniqueWithoutRaisedByInput | DisputeUpsertWithWhereUniqueWithoutRaisedByInput[]
-    createMany?: DisputeCreateManyRaisedByInputEnvelope
-    set?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    disconnect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    delete?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    connect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    update?: DisputeUpdateWithWhereUniqueWithoutRaisedByInput | DisputeUpdateWithWhereUniqueWithoutRaisedByInput[]
-    updateMany?: DisputeUpdateManyWithWhereWithoutRaisedByInput | DisputeUpdateManyWithWhereWithoutRaisedByInput[]
-    deleteMany?: DisputeScalarWhereInput | DisputeScalarWhereInput[]
-  }
-
-  export type DisputeUncheckedUpdateManyWithoutResolvedByNestedInput = {
-    create?: XOR<DisputeCreateWithoutResolvedByInput, DisputeUncheckedCreateWithoutResolvedByInput> | DisputeCreateWithoutResolvedByInput[] | DisputeUncheckedCreateWithoutResolvedByInput[]
-    connectOrCreate?: DisputeCreateOrConnectWithoutResolvedByInput | DisputeCreateOrConnectWithoutResolvedByInput[]
-    upsert?: DisputeUpsertWithWhereUniqueWithoutResolvedByInput | DisputeUpsertWithWhereUniqueWithoutResolvedByInput[]
-    createMany?: DisputeCreateManyResolvedByInputEnvelope
-    set?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    disconnect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    delete?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    connect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    update?: DisputeUpdateWithWhereUniqueWithoutResolvedByInput | DisputeUpdateWithWhereUniqueWithoutResolvedByInput[]
-    updateMany?: DisputeUpdateManyWithWhereWithoutResolvedByInput | DisputeUpdateManyWithWhereWithoutResolvedByInput[]
-    deleteMany?: DisputeScalarWhereInput | DisputeScalarWhereInput[]
   }
 
   export type RefreshSessionUncheckedUpdateManyWithoutUserNestedInput = {
@@ -36852,13 +34905,6 @@ export namespace Prisma {
     connect?: OptimizationRunShipmentWhereUniqueInput | OptimizationRunShipmentWhereUniqueInput[]
   }
 
-  export type DisputeCreateNestedManyWithoutShipmentInput = {
-    create?: XOR<DisputeCreateWithoutShipmentInput, DisputeUncheckedCreateWithoutShipmentInput> | DisputeCreateWithoutShipmentInput[] | DisputeUncheckedCreateWithoutShipmentInput[]
-    connectOrCreate?: DisputeCreateOrConnectWithoutShipmentInput | DisputeCreateOrConnectWithoutShipmentInput[]
-    createMany?: DisputeCreateManyShipmentInputEnvelope
-    connect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-  }
-
   export type TripStopCreateNestedManyWithoutShipmentInput = {
     create?: XOR<TripStopCreateWithoutShipmentInput, TripStopUncheckedCreateWithoutShipmentInput> | TripStopCreateWithoutShipmentInput[] | TripStopUncheckedCreateWithoutShipmentInput[]
     connectOrCreate?: TripStopCreateOrConnectWithoutShipmentInput | TripStopCreateOrConnectWithoutShipmentInput[]
@@ -36892,13 +34938,6 @@ export namespace Prisma {
     connectOrCreate?: OptimizationRunShipmentCreateOrConnectWithoutShipmentInput | OptimizationRunShipmentCreateOrConnectWithoutShipmentInput[]
     createMany?: OptimizationRunShipmentCreateManyShipmentInputEnvelope
     connect?: OptimizationRunShipmentWhereUniqueInput | OptimizationRunShipmentWhereUniqueInput[]
-  }
-
-  export type DisputeUncheckedCreateNestedManyWithoutShipmentInput = {
-    create?: XOR<DisputeCreateWithoutShipmentInput, DisputeUncheckedCreateWithoutShipmentInput> | DisputeCreateWithoutShipmentInput[] | DisputeUncheckedCreateWithoutShipmentInput[]
-    connectOrCreate?: DisputeCreateOrConnectWithoutShipmentInput | DisputeCreateOrConnectWithoutShipmentInput[]
-    createMany?: DisputeCreateManyShipmentInputEnvelope
-    connect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
   }
 
   export type TripStopUncheckedCreateNestedManyWithoutShipmentInput = {
@@ -36994,20 +35033,6 @@ export namespace Prisma {
     deleteMany?: OptimizationRunShipmentScalarWhereInput | OptimizationRunShipmentScalarWhereInput[]
   }
 
-  export type DisputeUpdateManyWithoutShipmentNestedInput = {
-    create?: XOR<DisputeCreateWithoutShipmentInput, DisputeUncheckedCreateWithoutShipmentInput> | DisputeCreateWithoutShipmentInput[] | DisputeUncheckedCreateWithoutShipmentInput[]
-    connectOrCreate?: DisputeCreateOrConnectWithoutShipmentInput | DisputeCreateOrConnectWithoutShipmentInput[]
-    upsert?: DisputeUpsertWithWhereUniqueWithoutShipmentInput | DisputeUpsertWithWhereUniqueWithoutShipmentInput[]
-    createMany?: DisputeCreateManyShipmentInputEnvelope
-    set?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    disconnect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    delete?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    connect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    update?: DisputeUpdateWithWhereUniqueWithoutShipmentInput | DisputeUpdateWithWhereUniqueWithoutShipmentInput[]
-    updateMany?: DisputeUpdateManyWithWhereWithoutShipmentInput | DisputeUpdateManyWithWhereWithoutShipmentInput[]
-    deleteMany?: DisputeScalarWhereInput | DisputeScalarWhereInput[]
-  }
-
   export type TripStopUpdateManyWithoutShipmentNestedInput = {
     create?: XOR<TripStopCreateWithoutShipmentInput, TripStopUncheckedCreateWithoutShipmentInput> | TripStopCreateWithoutShipmentInput[] | TripStopUncheckedCreateWithoutShipmentInput[]
     connectOrCreate?: TripStopCreateOrConnectWithoutShipmentInput | TripStopCreateOrConnectWithoutShipmentInput[]
@@ -37076,20 +35101,6 @@ export namespace Prisma {
     update?: OptimizationRunShipmentUpdateWithWhereUniqueWithoutShipmentInput | OptimizationRunShipmentUpdateWithWhereUniqueWithoutShipmentInput[]
     updateMany?: OptimizationRunShipmentUpdateManyWithWhereWithoutShipmentInput | OptimizationRunShipmentUpdateManyWithWhereWithoutShipmentInput[]
     deleteMany?: OptimizationRunShipmentScalarWhereInput | OptimizationRunShipmentScalarWhereInput[]
-  }
-
-  export type DisputeUncheckedUpdateManyWithoutShipmentNestedInput = {
-    create?: XOR<DisputeCreateWithoutShipmentInput, DisputeUncheckedCreateWithoutShipmentInput> | DisputeCreateWithoutShipmentInput[] | DisputeUncheckedCreateWithoutShipmentInput[]
-    connectOrCreate?: DisputeCreateOrConnectWithoutShipmentInput | DisputeCreateOrConnectWithoutShipmentInput[]
-    upsert?: DisputeUpsertWithWhereUniqueWithoutShipmentInput | DisputeUpsertWithWhereUniqueWithoutShipmentInput[]
-    createMany?: DisputeCreateManyShipmentInputEnvelope
-    set?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    disconnect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    delete?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    connect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    update?: DisputeUpdateWithWhereUniqueWithoutShipmentInput | DisputeUpdateWithWhereUniqueWithoutShipmentInput[]
-    updateMany?: DisputeUpdateManyWithWhereWithoutShipmentInput | DisputeUpdateManyWithWhereWithoutShipmentInput[]
-    deleteMany?: DisputeScalarWhereInput | DisputeScalarWhereInput[]
   }
 
   export type TripStopUncheckedUpdateManyWithoutShipmentNestedInput = {
@@ -37405,13 +35416,6 @@ export namespace Prisma {
     connect?: TripWhereUniqueInput
   }
 
-  export type DisputeCreateNestedManyWithoutBookingRequestInput = {
-    create?: XOR<DisputeCreateWithoutBookingRequestInput, DisputeUncheckedCreateWithoutBookingRequestInput> | DisputeCreateWithoutBookingRequestInput[] | DisputeUncheckedCreateWithoutBookingRequestInput[]
-    connectOrCreate?: DisputeCreateOrConnectWithoutBookingRequestInput | DisputeCreateOrConnectWithoutBookingRequestInput[]
-    createMany?: DisputeCreateManyBookingRequestInputEnvelope
-    connect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-  }
-
   export type DocumentCreateNestedManyWithoutBookingRequestInput = {
     create?: XOR<DocumentCreateWithoutBookingRequestInput, DocumentUncheckedCreateWithoutBookingRequestInput> | DocumentCreateWithoutBookingRequestInput[] | DocumentUncheckedCreateWithoutBookingRequestInput[]
     connectOrCreate?: DocumentCreateOrConnectWithoutBookingRequestInput | DocumentCreateOrConnectWithoutBookingRequestInput[]
@@ -37430,13 +35434,6 @@ export namespace Prisma {
     create?: XOR<TripCreateWithoutBookingRequestInput, TripUncheckedCreateWithoutBookingRequestInput>
     connectOrCreate?: TripCreateOrConnectWithoutBookingRequestInput
     connect?: TripWhereUniqueInput
-  }
-
-  export type DisputeUncheckedCreateNestedManyWithoutBookingRequestInput = {
-    create?: XOR<DisputeCreateWithoutBookingRequestInput, DisputeUncheckedCreateWithoutBookingRequestInput> | DisputeCreateWithoutBookingRequestInput[] | DisputeUncheckedCreateWithoutBookingRequestInput[]
-    connectOrCreate?: DisputeCreateOrConnectWithoutBookingRequestInput | DisputeCreateOrConnectWithoutBookingRequestInput[]
-    createMany?: DisputeCreateManyBookingRequestInputEnvelope
-    connect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
   }
 
   export type DocumentUncheckedCreateNestedManyWithoutBookingRequestInput = {
@@ -37518,20 +35515,6 @@ export namespace Prisma {
     update?: XOR<XOR<TripUpdateToOneWithWhereWithoutBookingRequestInput, TripUpdateWithoutBookingRequestInput>, TripUncheckedUpdateWithoutBookingRequestInput>
   }
 
-  export type DisputeUpdateManyWithoutBookingRequestNestedInput = {
-    create?: XOR<DisputeCreateWithoutBookingRequestInput, DisputeUncheckedCreateWithoutBookingRequestInput> | DisputeCreateWithoutBookingRequestInput[] | DisputeUncheckedCreateWithoutBookingRequestInput[]
-    connectOrCreate?: DisputeCreateOrConnectWithoutBookingRequestInput | DisputeCreateOrConnectWithoutBookingRequestInput[]
-    upsert?: DisputeUpsertWithWhereUniqueWithoutBookingRequestInput | DisputeUpsertWithWhereUniqueWithoutBookingRequestInput[]
-    createMany?: DisputeCreateManyBookingRequestInputEnvelope
-    set?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    disconnect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    delete?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    connect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    update?: DisputeUpdateWithWhereUniqueWithoutBookingRequestInput | DisputeUpdateWithWhereUniqueWithoutBookingRequestInput[]
-    updateMany?: DisputeUpdateManyWithWhereWithoutBookingRequestInput | DisputeUpdateManyWithWhereWithoutBookingRequestInput[]
-    deleteMany?: DisputeScalarWhereInput | DisputeScalarWhereInput[]
-  }
-
   export type DocumentUpdateManyWithoutBookingRequestNestedInput = {
     create?: XOR<DocumentCreateWithoutBookingRequestInput, DocumentUncheckedCreateWithoutBookingRequestInput> | DocumentCreateWithoutBookingRequestInput[] | DocumentUncheckedCreateWithoutBookingRequestInput[]
     connectOrCreate?: DocumentCreateOrConnectWithoutBookingRequestInput | DocumentCreateOrConnectWithoutBookingRequestInput[]
@@ -37568,20 +35551,6 @@ export namespace Prisma {
     delete?: TripWhereInput | boolean
     connect?: TripWhereUniqueInput
     update?: XOR<XOR<TripUpdateToOneWithWhereWithoutBookingRequestInput, TripUpdateWithoutBookingRequestInput>, TripUncheckedUpdateWithoutBookingRequestInput>
-  }
-
-  export type DisputeUncheckedUpdateManyWithoutBookingRequestNestedInput = {
-    create?: XOR<DisputeCreateWithoutBookingRequestInput, DisputeUncheckedCreateWithoutBookingRequestInput> | DisputeCreateWithoutBookingRequestInput[] | DisputeUncheckedCreateWithoutBookingRequestInput[]
-    connectOrCreate?: DisputeCreateOrConnectWithoutBookingRequestInput | DisputeCreateOrConnectWithoutBookingRequestInput[]
-    upsert?: DisputeUpsertWithWhereUniqueWithoutBookingRequestInput | DisputeUpsertWithWhereUniqueWithoutBookingRequestInput[]
-    createMany?: DisputeCreateManyBookingRequestInputEnvelope
-    set?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    disconnect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    delete?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    connect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    update?: DisputeUpdateWithWhereUniqueWithoutBookingRequestInput | DisputeUpdateWithWhereUniqueWithoutBookingRequestInput[]
-    updateMany?: DisputeUpdateManyWithWhereWithoutBookingRequestInput | DisputeUpdateManyWithWhereWithoutBookingRequestInput[]
-    deleteMany?: DisputeScalarWhereInput | DisputeScalarWhereInput[]
   }
 
   export type DocumentUncheckedUpdateManyWithoutBookingRequestNestedInput = {
@@ -37679,13 +35648,6 @@ export namespace Prisma {
     connect?: DocumentWhereUniqueInput | DocumentWhereUniqueInput[]
   }
 
-  export type DisputeCreateNestedManyWithoutTripInput = {
-    create?: XOR<DisputeCreateWithoutTripInput, DisputeUncheckedCreateWithoutTripInput> | DisputeCreateWithoutTripInput[] | DisputeUncheckedCreateWithoutTripInput[]
-    connectOrCreate?: DisputeCreateOrConnectWithoutTripInput | DisputeCreateOrConnectWithoutTripInput[]
-    createMany?: DisputeCreateManyTripInputEnvelope
-    connect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-  }
-
   export type TripShipmentUncheckedCreateNestedManyWithoutTripInput = {
     create?: XOR<TripShipmentCreateWithoutTripInput, TripShipmentUncheckedCreateWithoutTripInput> | TripShipmentCreateWithoutTripInput[] | TripShipmentUncheckedCreateWithoutTripInput[]
     connectOrCreate?: TripShipmentCreateOrConnectWithoutTripInput | TripShipmentCreateOrConnectWithoutTripInput[]
@@ -37719,13 +35681,6 @@ export namespace Prisma {
     connectOrCreate?: DocumentCreateOrConnectWithoutTripInput | DocumentCreateOrConnectWithoutTripInput[]
     createMany?: DocumentCreateManyTripInputEnvelope
     connect?: DocumentWhereUniqueInput | DocumentWhereUniqueInput[]
-  }
-
-  export type DisputeUncheckedCreateNestedManyWithoutTripInput = {
-    create?: XOR<DisputeCreateWithoutTripInput, DisputeUncheckedCreateWithoutTripInput> | DisputeCreateWithoutTripInput[] | DisputeUncheckedCreateWithoutTripInput[]
-    connectOrCreate?: DisputeCreateOrConnectWithoutTripInput | DisputeCreateOrConnectWithoutTripInput[]
-    createMany?: DisputeCreateManyTripInputEnvelope
-    connect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
   }
 
   export type EnumTripStatusFieldUpdateOperationsInput = {
@@ -37836,20 +35791,6 @@ export namespace Prisma {
     deleteMany?: DocumentScalarWhereInput | DocumentScalarWhereInput[]
   }
 
-  export type DisputeUpdateManyWithoutTripNestedInput = {
-    create?: XOR<DisputeCreateWithoutTripInput, DisputeUncheckedCreateWithoutTripInput> | DisputeCreateWithoutTripInput[] | DisputeUncheckedCreateWithoutTripInput[]
-    connectOrCreate?: DisputeCreateOrConnectWithoutTripInput | DisputeCreateOrConnectWithoutTripInput[]
-    upsert?: DisputeUpsertWithWhereUniqueWithoutTripInput | DisputeUpsertWithWhereUniqueWithoutTripInput[]
-    createMany?: DisputeCreateManyTripInputEnvelope
-    set?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    disconnect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    delete?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    connect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    update?: DisputeUpdateWithWhereUniqueWithoutTripInput | DisputeUpdateWithWhereUniqueWithoutTripInput[]
-    updateMany?: DisputeUpdateManyWithWhereWithoutTripInput | DisputeUpdateManyWithWhereWithoutTripInput[]
-    deleteMany?: DisputeScalarWhereInput | DisputeScalarWhereInput[]
-  }
-
   export type TripShipmentUncheckedUpdateManyWithoutTripNestedInput = {
     create?: XOR<TripShipmentCreateWithoutTripInput, TripShipmentUncheckedCreateWithoutTripInput> | TripShipmentCreateWithoutTripInput[] | TripShipmentUncheckedCreateWithoutTripInput[]
     connectOrCreate?: TripShipmentCreateOrConnectWithoutTripInput | TripShipmentCreateOrConnectWithoutTripInput[]
@@ -37918,20 +35859,6 @@ export namespace Prisma {
     update?: DocumentUpdateWithWhereUniqueWithoutTripInput | DocumentUpdateWithWhereUniqueWithoutTripInput[]
     updateMany?: DocumentUpdateManyWithWhereWithoutTripInput | DocumentUpdateManyWithWhereWithoutTripInput[]
     deleteMany?: DocumentScalarWhereInput | DocumentScalarWhereInput[]
-  }
-
-  export type DisputeUncheckedUpdateManyWithoutTripNestedInput = {
-    create?: XOR<DisputeCreateWithoutTripInput, DisputeUncheckedCreateWithoutTripInput> | DisputeCreateWithoutTripInput[] | DisputeUncheckedCreateWithoutTripInput[]
-    connectOrCreate?: DisputeCreateOrConnectWithoutTripInput | DisputeCreateOrConnectWithoutTripInput[]
-    upsert?: DisputeUpsertWithWhereUniqueWithoutTripInput | DisputeUpsertWithWhereUniqueWithoutTripInput[]
-    createMany?: DisputeCreateManyTripInputEnvelope
-    set?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    disconnect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    delete?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    connect?: DisputeWhereUniqueInput | DisputeWhereUniqueInput[]
-    update?: DisputeUpdateWithWhereUniqueWithoutTripInput | DisputeUpdateWithWhereUniqueWithoutTripInput[]
-    updateMany?: DisputeUpdateManyWithWhereWithoutTripInput | DisputeUpdateManyWithWhereWithoutTripInput[]
-    deleteMany?: DisputeScalarWhereInput | DisputeScalarWhereInput[]
   }
 
   export type TripCreateNestedOneWithoutShipmentsInput = {
@@ -38076,92 +36003,6 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutNotificationsInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutNotificationsInput, UserUpdateWithoutNotificationsInput>, UserUncheckedUpdateWithoutNotificationsInput>
-  }
-
-  export type UserCreateNestedOneWithoutDisputesRaisedInput = {
-    create?: XOR<UserCreateWithoutDisputesRaisedInput, UserUncheckedCreateWithoutDisputesRaisedInput>
-    connectOrCreate?: UserCreateOrConnectWithoutDisputesRaisedInput
-    connect?: UserWhereUniqueInput
-  }
-
-  export type UserCreateNestedOneWithoutDisputesResolvedInput = {
-    create?: XOR<UserCreateWithoutDisputesResolvedInput, UserUncheckedCreateWithoutDisputesResolvedInput>
-    connectOrCreate?: UserCreateOrConnectWithoutDisputesResolvedInput
-    connect?: UserWhereUniqueInput
-  }
-
-  export type ShipmentCreateNestedOneWithoutDisputesInput = {
-    create?: XOR<ShipmentCreateWithoutDisputesInput, ShipmentUncheckedCreateWithoutDisputesInput>
-    connectOrCreate?: ShipmentCreateOrConnectWithoutDisputesInput
-    connect?: ShipmentWhereUniqueInput
-  }
-
-  export type TripCreateNestedOneWithoutDisputesInput = {
-    create?: XOR<TripCreateWithoutDisputesInput, TripUncheckedCreateWithoutDisputesInput>
-    connectOrCreate?: TripCreateOrConnectWithoutDisputesInput
-    connect?: TripWhereUniqueInput
-  }
-
-  export type BookingRequestCreateNestedOneWithoutDisputesInput = {
-    create?: XOR<BookingRequestCreateWithoutDisputesInput, BookingRequestUncheckedCreateWithoutDisputesInput>
-    connectOrCreate?: BookingRequestCreateOrConnectWithoutDisputesInput
-    connect?: BookingRequestWhereUniqueInput
-  }
-
-  export type EnumDisputeEntityTypeFieldUpdateOperationsInput = {
-    set?: $Enums.DisputeEntityType
-  }
-
-  export type EnumDisputeStatusFieldUpdateOperationsInput = {
-    set?: $Enums.DisputeStatus
-  }
-
-  export type UserUpdateOneRequiredWithoutDisputesRaisedNestedInput = {
-    create?: XOR<UserCreateWithoutDisputesRaisedInput, UserUncheckedCreateWithoutDisputesRaisedInput>
-    connectOrCreate?: UserCreateOrConnectWithoutDisputesRaisedInput
-    upsert?: UserUpsertWithoutDisputesRaisedInput
-    connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutDisputesRaisedInput, UserUpdateWithoutDisputesRaisedInput>, UserUncheckedUpdateWithoutDisputesRaisedInput>
-  }
-
-  export type UserUpdateOneWithoutDisputesResolvedNestedInput = {
-    create?: XOR<UserCreateWithoutDisputesResolvedInput, UserUncheckedCreateWithoutDisputesResolvedInput>
-    connectOrCreate?: UserCreateOrConnectWithoutDisputesResolvedInput
-    upsert?: UserUpsertWithoutDisputesResolvedInput
-    disconnect?: UserWhereInput | boolean
-    delete?: UserWhereInput | boolean
-    connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutDisputesResolvedInput, UserUpdateWithoutDisputesResolvedInput>, UserUncheckedUpdateWithoutDisputesResolvedInput>
-  }
-
-  export type ShipmentUpdateOneWithoutDisputesNestedInput = {
-    create?: XOR<ShipmentCreateWithoutDisputesInput, ShipmentUncheckedCreateWithoutDisputesInput>
-    connectOrCreate?: ShipmentCreateOrConnectWithoutDisputesInput
-    upsert?: ShipmentUpsertWithoutDisputesInput
-    disconnect?: ShipmentWhereInput | boolean
-    delete?: ShipmentWhereInput | boolean
-    connect?: ShipmentWhereUniqueInput
-    update?: XOR<XOR<ShipmentUpdateToOneWithWhereWithoutDisputesInput, ShipmentUpdateWithoutDisputesInput>, ShipmentUncheckedUpdateWithoutDisputesInput>
-  }
-
-  export type TripUpdateOneWithoutDisputesNestedInput = {
-    create?: XOR<TripCreateWithoutDisputesInput, TripUncheckedCreateWithoutDisputesInput>
-    connectOrCreate?: TripCreateOrConnectWithoutDisputesInput
-    upsert?: TripUpsertWithoutDisputesInput
-    disconnect?: TripWhereInput | boolean
-    delete?: TripWhereInput | boolean
-    connect?: TripWhereUniqueInput
-    update?: XOR<XOR<TripUpdateToOneWithWhereWithoutDisputesInput, TripUpdateWithoutDisputesInput>, TripUncheckedUpdateWithoutDisputesInput>
-  }
-
-  export type BookingRequestUpdateOneWithoutDisputesNestedInput = {
-    create?: XOR<BookingRequestCreateWithoutDisputesInput, BookingRequestUncheckedCreateWithoutDisputesInput>
-    connectOrCreate?: BookingRequestCreateOrConnectWithoutDisputesInput
-    upsert?: BookingRequestUpsertWithoutDisputesInput
-    disconnect?: BookingRequestWhereInput | boolean
-    delete?: BookingRequestWhereInput | boolean
-    connect?: BookingRequestWhereUniqueInput
-    update?: XOR<XOR<BookingRequestUpdateToOneWithWhereWithoutDisputesInput, BookingRequestUpdateWithoutDisputesInput>, BookingRequestUncheckedUpdateWithoutDisputesInput>
   }
 
   export type TripCreateNestedOneWithoutDocumentsInput = {
@@ -38643,40 +36484,6 @@ export namespace Prisma {
     _max?: NestedEnumNotificationTypeFilter<$PrismaModel>
   }
 
-  export type NestedEnumDisputeEntityTypeFilter<$PrismaModel = never> = {
-    equals?: $Enums.DisputeEntityType | EnumDisputeEntityTypeFieldRefInput<$PrismaModel>
-    in?: $Enums.DisputeEntityType[] | ListEnumDisputeEntityTypeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.DisputeEntityType[] | ListEnumDisputeEntityTypeFieldRefInput<$PrismaModel>
-    not?: NestedEnumDisputeEntityTypeFilter<$PrismaModel> | $Enums.DisputeEntityType
-  }
-
-  export type NestedEnumDisputeStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.DisputeStatus | EnumDisputeStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.DisputeStatus[] | ListEnumDisputeStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.DisputeStatus[] | ListEnumDisputeStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumDisputeStatusFilter<$PrismaModel> | $Enums.DisputeStatus
-  }
-
-  export type NestedEnumDisputeEntityTypeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.DisputeEntityType | EnumDisputeEntityTypeFieldRefInput<$PrismaModel>
-    in?: $Enums.DisputeEntityType[] | ListEnumDisputeEntityTypeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.DisputeEntityType[] | ListEnumDisputeEntityTypeFieldRefInput<$PrismaModel>
-    not?: NestedEnumDisputeEntityTypeWithAggregatesFilter<$PrismaModel> | $Enums.DisputeEntityType
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumDisputeEntityTypeFilter<$PrismaModel>
-    _max?: NestedEnumDisputeEntityTypeFilter<$PrismaModel>
-  }
-
-  export type NestedEnumDisputeStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.DisputeStatus | EnumDisputeStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.DisputeStatus[] | ListEnumDisputeStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.DisputeStatus[] | ListEnumDisputeStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumDisputeStatusWithAggregatesFilter<$PrismaModel> | $Enums.DisputeStatus
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumDisputeStatusFilter<$PrismaModel>
-    _max?: NestedEnumDisputeStatusFilter<$PrismaModel>
-  }
-
   export type NestedEnumDocumentTypeFilter<$PrismaModel = never> = {
     equals?: $Enums.DocumentType | EnumDocumentTypeFieldRefInput<$PrismaModel>
     in?: $Enums.DocumentType[] | ListEnumDocumentTypeFieldRefInput<$PrismaModel>
@@ -38816,6 +36623,10 @@ export namespace Prisma {
     destLat: number
     destLng: number
     deadline: Date | string
+    pickupDeadline?: Date | string | null
+    shipmentType?: string
+    systemPrice?: number | null
+    estimatedDistanceKm?: number | null
     fragile?: boolean
     hazardous?: boolean
     priority?: number
@@ -38828,7 +36639,6 @@ export namespace Prisma {
     tripShipments?: TripShipmentCreateNestedManyWithoutShipmentInput
     returnLoadMatches?: ReturnLoadMatchCreateNestedManyWithoutShipmentInput
     optimizationRuns?: OptimizationRunShipmentCreateNestedManyWithoutShipmentInput
-    disputes?: DisputeCreateNestedManyWithoutShipmentInput
     stopEvents?: TripStopCreateNestedManyWithoutShipmentInput
   }
 
@@ -38849,6 +36659,10 @@ export namespace Prisma {
     destLat: number
     destLng: number
     deadline: Date | string
+    pickupDeadline?: Date | string | null
+    shipmentType?: string
+    systemPrice?: number | null
+    estimatedDistanceKm?: number | null
     fragile?: boolean
     hazardous?: boolean
     priority?: number
@@ -38860,7 +36674,6 @@ export namespace Prisma {
     tripShipments?: TripShipmentUncheckedCreateNestedManyWithoutShipmentInput
     returnLoadMatches?: ReturnLoadMatchUncheckedCreateNestedManyWithoutShipmentInput
     optimizationRuns?: OptimizationRunShipmentUncheckedCreateNestedManyWithoutShipmentInput
-    disputes?: DisputeUncheckedCreateNestedManyWithoutShipmentInput
     stopEvents?: TripStopUncheckedCreateNestedManyWithoutShipmentInput
   }
 
@@ -38893,7 +36706,6 @@ export namespace Prisma {
     optimizationCandidate?: OptimizationCandidateCreateNestedOneWithoutBookingRequestsInput
     shipments?: BookingShipmentCreateNestedManyWithoutBookingRequestInput
     trip?: TripCreateNestedOneWithoutBookingRequestInput
-    disputes?: DisputeCreateNestedManyWithoutBookingRequestInput
     documents?: DocumentCreateNestedManyWithoutBookingRequestInput
   }
 
@@ -38916,7 +36728,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     shipments?: BookingShipmentUncheckedCreateNestedManyWithoutBookingRequestInput
     trip?: TripUncheckedCreateNestedOneWithoutBookingRequestInput
-    disputes?: DisputeUncheckedCreateNestedManyWithoutBookingRequestInput
     documents?: DocumentUncheckedCreateNestedManyWithoutBookingRequestInput
   }
 
@@ -38965,90 +36776,6 @@ export namespace Prisma {
 
   export type OptimizationRunCreateManyRequestedByInputEnvelope = {
     data: OptimizationRunCreateManyRequestedByInput | OptimizationRunCreateManyRequestedByInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type DisputeCreateWithoutRaisedByInput = {
-    id?: string
-    type: $Enums.DisputeEntityType
-    status?: $Enums.DisputeStatus
-    title: string
-    description: string
-    resolution?: string | null
-    resolvedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    resolvedBy?: UserCreateNestedOneWithoutDisputesResolvedInput
-    shipment?: ShipmentCreateNestedOneWithoutDisputesInput
-    trip?: TripCreateNestedOneWithoutDisputesInput
-    bookingRequest?: BookingRequestCreateNestedOneWithoutDisputesInput
-  }
-
-  export type DisputeUncheckedCreateWithoutRaisedByInput = {
-    id?: string
-    type: $Enums.DisputeEntityType
-    status?: $Enums.DisputeStatus
-    title: string
-    description: string
-    resolvedById?: string | null
-    shipmentId?: string | null
-    tripId?: string | null
-    bookingRequestId?: string | null
-    resolution?: string | null
-    resolvedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type DisputeCreateOrConnectWithoutRaisedByInput = {
-    where: DisputeWhereUniqueInput
-    create: XOR<DisputeCreateWithoutRaisedByInput, DisputeUncheckedCreateWithoutRaisedByInput>
-  }
-
-  export type DisputeCreateManyRaisedByInputEnvelope = {
-    data: DisputeCreateManyRaisedByInput | DisputeCreateManyRaisedByInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type DisputeCreateWithoutResolvedByInput = {
-    id?: string
-    type: $Enums.DisputeEntityType
-    status?: $Enums.DisputeStatus
-    title: string
-    description: string
-    resolution?: string | null
-    resolvedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    raisedBy: UserCreateNestedOneWithoutDisputesRaisedInput
-    shipment?: ShipmentCreateNestedOneWithoutDisputesInput
-    trip?: TripCreateNestedOneWithoutDisputesInput
-    bookingRequest?: BookingRequestCreateNestedOneWithoutDisputesInput
-  }
-
-  export type DisputeUncheckedCreateWithoutResolvedByInput = {
-    id?: string
-    type: $Enums.DisputeEntityType
-    status?: $Enums.DisputeStatus
-    title: string
-    description: string
-    raisedById: string
-    shipmentId?: string | null
-    tripId?: string | null
-    bookingRequestId?: string | null
-    resolution?: string | null
-    resolvedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type DisputeCreateOrConnectWithoutResolvedByInput = {
-    where: DisputeWhereUniqueInput
-    create: XOR<DisputeCreateWithoutResolvedByInput, DisputeUncheckedCreateWithoutResolvedByInput>
-  }
-
-  export type DisputeCreateManyResolvedByInputEnvelope = {
-    data: DisputeCreateManyResolvedByInput | DisputeCreateManyResolvedByInput[]
     skipDuplicates?: boolean
   }
 
@@ -39291,6 +37018,10 @@ export namespace Prisma {
     destLat?: FloatFilter<"Shipment"> | number
     destLng?: FloatFilter<"Shipment"> | number
     deadline?: DateTimeFilter<"Shipment"> | Date | string
+    pickupDeadline?: DateTimeNullableFilter<"Shipment"> | Date | string | null
+    shipmentType?: StringFilter<"Shipment"> | string
+    systemPrice?: FloatNullableFilter<"Shipment"> | number | null
+    estimatedDistanceKm?: FloatNullableFilter<"Shipment"> | number | null
     fragile?: BoolFilter<"Shipment"> | boolean
     hazardous?: BoolFilter<"Shipment"> | boolean
     priority?: IntFilter<"Shipment"> | number
@@ -39368,58 +37099,6 @@ export namespace Prisma {
     errorMessage?: StringNullableFilter<"OptimizationRun"> | string | null
     requestedAt?: DateTimeFilter<"OptimizationRun"> | Date | string
     completedAt?: DateTimeNullableFilter<"OptimizationRun"> | Date | string | null
-  }
-
-  export type DisputeUpsertWithWhereUniqueWithoutRaisedByInput = {
-    where: DisputeWhereUniqueInput
-    update: XOR<DisputeUpdateWithoutRaisedByInput, DisputeUncheckedUpdateWithoutRaisedByInput>
-    create: XOR<DisputeCreateWithoutRaisedByInput, DisputeUncheckedCreateWithoutRaisedByInput>
-  }
-
-  export type DisputeUpdateWithWhereUniqueWithoutRaisedByInput = {
-    where: DisputeWhereUniqueInput
-    data: XOR<DisputeUpdateWithoutRaisedByInput, DisputeUncheckedUpdateWithoutRaisedByInput>
-  }
-
-  export type DisputeUpdateManyWithWhereWithoutRaisedByInput = {
-    where: DisputeScalarWhereInput
-    data: XOR<DisputeUpdateManyMutationInput, DisputeUncheckedUpdateManyWithoutRaisedByInput>
-  }
-
-  export type DisputeScalarWhereInput = {
-    AND?: DisputeScalarWhereInput | DisputeScalarWhereInput[]
-    OR?: DisputeScalarWhereInput[]
-    NOT?: DisputeScalarWhereInput | DisputeScalarWhereInput[]
-    id?: StringFilter<"Dispute"> | string
-    type?: EnumDisputeEntityTypeFilter<"Dispute"> | $Enums.DisputeEntityType
-    status?: EnumDisputeStatusFilter<"Dispute"> | $Enums.DisputeStatus
-    title?: StringFilter<"Dispute"> | string
-    description?: StringFilter<"Dispute"> | string
-    raisedById?: StringFilter<"Dispute"> | string
-    resolvedById?: StringNullableFilter<"Dispute"> | string | null
-    shipmentId?: StringNullableFilter<"Dispute"> | string | null
-    tripId?: StringNullableFilter<"Dispute"> | string | null
-    bookingRequestId?: StringNullableFilter<"Dispute"> | string | null
-    resolution?: StringNullableFilter<"Dispute"> | string | null
-    resolvedAt?: DateTimeNullableFilter<"Dispute"> | Date | string | null
-    createdAt?: DateTimeFilter<"Dispute"> | Date | string
-    updatedAt?: DateTimeFilter<"Dispute"> | Date | string
-  }
-
-  export type DisputeUpsertWithWhereUniqueWithoutResolvedByInput = {
-    where: DisputeWhereUniqueInput
-    update: XOR<DisputeUpdateWithoutResolvedByInput, DisputeUncheckedUpdateWithoutResolvedByInput>
-    create: XOR<DisputeCreateWithoutResolvedByInput, DisputeUncheckedCreateWithoutResolvedByInput>
-  }
-
-  export type DisputeUpdateWithWhereUniqueWithoutResolvedByInput = {
-    where: DisputeWhereUniqueInput
-    data: XOR<DisputeUpdateWithoutResolvedByInput, DisputeUncheckedUpdateWithoutResolvedByInput>
-  }
-
-  export type DisputeUpdateManyWithWhereWithoutResolvedByInput = {
-    where: DisputeScalarWhereInput
-    data: XOR<DisputeUpdateManyMutationInput, DisputeUncheckedUpdateManyWithoutResolvedByInput>
   }
 
   export type RefreshSessionUpsertWithWhereUniqueWithoutUserInput = {
@@ -39528,8 +37207,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentCreateNestedManyWithoutCreatedByInput
     bookingsRequested?: BookingRequestCreateNestedManyWithoutRequestedByInput
     optimizationRuns?: OptimizationRunCreateNestedManyWithoutRequestedByInput
-    disputesRaised?: DisputeCreateNestedManyWithoutRaisedByInput
-    disputesResolved?: DisputeCreateNestedManyWithoutResolvedByInput
     emailVerificationTokens?: EmailVerificationTokenCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
   }
@@ -39552,8 +37229,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentUncheckedCreateNestedManyWithoutCreatedByInput
     bookingsRequested?: BookingRequestUncheckedCreateNestedManyWithoutRequestedByInput
     optimizationRuns?: OptimizationRunUncheckedCreateNestedManyWithoutRequestedByInput
-    disputesRaised?: DisputeUncheckedCreateNestedManyWithoutRaisedByInput
-    disputesResolved?: DisputeUncheckedCreateNestedManyWithoutResolvedByInput
     emailVerificationTokens?: EmailVerificationTokenUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   }
@@ -39592,8 +37267,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentUpdateManyWithoutCreatedByNestedInput
     bookingsRequested?: BookingRequestUpdateManyWithoutRequestedByNestedInput
     optimizationRuns?: OptimizationRunUpdateManyWithoutRequestedByNestedInput
-    disputesRaised?: DisputeUpdateManyWithoutRaisedByNestedInput
-    disputesResolved?: DisputeUpdateManyWithoutResolvedByNestedInput
     emailVerificationTokens?: EmailVerificationTokenUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
   }
@@ -39616,8 +37289,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentUncheckedUpdateManyWithoutCreatedByNestedInput
     bookingsRequested?: BookingRequestUncheckedUpdateManyWithoutRequestedByNestedInput
     optimizationRuns?: OptimizationRunUncheckedUpdateManyWithoutRequestedByNestedInput
-    disputesRaised?: DisputeUncheckedUpdateManyWithoutRaisedByNestedInput
-    disputesResolved?: DisputeUncheckedUpdateManyWithoutResolvedByNestedInput
     emailVerificationTokens?: EmailVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   }
@@ -39640,8 +37311,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentCreateNestedManyWithoutCreatedByInput
     bookingsRequested?: BookingRequestCreateNestedManyWithoutRequestedByInput
     optimizationRuns?: OptimizationRunCreateNestedManyWithoutRequestedByInput
-    disputesRaised?: DisputeCreateNestedManyWithoutRaisedByInput
-    disputesResolved?: DisputeCreateNestedManyWithoutResolvedByInput
     sessions?: RefreshSessionCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
   }
@@ -39664,8 +37333,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentUncheckedCreateNestedManyWithoutCreatedByInput
     bookingsRequested?: BookingRequestUncheckedCreateNestedManyWithoutRequestedByInput
     optimizationRuns?: OptimizationRunUncheckedCreateNestedManyWithoutRequestedByInput
-    disputesRaised?: DisputeUncheckedCreateNestedManyWithoutRaisedByInput
-    disputesResolved?: DisputeUncheckedCreateNestedManyWithoutResolvedByInput
     sessions?: RefreshSessionUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   }
@@ -39704,8 +37371,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentUpdateManyWithoutCreatedByNestedInput
     bookingsRequested?: BookingRequestUpdateManyWithoutRequestedByNestedInput
     optimizationRuns?: OptimizationRunUpdateManyWithoutRequestedByNestedInput
-    disputesRaised?: DisputeUpdateManyWithoutRaisedByNestedInput
-    disputesResolved?: DisputeUpdateManyWithoutResolvedByNestedInput
     sessions?: RefreshSessionUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
   }
@@ -39728,8 +37393,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentUncheckedUpdateManyWithoutCreatedByNestedInput
     bookingsRequested?: BookingRequestUncheckedUpdateManyWithoutRequestedByNestedInput
     optimizationRuns?: OptimizationRunUncheckedUpdateManyWithoutRequestedByNestedInput
-    disputesRaised?: DisputeUncheckedUpdateManyWithoutRaisedByNestedInput
-    disputesResolved?: DisputeUncheckedUpdateManyWithoutResolvedByNestedInput
     sessions?: RefreshSessionUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   }
@@ -39752,8 +37415,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentCreateNestedManyWithoutCreatedByInput
     bookingsRequested?: BookingRequestCreateNestedManyWithoutRequestedByInput
     optimizationRuns?: OptimizationRunCreateNestedManyWithoutRequestedByInput
-    disputesRaised?: DisputeCreateNestedManyWithoutRaisedByInput
-    disputesResolved?: DisputeCreateNestedManyWithoutResolvedByInput
     sessions?: RefreshSessionCreateNestedManyWithoutUserInput
     emailVerificationTokens?: EmailVerificationTokenCreateNestedManyWithoutUserInput
   }
@@ -39776,8 +37437,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentUncheckedCreateNestedManyWithoutCreatedByInput
     bookingsRequested?: BookingRequestUncheckedCreateNestedManyWithoutRequestedByInput
     optimizationRuns?: OptimizationRunUncheckedCreateNestedManyWithoutRequestedByInput
-    disputesRaised?: DisputeUncheckedCreateNestedManyWithoutRaisedByInput
-    disputesResolved?: DisputeUncheckedCreateNestedManyWithoutResolvedByInput
     sessions?: RefreshSessionUncheckedCreateNestedManyWithoutUserInput
     emailVerificationTokens?: EmailVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   }
@@ -39816,8 +37475,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentUpdateManyWithoutCreatedByNestedInput
     bookingsRequested?: BookingRequestUpdateManyWithoutRequestedByNestedInput
     optimizationRuns?: OptimizationRunUpdateManyWithoutRequestedByNestedInput
-    disputesRaised?: DisputeUpdateManyWithoutRaisedByNestedInput
-    disputesResolved?: DisputeUpdateManyWithoutResolvedByNestedInput
     sessions?: RefreshSessionUpdateManyWithoutUserNestedInput
     emailVerificationTokens?: EmailVerificationTokenUpdateManyWithoutUserNestedInput
   }
@@ -39840,8 +37497,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentUncheckedUpdateManyWithoutCreatedByNestedInput
     bookingsRequested?: BookingRequestUncheckedUpdateManyWithoutRequestedByNestedInput
     optimizationRuns?: OptimizationRunUncheckedUpdateManyWithoutRequestedByNestedInput
-    disputesRaised?: DisputeUncheckedUpdateManyWithoutRaisedByNestedInput
-    disputesResolved?: DisputeUncheckedUpdateManyWithoutResolvedByNestedInput
     sessions?: RefreshSessionUncheckedUpdateManyWithoutUserNestedInput
     emailVerificationTokens?: EmailVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   }
@@ -39863,8 +37518,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentCreateNestedManyWithoutCreatedByInput
     bookingsRequested?: BookingRequestCreateNestedManyWithoutRequestedByInput
     optimizationRuns?: OptimizationRunCreateNestedManyWithoutRequestedByInput
-    disputesRaised?: DisputeCreateNestedManyWithoutRaisedByInput
-    disputesResolved?: DisputeCreateNestedManyWithoutResolvedByInput
     sessions?: RefreshSessionCreateNestedManyWithoutUserInput
     emailVerificationTokens?: EmailVerificationTokenCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -39887,8 +37540,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentUncheckedCreateNestedManyWithoutCreatedByInput
     bookingsRequested?: BookingRequestUncheckedCreateNestedManyWithoutRequestedByInput
     optimizationRuns?: OptimizationRunUncheckedCreateNestedManyWithoutRequestedByInput
-    disputesRaised?: DisputeUncheckedCreateNestedManyWithoutRaisedByInput
-    disputesResolved?: DisputeUncheckedCreateNestedManyWithoutResolvedByInput
     sessions?: RefreshSessionUncheckedCreateNestedManyWithoutUserInput
     emailVerificationTokens?: EmailVerificationTokenUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -39915,6 +37566,10 @@ export namespace Prisma {
     destLat: number
     destLng: number
     deadline: Date | string
+    pickupDeadline?: Date | string | null
+    shipmentType?: string
+    systemPrice?: number | null
+    estimatedDistanceKm?: number | null
     fragile?: boolean
     hazardous?: boolean
     priority?: number
@@ -39927,7 +37582,6 @@ export namespace Prisma {
     tripShipments?: TripShipmentCreateNestedManyWithoutShipmentInput
     returnLoadMatches?: ReturnLoadMatchCreateNestedManyWithoutShipmentInput
     optimizationRuns?: OptimizationRunShipmentCreateNestedManyWithoutShipmentInput
-    disputes?: DisputeCreateNestedManyWithoutShipmentInput
     stopEvents?: TripStopCreateNestedManyWithoutShipmentInput
   }
 
@@ -39948,6 +37602,10 @@ export namespace Prisma {
     destLat: number
     destLng: number
     deadline: Date | string
+    pickupDeadline?: Date | string | null
+    shipmentType?: string
+    systemPrice?: number | null
+    estimatedDistanceKm?: number | null
     fragile?: boolean
     hazardous?: boolean
     priority?: number
@@ -39959,7 +37617,6 @@ export namespace Prisma {
     tripShipments?: TripShipmentUncheckedCreateNestedManyWithoutShipmentInput
     returnLoadMatches?: ReturnLoadMatchUncheckedCreateNestedManyWithoutShipmentInput
     optimizationRuns?: OptimizationRunShipmentUncheckedCreateNestedManyWithoutShipmentInput
-    disputes?: DisputeUncheckedCreateNestedManyWithoutShipmentInput
     stopEvents?: TripStopUncheckedCreateNestedManyWithoutShipmentInput
   }
 
@@ -39992,7 +37649,6 @@ export namespace Prisma {
     optimizationCandidate?: OptimizationCandidateCreateNestedOneWithoutBookingRequestsInput
     shipments?: BookingShipmentCreateNestedManyWithoutBookingRequestInput
     trip?: TripCreateNestedOneWithoutBookingRequestInput
-    disputes?: DisputeCreateNestedManyWithoutBookingRequestInput
     documents?: DocumentCreateNestedManyWithoutBookingRequestInput
   }
 
@@ -40015,7 +37671,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     shipments?: BookingShipmentUncheckedCreateNestedManyWithoutBookingRequestInput
     trip?: TripUncheckedCreateNestedOneWithoutBookingRequestInput
-    disputes?: DisputeUncheckedCreateNestedManyWithoutBookingRequestInput
     documents?: DocumentUncheckedCreateNestedManyWithoutBookingRequestInput
   }
 
@@ -40095,8 +37750,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentUpdateManyWithoutCreatedByNestedInput
     bookingsRequested?: BookingRequestUpdateManyWithoutRequestedByNestedInput
     optimizationRuns?: OptimizationRunUpdateManyWithoutRequestedByNestedInput
-    disputesRaised?: DisputeUpdateManyWithoutRaisedByNestedInput
-    disputesResolved?: DisputeUpdateManyWithoutResolvedByNestedInput
     sessions?: RefreshSessionUpdateManyWithoutUserNestedInput
     emailVerificationTokens?: EmailVerificationTokenUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -40119,8 +37772,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentUncheckedUpdateManyWithoutCreatedByNestedInput
     bookingsRequested?: BookingRequestUncheckedUpdateManyWithoutRequestedByNestedInput
     optimizationRuns?: OptimizationRunUncheckedUpdateManyWithoutRequestedByNestedInput
-    disputesRaised?: DisputeUncheckedUpdateManyWithoutRaisedByNestedInput
-    disputesResolved?: DisputeUncheckedUpdateManyWithoutResolvedByNestedInput
     sessions?: RefreshSessionUncheckedUpdateManyWithoutUserNestedInput
     emailVerificationTokens?: EmailVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -40191,8 +37842,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentCreateNestedManyWithoutCreatedByInput
     bookingsRequested?: BookingRequestCreateNestedManyWithoutRequestedByInput
     optimizationRuns?: OptimizationRunCreateNestedManyWithoutRequestedByInput
-    disputesRaised?: DisputeCreateNestedManyWithoutRaisedByInput
-    disputesResolved?: DisputeCreateNestedManyWithoutResolvedByInput
     sessions?: RefreshSessionCreateNestedManyWithoutUserInput
     emailVerificationTokens?: EmailVerificationTokenCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -40215,8 +37864,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentUncheckedCreateNestedManyWithoutCreatedByInput
     bookingsRequested?: BookingRequestUncheckedCreateNestedManyWithoutRequestedByInput
     optimizationRuns?: OptimizationRunUncheckedCreateNestedManyWithoutRequestedByInput
-    disputesRaised?: DisputeUncheckedCreateNestedManyWithoutRaisedByInput
-    disputesResolved?: DisputeUncheckedCreateNestedManyWithoutResolvedByInput
     sessions?: RefreshSessionUncheckedCreateNestedManyWithoutUserInput
     emailVerificationTokens?: EmailVerificationTokenUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -40302,7 +37949,6 @@ export namespace Prisma {
     locations?: TripLocationCreateNestedManyWithoutTripInput
     returnLoadMatches?: ReturnLoadMatchCreateNestedManyWithoutTripInput
     documents?: DocumentCreateNestedManyWithoutTripInput
-    disputes?: DisputeCreateNestedManyWithoutTripInput
   }
 
   export type TripUncheckedCreateWithoutDealerInput = {
@@ -40328,7 +37974,6 @@ export namespace Prisma {
     locations?: TripLocationUncheckedCreateNestedManyWithoutTripInput
     returnLoadMatches?: ReturnLoadMatchUncheckedCreateNestedManyWithoutTripInput
     documents?: DocumentUncheckedCreateNestedManyWithoutTripInput
-    disputes?: DisputeUncheckedCreateNestedManyWithoutTripInput
   }
 
   export type TripCreateOrConnectWithoutDealerInput = {
@@ -40369,8 +38014,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentUpdateManyWithoutCreatedByNestedInput
     bookingsRequested?: BookingRequestUpdateManyWithoutRequestedByNestedInput
     optimizationRuns?: OptimizationRunUpdateManyWithoutRequestedByNestedInput
-    disputesRaised?: DisputeUpdateManyWithoutRaisedByNestedInput
-    disputesResolved?: DisputeUpdateManyWithoutResolvedByNestedInput
     sessions?: RefreshSessionUpdateManyWithoutUserNestedInput
     emailVerificationTokens?: EmailVerificationTokenUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -40393,8 +38036,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentUncheckedUpdateManyWithoutCreatedByNestedInput
     bookingsRequested?: BookingRequestUncheckedUpdateManyWithoutRequestedByNestedInput
     optimizationRuns?: OptimizationRunUncheckedUpdateManyWithoutRequestedByNestedInput
-    disputesRaised?: DisputeUncheckedUpdateManyWithoutRaisedByNestedInput
-    disputesResolved?: DisputeUncheckedUpdateManyWithoutResolvedByNestedInput
     sessions?: RefreshSessionUncheckedUpdateManyWithoutUserNestedInput
     emailVerificationTokens?: EmailVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -40531,7 +38172,6 @@ export namespace Prisma {
     optimizationCandidate?: OptimizationCandidateCreateNestedOneWithoutBookingRequestsInput
     shipments?: BookingShipmentCreateNestedManyWithoutBookingRequestInput
     trip?: TripCreateNestedOneWithoutBookingRequestInput
-    disputes?: DisputeCreateNestedManyWithoutBookingRequestInput
     documents?: DocumentCreateNestedManyWithoutBookingRequestInput
   }
 
@@ -40554,7 +38194,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     shipments?: BookingShipmentUncheckedCreateNestedManyWithoutBookingRequestInput
     trip?: TripUncheckedCreateNestedOneWithoutBookingRequestInput
-    disputes?: DisputeUncheckedCreateNestedManyWithoutBookingRequestInput
     documents?: DocumentUncheckedCreateNestedManyWithoutBookingRequestInput
   }
 
@@ -40591,7 +38230,6 @@ export namespace Prisma {
     locations?: TripLocationCreateNestedManyWithoutTripInput
     returnLoadMatches?: ReturnLoadMatchCreateNestedManyWithoutTripInput
     documents?: DocumentCreateNestedManyWithoutTripInput
-    disputes?: DisputeCreateNestedManyWithoutTripInput
   }
 
   export type TripUncheckedCreateWithoutTruckInput = {
@@ -40617,7 +38255,6 @@ export namespace Prisma {
     locations?: TripLocationUncheckedCreateNestedManyWithoutTripInput
     returnLoadMatches?: ReturnLoadMatchUncheckedCreateNestedManyWithoutTripInput
     documents?: DocumentUncheckedCreateNestedManyWithoutTripInput
-    disputes?: DisputeUncheckedCreateNestedManyWithoutTripInput
   }
 
   export type TripCreateOrConnectWithoutTruckInput = {
@@ -40897,8 +38534,6 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutUserInput
     bookingsRequested?: BookingRequestCreateNestedManyWithoutRequestedByInput
     optimizationRuns?: OptimizationRunCreateNestedManyWithoutRequestedByInput
-    disputesRaised?: DisputeCreateNestedManyWithoutRaisedByInput
-    disputesResolved?: DisputeCreateNestedManyWithoutResolvedByInput
     sessions?: RefreshSessionCreateNestedManyWithoutUserInput
     emailVerificationTokens?: EmailVerificationTokenCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -40921,8 +38556,6 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     bookingsRequested?: BookingRequestUncheckedCreateNestedManyWithoutRequestedByInput
     optimizationRuns?: OptimizationRunUncheckedCreateNestedManyWithoutRequestedByInput
-    disputesRaised?: DisputeUncheckedCreateNestedManyWithoutRaisedByInput
-    disputesResolved?: DisputeUncheckedCreateNestedManyWithoutResolvedByInput
     sessions?: RefreshSessionUncheckedCreateNestedManyWithoutUserInput
     emailVerificationTokens?: EmailVerificationTokenUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -41026,48 +38659,6 @@ export namespace Prisma {
 
   export type OptimizationRunShipmentCreateManyShipmentInputEnvelope = {
     data: OptimizationRunShipmentCreateManyShipmentInput | OptimizationRunShipmentCreateManyShipmentInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type DisputeCreateWithoutShipmentInput = {
-    id?: string
-    type: $Enums.DisputeEntityType
-    status?: $Enums.DisputeStatus
-    title: string
-    description: string
-    resolution?: string | null
-    resolvedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    raisedBy: UserCreateNestedOneWithoutDisputesRaisedInput
-    resolvedBy?: UserCreateNestedOneWithoutDisputesResolvedInput
-    trip?: TripCreateNestedOneWithoutDisputesInput
-    bookingRequest?: BookingRequestCreateNestedOneWithoutDisputesInput
-  }
-
-  export type DisputeUncheckedCreateWithoutShipmentInput = {
-    id?: string
-    type: $Enums.DisputeEntityType
-    status?: $Enums.DisputeStatus
-    title: string
-    description: string
-    raisedById: string
-    resolvedById?: string | null
-    tripId?: string | null
-    bookingRequestId?: string | null
-    resolution?: string | null
-    resolvedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type DisputeCreateOrConnectWithoutShipmentInput = {
-    where: DisputeWhereUniqueInput
-    create: XOR<DisputeCreateWithoutShipmentInput, DisputeUncheckedCreateWithoutShipmentInput>
-  }
-
-  export type DisputeCreateManyShipmentInputEnvelope = {
-    data: DisputeCreateManyShipmentInput | DisputeCreateManyShipmentInput[]
     skipDuplicates?: boolean
   }
 
@@ -41184,8 +38775,6 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     bookingsRequested?: BookingRequestUpdateManyWithoutRequestedByNestedInput
     optimizationRuns?: OptimizationRunUpdateManyWithoutRequestedByNestedInput
-    disputesRaised?: DisputeUpdateManyWithoutRaisedByNestedInput
-    disputesResolved?: DisputeUpdateManyWithoutResolvedByNestedInput
     sessions?: RefreshSessionUpdateManyWithoutUserNestedInput
     emailVerificationTokens?: EmailVerificationTokenUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -41208,8 +38797,6 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     bookingsRequested?: BookingRequestUncheckedUpdateManyWithoutRequestedByNestedInput
     optimizationRuns?: OptimizationRunUncheckedUpdateManyWithoutRequestedByNestedInput
-    disputesRaised?: DisputeUncheckedUpdateManyWithoutRaisedByNestedInput
-    disputesResolved?: DisputeUncheckedUpdateManyWithoutResolvedByNestedInput
     sessions?: RefreshSessionUncheckedUpdateManyWithoutUserNestedInput
     emailVerificationTokens?: EmailVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -41323,22 +38910,6 @@ export namespace Prisma {
     shipmentId?: StringFilter<"OptimizationRunShipment"> | string
   }
 
-  export type DisputeUpsertWithWhereUniqueWithoutShipmentInput = {
-    where: DisputeWhereUniqueInput
-    update: XOR<DisputeUpdateWithoutShipmentInput, DisputeUncheckedUpdateWithoutShipmentInput>
-    create: XOR<DisputeCreateWithoutShipmentInput, DisputeUncheckedCreateWithoutShipmentInput>
-  }
-
-  export type DisputeUpdateWithWhereUniqueWithoutShipmentInput = {
-    where: DisputeWhereUniqueInput
-    data: XOR<DisputeUpdateWithoutShipmentInput, DisputeUncheckedUpdateWithoutShipmentInput>
-  }
-
-  export type DisputeUpdateManyWithWhereWithoutShipmentInput = {
-    where: DisputeScalarWhereInput
-    data: XOR<DisputeUpdateManyMutationInput, DisputeUncheckedUpdateManyWithoutShipmentInput>
-  }
-
   export type TripStopUpsertWithWhereUniqueWithoutShipmentInput = {
     where: TripStopWhereUniqueInput
     update: XOR<TripStopUpdateWithoutShipmentInput, TripStopUncheckedUpdateWithoutShipmentInput>
@@ -41429,8 +39000,6 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutUserInput
     shipmentsCreated?: ShipmentCreateNestedManyWithoutCreatedByInput
     bookingsRequested?: BookingRequestCreateNestedManyWithoutRequestedByInput
-    disputesRaised?: DisputeCreateNestedManyWithoutRaisedByInput
-    disputesResolved?: DisputeCreateNestedManyWithoutResolvedByInput
     sessions?: RefreshSessionCreateNestedManyWithoutUserInput
     emailVerificationTokens?: EmailVerificationTokenCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -41453,8 +39022,6 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     shipmentsCreated?: ShipmentUncheckedCreateNestedManyWithoutCreatedByInput
     bookingsRequested?: BookingRequestUncheckedCreateNestedManyWithoutRequestedByInput
-    disputesRaised?: DisputeUncheckedCreateNestedManyWithoutRaisedByInput
-    disputesResolved?: DisputeUncheckedCreateNestedManyWithoutResolvedByInput
     sessions?: RefreshSessionUncheckedCreateNestedManyWithoutUserInput
     emailVerificationTokens?: EmailVerificationTokenUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -41544,7 +39111,6 @@ export namespace Prisma {
     optimizationCandidate?: OptimizationCandidateCreateNestedOneWithoutBookingRequestsInput
     shipments?: BookingShipmentCreateNestedManyWithoutBookingRequestInput
     trip?: TripCreateNestedOneWithoutBookingRequestInput
-    disputes?: DisputeCreateNestedManyWithoutBookingRequestInput
     documents?: DocumentCreateNestedManyWithoutBookingRequestInput
   }
 
@@ -41567,7 +39133,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     shipments?: BookingShipmentUncheckedCreateNestedManyWithoutBookingRequestInput
     trip?: TripUncheckedCreateNestedOneWithoutBookingRequestInput
-    disputes?: DisputeUncheckedCreateNestedManyWithoutBookingRequestInput
     documents?: DocumentUncheckedCreateNestedManyWithoutBookingRequestInput
   }
 
@@ -41652,8 +39217,6 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     shipmentsCreated?: ShipmentUpdateManyWithoutCreatedByNestedInput
     bookingsRequested?: BookingRequestUpdateManyWithoutRequestedByNestedInput
-    disputesRaised?: DisputeUpdateManyWithoutRaisedByNestedInput
-    disputesResolved?: DisputeUpdateManyWithoutResolvedByNestedInput
     sessions?: RefreshSessionUpdateManyWithoutUserNestedInput
     emailVerificationTokens?: EmailVerificationTokenUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -41676,8 +39239,6 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     shipmentsCreated?: ShipmentUncheckedUpdateManyWithoutCreatedByNestedInput
     bookingsRequested?: BookingRequestUncheckedUpdateManyWithoutRequestedByNestedInput
-    disputesRaised?: DisputeUncheckedUpdateManyWithoutRaisedByNestedInput
-    disputesResolved?: DisputeUncheckedUpdateManyWithoutResolvedByNestedInput
     sessions?: RefreshSessionUncheckedUpdateManyWithoutUserNestedInput
     emailVerificationTokens?: EmailVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -41780,6 +39341,10 @@ export namespace Prisma {
     destLat: number
     destLng: number
     deadline: Date | string
+    pickupDeadline?: Date | string | null
+    shipmentType?: string
+    systemPrice?: number | null
+    estimatedDistanceKm?: number | null
     fragile?: boolean
     hazardous?: boolean
     priority?: number
@@ -41792,7 +39357,6 @@ export namespace Prisma {
     bookingShipments?: BookingShipmentCreateNestedManyWithoutShipmentInput
     tripShipments?: TripShipmentCreateNestedManyWithoutShipmentInput
     returnLoadMatches?: ReturnLoadMatchCreateNestedManyWithoutShipmentInput
-    disputes?: DisputeCreateNestedManyWithoutShipmentInput
     stopEvents?: TripStopCreateNestedManyWithoutShipmentInput
   }
 
@@ -41814,6 +39378,10 @@ export namespace Prisma {
     destLat: number
     destLng: number
     deadline: Date | string
+    pickupDeadline?: Date | string | null
+    shipmentType?: string
+    systemPrice?: number | null
+    estimatedDistanceKm?: number | null
     fragile?: boolean
     hazardous?: boolean
     priority?: number
@@ -41824,7 +39392,6 @@ export namespace Prisma {
     bookingShipments?: BookingShipmentUncheckedCreateNestedManyWithoutShipmentInput
     tripShipments?: TripShipmentUncheckedCreateNestedManyWithoutShipmentInput
     returnLoadMatches?: ReturnLoadMatchUncheckedCreateNestedManyWithoutShipmentInput
-    disputes?: DisputeUncheckedCreateNestedManyWithoutShipmentInput
     stopEvents?: TripStopUncheckedCreateNestedManyWithoutShipmentInput
   }
 
@@ -41899,6 +39466,10 @@ export namespace Prisma {
     destLat?: FloatFieldUpdateOperationsInput | number
     destLng?: FloatFieldUpdateOperationsInput | number
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
+    pickupDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shipmentType?: StringFieldUpdateOperationsInput | string
+    systemPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimatedDistanceKm?: NullableFloatFieldUpdateOperationsInput | number | null
     fragile?: BoolFieldUpdateOperationsInput | boolean
     hazardous?: BoolFieldUpdateOperationsInput | boolean
     priority?: IntFieldUpdateOperationsInput | number
@@ -41911,7 +39482,6 @@ export namespace Prisma {
     bookingShipments?: BookingShipmentUpdateManyWithoutShipmentNestedInput
     tripShipments?: TripShipmentUpdateManyWithoutShipmentNestedInput
     returnLoadMatches?: ReturnLoadMatchUpdateManyWithoutShipmentNestedInput
-    disputes?: DisputeUpdateManyWithoutShipmentNestedInput
     stopEvents?: TripStopUpdateManyWithoutShipmentNestedInput
   }
 
@@ -41933,6 +39503,10 @@ export namespace Prisma {
     destLat?: FloatFieldUpdateOperationsInput | number
     destLng?: FloatFieldUpdateOperationsInput | number
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
+    pickupDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shipmentType?: StringFieldUpdateOperationsInput | string
+    systemPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimatedDistanceKm?: NullableFloatFieldUpdateOperationsInput | number | null
     fragile?: BoolFieldUpdateOperationsInput | boolean
     hazardous?: BoolFieldUpdateOperationsInput | boolean
     priority?: IntFieldUpdateOperationsInput | number
@@ -41943,7 +39517,6 @@ export namespace Prisma {
     bookingShipments?: BookingShipmentUncheckedUpdateManyWithoutShipmentNestedInput
     tripShipments?: TripShipmentUncheckedUpdateManyWithoutShipmentNestedInput
     returnLoadMatches?: ReturnLoadMatchUncheckedUpdateManyWithoutShipmentNestedInput
-    disputes?: DisputeUncheckedUpdateManyWithoutShipmentNestedInput
     stopEvents?: TripStopUncheckedUpdateManyWithoutShipmentNestedInput
   }
 
@@ -42046,7 +39619,6 @@ export namespace Prisma {
     optimizationRun?: OptimizationRunCreateNestedOneWithoutBookingRequestsInput
     shipments?: BookingShipmentCreateNestedManyWithoutBookingRequestInput
     trip?: TripCreateNestedOneWithoutBookingRequestInput
-    disputes?: DisputeCreateNestedManyWithoutBookingRequestInput
     documents?: DocumentCreateNestedManyWithoutBookingRequestInput
   }
 
@@ -42069,7 +39641,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     shipments?: BookingShipmentUncheckedCreateNestedManyWithoutBookingRequestInput
     trip?: TripUncheckedCreateNestedOneWithoutBookingRequestInput
-    disputes?: DisputeUncheckedCreateNestedManyWithoutBookingRequestInput
     documents?: DocumentUncheckedCreateNestedManyWithoutBookingRequestInput
   }
 
@@ -42245,8 +39816,6 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutUserInput
     shipmentsCreated?: ShipmentCreateNestedManyWithoutCreatedByInput
     optimizationRuns?: OptimizationRunCreateNestedManyWithoutRequestedByInput
-    disputesRaised?: DisputeCreateNestedManyWithoutRaisedByInput
-    disputesResolved?: DisputeCreateNestedManyWithoutResolvedByInput
     sessions?: RefreshSessionCreateNestedManyWithoutUserInput
     emailVerificationTokens?: EmailVerificationTokenCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -42269,8 +39838,6 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     shipmentsCreated?: ShipmentUncheckedCreateNestedManyWithoutCreatedByInput
     optimizationRuns?: OptimizationRunUncheckedCreateNestedManyWithoutRequestedByInput
-    disputesRaised?: DisputeUncheckedCreateNestedManyWithoutRaisedByInput
-    disputesResolved?: DisputeUncheckedCreateNestedManyWithoutResolvedByInput
     sessions?: RefreshSessionUncheckedCreateNestedManyWithoutUserInput
     emailVerificationTokens?: EmailVerificationTokenUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -42439,7 +40006,6 @@ export namespace Prisma {
     locations?: TripLocationCreateNestedManyWithoutTripInput
     returnLoadMatches?: ReturnLoadMatchCreateNestedManyWithoutTripInput
     documents?: DocumentCreateNestedManyWithoutTripInput
-    disputes?: DisputeCreateNestedManyWithoutTripInput
   }
 
   export type TripUncheckedCreateWithoutBookingRequestInput = {
@@ -42465,54 +40031,11 @@ export namespace Prisma {
     locations?: TripLocationUncheckedCreateNestedManyWithoutTripInput
     returnLoadMatches?: ReturnLoadMatchUncheckedCreateNestedManyWithoutTripInput
     documents?: DocumentUncheckedCreateNestedManyWithoutTripInput
-    disputes?: DisputeUncheckedCreateNestedManyWithoutTripInput
   }
 
   export type TripCreateOrConnectWithoutBookingRequestInput = {
     where: TripWhereUniqueInput
     create: XOR<TripCreateWithoutBookingRequestInput, TripUncheckedCreateWithoutBookingRequestInput>
-  }
-
-  export type DisputeCreateWithoutBookingRequestInput = {
-    id?: string
-    type: $Enums.DisputeEntityType
-    status?: $Enums.DisputeStatus
-    title: string
-    description: string
-    resolution?: string | null
-    resolvedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    raisedBy: UserCreateNestedOneWithoutDisputesRaisedInput
-    resolvedBy?: UserCreateNestedOneWithoutDisputesResolvedInput
-    shipment?: ShipmentCreateNestedOneWithoutDisputesInput
-    trip?: TripCreateNestedOneWithoutDisputesInput
-  }
-
-  export type DisputeUncheckedCreateWithoutBookingRequestInput = {
-    id?: string
-    type: $Enums.DisputeEntityType
-    status?: $Enums.DisputeStatus
-    title: string
-    description: string
-    raisedById: string
-    resolvedById?: string | null
-    shipmentId?: string | null
-    tripId?: string | null
-    resolution?: string | null
-    resolvedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type DisputeCreateOrConnectWithoutBookingRequestInput = {
-    where: DisputeWhereUniqueInput
-    create: XOR<DisputeCreateWithoutBookingRequestInput, DisputeUncheckedCreateWithoutBookingRequestInput>
-  }
-
-  export type DisputeCreateManyBookingRequestInputEnvelope = {
-    data: DisputeCreateManyBookingRequestInput | DisputeCreateManyBookingRequestInput[]
-    skipDuplicates?: boolean
   }
 
   export type DocumentCreateWithoutBookingRequestInput = {
@@ -42618,8 +40141,6 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     shipmentsCreated?: ShipmentUpdateManyWithoutCreatedByNestedInput
     optimizationRuns?: OptimizationRunUpdateManyWithoutRequestedByNestedInput
-    disputesRaised?: DisputeUpdateManyWithoutRaisedByNestedInput
-    disputesResolved?: DisputeUpdateManyWithoutResolvedByNestedInput
     sessions?: RefreshSessionUpdateManyWithoutUserNestedInput
     emailVerificationTokens?: EmailVerificationTokenUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -42642,8 +40163,6 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     shipmentsCreated?: ShipmentUncheckedUpdateManyWithoutCreatedByNestedInput
     optimizationRuns?: OptimizationRunUncheckedUpdateManyWithoutRequestedByNestedInput
-    disputesRaised?: DisputeUncheckedUpdateManyWithoutRaisedByNestedInput
-    disputesResolved?: DisputeUncheckedUpdateManyWithoutResolvedByNestedInput
     sessions?: RefreshSessionUncheckedUpdateManyWithoutUserNestedInput
     emailVerificationTokens?: EmailVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -42834,7 +40353,6 @@ export namespace Prisma {
     locations?: TripLocationUpdateManyWithoutTripNestedInput
     returnLoadMatches?: ReturnLoadMatchUpdateManyWithoutTripNestedInput
     documents?: DocumentUpdateManyWithoutTripNestedInput
-    disputes?: DisputeUpdateManyWithoutTripNestedInput
   }
 
   export type TripUncheckedUpdateWithoutBookingRequestInput = {
@@ -42860,23 +40378,6 @@ export namespace Prisma {
     locations?: TripLocationUncheckedUpdateManyWithoutTripNestedInput
     returnLoadMatches?: ReturnLoadMatchUncheckedUpdateManyWithoutTripNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutTripNestedInput
-    disputes?: DisputeUncheckedUpdateManyWithoutTripNestedInput
-  }
-
-  export type DisputeUpsertWithWhereUniqueWithoutBookingRequestInput = {
-    where: DisputeWhereUniqueInput
-    update: XOR<DisputeUpdateWithoutBookingRequestInput, DisputeUncheckedUpdateWithoutBookingRequestInput>
-    create: XOR<DisputeCreateWithoutBookingRequestInput, DisputeUncheckedCreateWithoutBookingRequestInput>
-  }
-
-  export type DisputeUpdateWithWhereUniqueWithoutBookingRequestInput = {
-    where: DisputeWhereUniqueInput
-    data: XOR<DisputeUpdateWithoutBookingRequestInput, DisputeUncheckedUpdateWithoutBookingRequestInput>
-  }
-
-  export type DisputeUpdateManyWithWhereWithoutBookingRequestInput = {
-    where: DisputeScalarWhereInput
-    data: XOR<DisputeUpdateManyMutationInput, DisputeUncheckedUpdateManyWithoutBookingRequestInput>
   }
 
   export type DocumentUpsertWithWhereUniqueWithoutBookingRequestInput = {
@@ -42929,7 +40430,6 @@ export namespace Prisma {
     optimizationRun?: OptimizationRunCreateNestedOneWithoutBookingRequestsInput
     optimizationCandidate?: OptimizationCandidateCreateNestedOneWithoutBookingRequestsInput
     trip?: TripCreateNestedOneWithoutBookingRequestInput
-    disputes?: DisputeCreateNestedManyWithoutBookingRequestInput
     documents?: DocumentCreateNestedManyWithoutBookingRequestInput
   }
 
@@ -42952,7 +40452,6 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     trip?: TripUncheckedCreateNestedOneWithoutBookingRequestInput
-    disputes?: DisputeUncheckedCreateNestedManyWithoutBookingRequestInput
     documents?: DocumentUncheckedCreateNestedManyWithoutBookingRequestInput
   }
 
@@ -42977,6 +40476,10 @@ export namespace Prisma {
     destLat: number
     destLng: number
     deadline: Date | string
+    pickupDeadline?: Date | string | null
+    shipmentType?: string
+    systemPrice?: number | null
+    estimatedDistanceKm?: number | null
     fragile?: boolean
     hazardous?: boolean
     priority?: number
@@ -42989,7 +40492,6 @@ export namespace Prisma {
     tripShipments?: TripShipmentCreateNestedManyWithoutShipmentInput
     returnLoadMatches?: ReturnLoadMatchCreateNestedManyWithoutShipmentInput
     optimizationRuns?: OptimizationRunShipmentCreateNestedManyWithoutShipmentInput
-    disputes?: DisputeCreateNestedManyWithoutShipmentInput
     stopEvents?: TripStopCreateNestedManyWithoutShipmentInput
   }
 
@@ -43011,6 +40513,10 @@ export namespace Prisma {
     destLat: number
     destLng: number
     deadline: Date | string
+    pickupDeadline?: Date | string | null
+    shipmentType?: string
+    systemPrice?: number | null
+    estimatedDistanceKm?: number | null
     fragile?: boolean
     hazardous?: boolean
     priority?: number
@@ -43021,7 +40527,6 @@ export namespace Prisma {
     tripShipments?: TripShipmentUncheckedCreateNestedManyWithoutShipmentInput
     returnLoadMatches?: ReturnLoadMatchUncheckedCreateNestedManyWithoutShipmentInput
     optimizationRuns?: OptimizationRunShipmentUncheckedCreateNestedManyWithoutShipmentInput
-    disputes?: DisputeUncheckedCreateNestedManyWithoutShipmentInput
     stopEvents?: TripStopUncheckedCreateNestedManyWithoutShipmentInput
   }
 
@@ -43060,7 +40565,6 @@ export namespace Prisma {
     optimizationRun?: OptimizationRunUpdateOneWithoutBookingRequestsNestedInput
     optimizationCandidate?: OptimizationCandidateUpdateOneWithoutBookingRequestsNestedInput
     trip?: TripUpdateOneWithoutBookingRequestNestedInput
-    disputes?: DisputeUpdateManyWithoutBookingRequestNestedInput
     documents?: DocumentUpdateManyWithoutBookingRequestNestedInput
   }
 
@@ -43083,7 +40587,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     trip?: TripUncheckedUpdateOneWithoutBookingRequestNestedInput
-    disputes?: DisputeUncheckedUpdateManyWithoutBookingRequestNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutBookingRequestNestedInput
   }
 
@@ -43114,6 +40617,10 @@ export namespace Prisma {
     destLat?: FloatFieldUpdateOperationsInput | number
     destLng?: FloatFieldUpdateOperationsInput | number
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
+    pickupDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shipmentType?: StringFieldUpdateOperationsInput | string
+    systemPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimatedDistanceKm?: NullableFloatFieldUpdateOperationsInput | number | null
     fragile?: BoolFieldUpdateOperationsInput | boolean
     hazardous?: BoolFieldUpdateOperationsInput | boolean
     priority?: IntFieldUpdateOperationsInput | number
@@ -43126,7 +40633,6 @@ export namespace Prisma {
     tripShipments?: TripShipmentUpdateManyWithoutShipmentNestedInput
     returnLoadMatches?: ReturnLoadMatchUpdateManyWithoutShipmentNestedInput
     optimizationRuns?: OptimizationRunShipmentUpdateManyWithoutShipmentNestedInput
-    disputes?: DisputeUpdateManyWithoutShipmentNestedInput
     stopEvents?: TripStopUpdateManyWithoutShipmentNestedInput
   }
 
@@ -43148,6 +40654,10 @@ export namespace Prisma {
     destLat?: FloatFieldUpdateOperationsInput | number
     destLng?: FloatFieldUpdateOperationsInput | number
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
+    pickupDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shipmentType?: StringFieldUpdateOperationsInput | string
+    systemPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimatedDistanceKm?: NullableFloatFieldUpdateOperationsInput | number | null
     fragile?: BoolFieldUpdateOperationsInput | boolean
     hazardous?: BoolFieldUpdateOperationsInput | boolean
     priority?: IntFieldUpdateOperationsInput | number
@@ -43158,7 +40668,6 @@ export namespace Prisma {
     tripShipments?: TripShipmentUncheckedUpdateManyWithoutShipmentNestedInput
     returnLoadMatches?: ReturnLoadMatchUncheckedUpdateManyWithoutShipmentNestedInput
     optimizationRuns?: OptimizationRunShipmentUncheckedUpdateManyWithoutShipmentNestedInput
-    disputes?: DisputeUncheckedUpdateManyWithoutShipmentNestedInput
     stopEvents?: TripStopUncheckedUpdateManyWithoutShipmentNestedInput
   }
 
@@ -43181,7 +40690,6 @@ export namespace Prisma {
     optimizationRun?: OptimizationRunCreateNestedOneWithoutBookingRequestsInput
     optimizationCandidate?: OptimizationCandidateCreateNestedOneWithoutBookingRequestsInput
     shipments?: BookingShipmentCreateNestedManyWithoutBookingRequestInput
-    disputes?: DisputeCreateNestedManyWithoutBookingRequestInput
     documents?: DocumentCreateNestedManyWithoutBookingRequestInput
   }
 
@@ -43204,7 +40712,6 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     shipments?: BookingShipmentUncheckedCreateNestedManyWithoutBookingRequestInput
-    disputes?: DisputeUncheckedCreateNestedManyWithoutBookingRequestInput
     documents?: DocumentUncheckedCreateNestedManyWithoutBookingRequestInput
   }
 
@@ -43461,48 +40968,6 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type DisputeCreateWithoutTripInput = {
-    id?: string
-    type: $Enums.DisputeEntityType
-    status?: $Enums.DisputeStatus
-    title: string
-    description: string
-    resolution?: string | null
-    resolvedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    raisedBy: UserCreateNestedOneWithoutDisputesRaisedInput
-    resolvedBy?: UserCreateNestedOneWithoutDisputesResolvedInput
-    shipment?: ShipmentCreateNestedOneWithoutDisputesInput
-    bookingRequest?: BookingRequestCreateNestedOneWithoutDisputesInput
-  }
-
-  export type DisputeUncheckedCreateWithoutTripInput = {
-    id?: string
-    type: $Enums.DisputeEntityType
-    status?: $Enums.DisputeStatus
-    title: string
-    description: string
-    raisedById: string
-    resolvedById?: string | null
-    shipmentId?: string | null
-    bookingRequestId?: string | null
-    resolution?: string | null
-    resolvedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type DisputeCreateOrConnectWithoutTripInput = {
-    where: DisputeWhereUniqueInput
-    create: XOR<DisputeCreateWithoutTripInput, DisputeUncheckedCreateWithoutTripInput>
-  }
-
-  export type DisputeCreateManyTripInputEnvelope = {
-    data: DisputeCreateManyTripInput | DisputeCreateManyTripInput[]
-    skipDuplicates?: boolean
-  }
-
   export type BookingRequestUpsertWithoutTripInput = {
     update: XOR<BookingRequestUpdateWithoutTripInput, BookingRequestUncheckedUpdateWithoutTripInput>
     create: XOR<BookingRequestCreateWithoutTripInput, BookingRequestUncheckedCreateWithoutTripInput>
@@ -43533,7 +40998,6 @@ export namespace Prisma {
     optimizationRun?: OptimizationRunUpdateOneWithoutBookingRequestsNestedInput
     optimizationCandidate?: OptimizationCandidateUpdateOneWithoutBookingRequestsNestedInput
     shipments?: BookingShipmentUpdateManyWithoutBookingRequestNestedInput
-    disputes?: DisputeUpdateManyWithoutBookingRequestNestedInput
     documents?: DocumentUpdateManyWithoutBookingRequestNestedInput
   }
 
@@ -43556,7 +41020,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     shipments?: BookingShipmentUncheckedUpdateManyWithoutBookingRequestNestedInput
-    disputes?: DisputeUncheckedUpdateManyWithoutBookingRequestNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutBookingRequestNestedInput
   }
 
@@ -43734,22 +41197,6 @@ export namespace Prisma {
     data: XOR<DocumentUpdateManyMutationInput, DocumentUncheckedUpdateManyWithoutTripInput>
   }
 
-  export type DisputeUpsertWithWhereUniqueWithoutTripInput = {
-    where: DisputeWhereUniqueInput
-    update: XOR<DisputeUpdateWithoutTripInput, DisputeUncheckedUpdateWithoutTripInput>
-    create: XOR<DisputeCreateWithoutTripInput, DisputeUncheckedCreateWithoutTripInput>
-  }
-
-  export type DisputeUpdateWithWhereUniqueWithoutTripInput = {
-    where: DisputeWhereUniqueInput
-    data: XOR<DisputeUpdateWithoutTripInput, DisputeUncheckedUpdateWithoutTripInput>
-  }
-
-  export type DisputeUpdateManyWithWhereWithoutTripInput = {
-    where: DisputeScalarWhereInput
-    data: XOR<DisputeUpdateManyMutationInput, DisputeUncheckedUpdateManyWithoutTripInput>
-  }
-
   export type TripCreateWithoutShipmentsInput = {
     id?: string
     status?: $Enums.TripStatus
@@ -43773,7 +41220,6 @@ export namespace Prisma {
     locations?: TripLocationCreateNestedManyWithoutTripInput
     returnLoadMatches?: ReturnLoadMatchCreateNestedManyWithoutTripInput
     documents?: DocumentCreateNestedManyWithoutTripInput
-    disputes?: DisputeCreateNestedManyWithoutTripInput
   }
 
   export type TripUncheckedCreateWithoutShipmentsInput = {
@@ -43799,7 +41245,6 @@ export namespace Prisma {
     locations?: TripLocationUncheckedCreateNestedManyWithoutTripInput
     returnLoadMatches?: ReturnLoadMatchUncheckedCreateNestedManyWithoutTripInput
     documents?: DocumentUncheckedCreateNestedManyWithoutTripInput
-    disputes?: DisputeUncheckedCreateNestedManyWithoutTripInput
   }
 
   export type TripCreateOrConnectWithoutShipmentsInput = {
@@ -43823,6 +41268,10 @@ export namespace Prisma {
     destLat: number
     destLng: number
     deadline: Date | string
+    pickupDeadline?: Date | string | null
+    shipmentType?: string
+    systemPrice?: number | null
+    estimatedDistanceKm?: number | null
     fragile?: boolean
     hazardous?: boolean
     priority?: number
@@ -43835,7 +41284,6 @@ export namespace Prisma {
     bookingShipments?: BookingShipmentCreateNestedManyWithoutShipmentInput
     returnLoadMatches?: ReturnLoadMatchCreateNestedManyWithoutShipmentInput
     optimizationRuns?: OptimizationRunShipmentCreateNestedManyWithoutShipmentInput
-    disputes?: DisputeCreateNestedManyWithoutShipmentInput
     stopEvents?: TripStopCreateNestedManyWithoutShipmentInput
   }
 
@@ -43857,6 +41305,10 @@ export namespace Prisma {
     destLat: number
     destLng: number
     deadline: Date | string
+    pickupDeadline?: Date | string | null
+    shipmentType?: string
+    systemPrice?: number | null
+    estimatedDistanceKm?: number | null
     fragile?: boolean
     hazardous?: boolean
     priority?: number
@@ -43867,7 +41319,6 @@ export namespace Prisma {
     bookingShipments?: BookingShipmentUncheckedCreateNestedManyWithoutShipmentInput
     returnLoadMatches?: ReturnLoadMatchUncheckedCreateNestedManyWithoutShipmentInput
     optimizationRuns?: OptimizationRunShipmentUncheckedCreateNestedManyWithoutShipmentInput
-    disputes?: DisputeUncheckedCreateNestedManyWithoutShipmentInput
     stopEvents?: TripStopUncheckedCreateNestedManyWithoutShipmentInput
   }
 
@@ -43910,7 +41361,6 @@ export namespace Prisma {
     locations?: TripLocationUpdateManyWithoutTripNestedInput
     returnLoadMatches?: ReturnLoadMatchUpdateManyWithoutTripNestedInput
     documents?: DocumentUpdateManyWithoutTripNestedInput
-    disputes?: DisputeUpdateManyWithoutTripNestedInput
   }
 
   export type TripUncheckedUpdateWithoutShipmentsInput = {
@@ -43936,7 +41386,6 @@ export namespace Prisma {
     locations?: TripLocationUncheckedUpdateManyWithoutTripNestedInput
     returnLoadMatches?: ReturnLoadMatchUncheckedUpdateManyWithoutTripNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutTripNestedInput
-    disputes?: DisputeUncheckedUpdateManyWithoutTripNestedInput
   }
 
   export type ShipmentUpsertWithoutTripShipmentsInput = {
@@ -43966,6 +41415,10 @@ export namespace Prisma {
     destLat?: FloatFieldUpdateOperationsInput | number
     destLng?: FloatFieldUpdateOperationsInput | number
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
+    pickupDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shipmentType?: StringFieldUpdateOperationsInput | string
+    systemPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimatedDistanceKm?: NullableFloatFieldUpdateOperationsInput | number | null
     fragile?: BoolFieldUpdateOperationsInput | boolean
     hazardous?: BoolFieldUpdateOperationsInput | boolean
     priority?: IntFieldUpdateOperationsInput | number
@@ -43978,7 +41431,6 @@ export namespace Prisma {
     bookingShipments?: BookingShipmentUpdateManyWithoutShipmentNestedInput
     returnLoadMatches?: ReturnLoadMatchUpdateManyWithoutShipmentNestedInput
     optimizationRuns?: OptimizationRunShipmentUpdateManyWithoutShipmentNestedInput
-    disputes?: DisputeUpdateManyWithoutShipmentNestedInput
     stopEvents?: TripStopUpdateManyWithoutShipmentNestedInput
   }
 
@@ -44000,6 +41452,10 @@ export namespace Prisma {
     destLat?: FloatFieldUpdateOperationsInput | number
     destLng?: FloatFieldUpdateOperationsInput | number
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
+    pickupDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shipmentType?: StringFieldUpdateOperationsInput | string
+    systemPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimatedDistanceKm?: NullableFloatFieldUpdateOperationsInput | number | null
     fragile?: BoolFieldUpdateOperationsInput | boolean
     hazardous?: BoolFieldUpdateOperationsInput | boolean
     priority?: IntFieldUpdateOperationsInput | number
@@ -44010,7 +41466,6 @@ export namespace Prisma {
     bookingShipments?: BookingShipmentUncheckedUpdateManyWithoutShipmentNestedInput
     returnLoadMatches?: ReturnLoadMatchUncheckedUpdateManyWithoutShipmentNestedInput
     optimizationRuns?: OptimizationRunShipmentUncheckedUpdateManyWithoutShipmentNestedInput
-    disputes?: DisputeUncheckedUpdateManyWithoutShipmentNestedInput
     stopEvents?: TripStopUncheckedUpdateManyWithoutShipmentNestedInput
   }
 
@@ -44037,7 +41492,6 @@ export namespace Prisma {
     locations?: TripLocationCreateNestedManyWithoutTripInput
     returnLoadMatches?: ReturnLoadMatchCreateNestedManyWithoutTripInput
     documents?: DocumentCreateNestedManyWithoutTripInput
-    disputes?: DisputeCreateNestedManyWithoutTripInput
   }
 
   export type TripUncheckedCreateWithoutStopsInput = {
@@ -44063,7 +41517,6 @@ export namespace Prisma {
     locations?: TripLocationUncheckedCreateNestedManyWithoutTripInput
     returnLoadMatches?: ReturnLoadMatchUncheckedCreateNestedManyWithoutTripInput
     documents?: DocumentUncheckedCreateNestedManyWithoutTripInput
-    disputes?: DisputeUncheckedCreateNestedManyWithoutTripInput
   }
 
   export type TripCreateOrConnectWithoutStopsInput = {
@@ -44087,6 +41540,10 @@ export namespace Prisma {
     destLat: number
     destLng: number
     deadline: Date | string
+    pickupDeadline?: Date | string | null
+    shipmentType?: string
+    systemPrice?: number | null
+    estimatedDistanceKm?: number | null
     fragile?: boolean
     hazardous?: boolean
     priority?: number
@@ -44100,7 +41557,6 @@ export namespace Prisma {
     tripShipments?: TripShipmentCreateNestedManyWithoutShipmentInput
     returnLoadMatches?: ReturnLoadMatchCreateNestedManyWithoutShipmentInput
     optimizationRuns?: OptimizationRunShipmentCreateNestedManyWithoutShipmentInput
-    disputes?: DisputeCreateNestedManyWithoutShipmentInput
   }
 
   export type ShipmentUncheckedCreateWithoutStopEventsInput = {
@@ -44121,6 +41577,10 @@ export namespace Prisma {
     destLat: number
     destLng: number
     deadline: Date | string
+    pickupDeadline?: Date | string | null
+    shipmentType?: string
+    systemPrice?: number | null
+    estimatedDistanceKm?: number | null
     fragile?: boolean
     hazardous?: boolean
     priority?: number
@@ -44132,7 +41592,6 @@ export namespace Prisma {
     tripShipments?: TripShipmentUncheckedCreateNestedManyWithoutShipmentInput
     returnLoadMatches?: ReturnLoadMatchUncheckedCreateNestedManyWithoutShipmentInput
     optimizationRuns?: OptimizationRunShipmentUncheckedCreateNestedManyWithoutShipmentInput
-    disputes?: DisputeUncheckedCreateNestedManyWithoutShipmentInput
   }
 
   export type ShipmentCreateOrConnectWithoutStopEventsInput = {
@@ -44174,7 +41633,6 @@ export namespace Prisma {
     locations?: TripLocationUpdateManyWithoutTripNestedInput
     returnLoadMatches?: ReturnLoadMatchUpdateManyWithoutTripNestedInput
     documents?: DocumentUpdateManyWithoutTripNestedInput
-    disputes?: DisputeUpdateManyWithoutTripNestedInput
   }
 
   export type TripUncheckedUpdateWithoutStopsInput = {
@@ -44200,7 +41658,6 @@ export namespace Prisma {
     locations?: TripLocationUncheckedUpdateManyWithoutTripNestedInput
     returnLoadMatches?: ReturnLoadMatchUncheckedUpdateManyWithoutTripNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutTripNestedInput
-    disputes?: DisputeUncheckedUpdateManyWithoutTripNestedInput
   }
 
   export type ShipmentUpsertWithoutStopEventsInput = {
@@ -44230,6 +41687,10 @@ export namespace Prisma {
     destLat?: FloatFieldUpdateOperationsInput | number
     destLng?: FloatFieldUpdateOperationsInput | number
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
+    pickupDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shipmentType?: StringFieldUpdateOperationsInput | string
+    systemPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimatedDistanceKm?: NullableFloatFieldUpdateOperationsInput | number | null
     fragile?: BoolFieldUpdateOperationsInput | boolean
     hazardous?: BoolFieldUpdateOperationsInput | boolean
     priority?: IntFieldUpdateOperationsInput | number
@@ -44243,7 +41704,6 @@ export namespace Prisma {
     tripShipments?: TripShipmentUpdateManyWithoutShipmentNestedInput
     returnLoadMatches?: ReturnLoadMatchUpdateManyWithoutShipmentNestedInput
     optimizationRuns?: OptimizationRunShipmentUpdateManyWithoutShipmentNestedInput
-    disputes?: DisputeUpdateManyWithoutShipmentNestedInput
   }
 
   export type ShipmentUncheckedUpdateWithoutStopEventsInput = {
@@ -44264,6 +41724,10 @@ export namespace Prisma {
     destLat?: FloatFieldUpdateOperationsInput | number
     destLng?: FloatFieldUpdateOperationsInput | number
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
+    pickupDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shipmentType?: StringFieldUpdateOperationsInput | string
+    systemPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimatedDistanceKm?: NullableFloatFieldUpdateOperationsInput | number | null
     fragile?: BoolFieldUpdateOperationsInput | boolean
     hazardous?: BoolFieldUpdateOperationsInput | boolean
     priority?: IntFieldUpdateOperationsInput | number
@@ -44275,7 +41739,6 @@ export namespace Prisma {
     tripShipments?: TripShipmentUncheckedUpdateManyWithoutShipmentNestedInput
     returnLoadMatches?: ReturnLoadMatchUncheckedUpdateManyWithoutShipmentNestedInput
     optimizationRuns?: OptimizationRunShipmentUncheckedUpdateManyWithoutShipmentNestedInput
-    disputes?: DisputeUncheckedUpdateManyWithoutShipmentNestedInput
   }
 
   export type TripCreateWithoutLocationsInput = {
@@ -44301,7 +41764,6 @@ export namespace Prisma {
     stops?: TripStopCreateNestedManyWithoutTripInput
     returnLoadMatches?: ReturnLoadMatchCreateNestedManyWithoutTripInput
     documents?: DocumentCreateNestedManyWithoutTripInput
-    disputes?: DisputeCreateNestedManyWithoutTripInput
   }
 
   export type TripUncheckedCreateWithoutLocationsInput = {
@@ -44327,7 +41789,6 @@ export namespace Prisma {
     stops?: TripStopUncheckedCreateNestedManyWithoutTripInput
     returnLoadMatches?: ReturnLoadMatchUncheckedCreateNestedManyWithoutTripInput
     documents?: DocumentUncheckedCreateNestedManyWithoutTripInput
-    disputes?: DisputeUncheckedCreateNestedManyWithoutTripInput
   }
 
   export type TripCreateOrConnectWithoutLocationsInput = {
@@ -44416,7 +41877,6 @@ export namespace Prisma {
     stops?: TripStopUpdateManyWithoutTripNestedInput
     returnLoadMatches?: ReturnLoadMatchUpdateManyWithoutTripNestedInput
     documents?: DocumentUpdateManyWithoutTripNestedInput
-    disputes?: DisputeUpdateManyWithoutTripNestedInput
   }
 
   export type TripUncheckedUpdateWithoutLocationsInput = {
@@ -44442,7 +41902,6 @@ export namespace Prisma {
     stops?: TripStopUncheckedUpdateManyWithoutTripNestedInput
     returnLoadMatches?: ReturnLoadMatchUncheckedUpdateManyWithoutTripNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutTripNestedInput
-    disputes?: DisputeUncheckedUpdateManyWithoutTripNestedInput
   }
 
   export type TruckUpsertWithoutLocationHistoryInput = {
@@ -44521,7 +41980,6 @@ export namespace Prisma {
     stops?: TripStopCreateNestedManyWithoutTripInput
     locations?: TripLocationCreateNestedManyWithoutTripInput
     documents?: DocumentCreateNestedManyWithoutTripInput
-    disputes?: DisputeCreateNestedManyWithoutTripInput
   }
 
   export type TripUncheckedCreateWithoutReturnLoadMatchesInput = {
@@ -44547,7 +42005,6 @@ export namespace Prisma {
     stops?: TripStopUncheckedCreateNestedManyWithoutTripInput
     locations?: TripLocationUncheckedCreateNestedManyWithoutTripInput
     documents?: DocumentUncheckedCreateNestedManyWithoutTripInput
-    disputes?: DisputeUncheckedCreateNestedManyWithoutTripInput
   }
 
   export type TripCreateOrConnectWithoutReturnLoadMatchesInput = {
@@ -44571,6 +42028,10 @@ export namespace Prisma {
     destLat: number
     destLng: number
     deadline: Date | string
+    pickupDeadline?: Date | string | null
+    shipmentType?: string
+    systemPrice?: number | null
+    estimatedDistanceKm?: number | null
     fragile?: boolean
     hazardous?: boolean
     priority?: number
@@ -44583,7 +42044,6 @@ export namespace Prisma {
     bookingShipments?: BookingShipmentCreateNestedManyWithoutShipmentInput
     tripShipments?: TripShipmentCreateNestedManyWithoutShipmentInput
     optimizationRuns?: OptimizationRunShipmentCreateNestedManyWithoutShipmentInput
-    disputes?: DisputeCreateNestedManyWithoutShipmentInput
     stopEvents?: TripStopCreateNestedManyWithoutShipmentInput
   }
 
@@ -44605,6 +42065,10 @@ export namespace Prisma {
     destLat: number
     destLng: number
     deadline: Date | string
+    pickupDeadline?: Date | string | null
+    shipmentType?: string
+    systemPrice?: number | null
+    estimatedDistanceKm?: number | null
     fragile?: boolean
     hazardous?: boolean
     priority?: number
@@ -44615,7 +42079,6 @@ export namespace Prisma {
     bookingShipments?: BookingShipmentUncheckedCreateNestedManyWithoutShipmentInput
     tripShipments?: TripShipmentUncheckedCreateNestedManyWithoutShipmentInput
     optimizationRuns?: OptimizationRunShipmentUncheckedCreateNestedManyWithoutShipmentInput
-    disputes?: DisputeUncheckedCreateNestedManyWithoutShipmentInput
     stopEvents?: TripStopUncheckedCreateNestedManyWithoutShipmentInput
   }
 
@@ -44658,7 +42121,6 @@ export namespace Prisma {
     stops?: TripStopUpdateManyWithoutTripNestedInput
     locations?: TripLocationUpdateManyWithoutTripNestedInput
     documents?: DocumentUpdateManyWithoutTripNestedInput
-    disputes?: DisputeUpdateManyWithoutTripNestedInput
   }
 
   export type TripUncheckedUpdateWithoutReturnLoadMatchesInput = {
@@ -44684,7 +42146,6 @@ export namespace Prisma {
     stops?: TripStopUncheckedUpdateManyWithoutTripNestedInput
     locations?: TripLocationUncheckedUpdateManyWithoutTripNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutTripNestedInput
-    disputes?: DisputeUncheckedUpdateManyWithoutTripNestedInput
   }
 
   export type ShipmentUpsertWithoutReturnLoadMatchesInput = {
@@ -44714,6 +42175,10 @@ export namespace Prisma {
     destLat?: FloatFieldUpdateOperationsInput | number
     destLng?: FloatFieldUpdateOperationsInput | number
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
+    pickupDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shipmentType?: StringFieldUpdateOperationsInput | string
+    systemPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimatedDistanceKm?: NullableFloatFieldUpdateOperationsInput | number | null
     fragile?: BoolFieldUpdateOperationsInput | boolean
     hazardous?: BoolFieldUpdateOperationsInput | boolean
     priority?: IntFieldUpdateOperationsInput | number
@@ -44726,7 +42191,6 @@ export namespace Prisma {
     bookingShipments?: BookingShipmentUpdateManyWithoutShipmentNestedInput
     tripShipments?: TripShipmentUpdateManyWithoutShipmentNestedInput
     optimizationRuns?: OptimizationRunShipmentUpdateManyWithoutShipmentNestedInput
-    disputes?: DisputeUpdateManyWithoutShipmentNestedInput
     stopEvents?: TripStopUpdateManyWithoutShipmentNestedInput
   }
 
@@ -44748,6 +42212,10 @@ export namespace Prisma {
     destLat?: FloatFieldUpdateOperationsInput | number
     destLng?: FloatFieldUpdateOperationsInput | number
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
+    pickupDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shipmentType?: StringFieldUpdateOperationsInput | string
+    systemPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimatedDistanceKm?: NullableFloatFieldUpdateOperationsInput | number | null
     fragile?: BoolFieldUpdateOperationsInput | boolean
     hazardous?: BoolFieldUpdateOperationsInput | boolean
     priority?: IntFieldUpdateOperationsInput | number
@@ -44758,7 +42226,6 @@ export namespace Prisma {
     bookingShipments?: BookingShipmentUncheckedUpdateManyWithoutShipmentNestedInput
     tripShipments?: TripShipmentUncheckedUpdateManyWithoutShipmentNestedInput
     optimizationRuns?: OptimizationRunShipmentUncheckedUpdateManyWithoutShipmentNestedInput
-    disputes?: DisputeUncheckedUpdateManyWithoutShipmentNestedInput
     stopEvents?: TripStopUncheckedUpdateManyWithoutShipmentNestedInput
   }
 
@@ -44779,8 +42246,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentCreateNestedManyWithoutCreatedByInput
     bookingsRequested?: BookingRequestCreateNestedManyWithoutRequestedByInput
     optimizationRuns?: OptimizationRunCreateNestedManyWithoutRequestedByInput
-    disputesRaised?: DisputeCreateNestedManyWithoutRaisedByInput
-    disputesResolved?: DisputeCreateNestedManyWithoutResolvedByInput
     sessions?: RefreshSessionCreateNestedManyWithoutUserInput
     emailVerificationTokens?: EmailVerificationTokenCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -44803,8 +42268,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentUncheckedCreateNestedManyWithoutCreatedByInput
     bookingsRequested?: BookingRequestUncheckedCreateNestedManyWithoutRequestedByInput
     optimizationRuns?: OptimizationRunUncheckedCreateNestedManyWithoutRequestedByInput
-    disputesRaised?: DisputeUncheckedCreateNestedManyWithoutRaisedByInput
-    disputesResolved?: DisputeUncheckedCreateNestedManyWithoutResolvedByInput
     sessions?: RefreshSessionUncheckedCreateNestedManyWithoutUserInput
     emailVerificationTokens?: EmailVerificationTokenUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -44843,8 +42306,6 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentUpdateManyWithoutCreatedByNestedInput
     bookingsRequested?: BookingRequestUpdateManyWithoutRequestedByNestedInput
     optimizationRuns?: OptimizationRunUpdateManyWithoutRequestedByNestedInput
-    disputesRaised?: DisputeUpdateManyWithoutRaisedByNestedInput
-    disputesResolved?: DisputeUpdateManyWithoutResolvedByNestedInput
     sessions?: RefreshSessionUpdateManyWithoutUserNestedInput
     emailVerificationTokens?: EmailVerificationTokenUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -44867,607 +42328,9 @@ export namespace Prisma {
     shipmentsCreated?: ShipmentUncheckedUpdateManyWithoutCreatedByNestedInput
     bookingsRequested?: BookingRequestUncheckedUpdateManyWithoutRequestedByNestedInput
     optimizationRuns?: OptimizationRunUncheckedUpdateManyWithoutRequestedByNestedInput
-    disputesRaised?: DisputeUncheckedUpdateManyWithoutRaisedByNestedInput
-    disputesResolved?: DisputeUncheckedUpdateManyWithoutResolvedByNestedInput
     sessions?: RefreshSessionUncheckedUpdateManyWithoutUserNestedInput
     emailVerificationTokens?: EmailVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  }
-
-  export type UserCreateWithoutDisputesRaisedInput = {
-    id?: string
-    email: string
-    passwordHash: string
-    name: string
-    phone?: string | null
-    role: $Enums.UserRole
-    accountStatus?: $Enums.AccountStatus
-    profileComplete?: boolean
-    isEmailVerified?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    warehouse?: WarehouseCreateNestedOneWithoutUserInput
-    truckDealer?: TruckDealerCreateNestedOneWithoutUserInput
-    notifications?: NotificationCreateNestedManyWithoutUserInput
-    shipmentsCreated?: ShipmentCreateNestedManyWithoutCreatedByInput
-    bookingsRequested?: BookingRequestCreateNestedManyWithoutRequestedByInput
-    optimizationRuns?: OptimizationRunCreateNestedManyWithoutRequestedByInput
-    disputesResolved?: DisputeCreateNestedManyWithoutResolvedByInput
-    sessions?: RefreshSessionCreateNestedManyWithoutUserInput
-    emailVerificationTokens?: EmailVerificationTokenCreateNestedManyWithoutUserInput
-    passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
-  }
-
-  export type UserUncheckedCreateWithoutDisputesRaisedInput = {
-    id?: string
-    email: string
-    passwordHash: string
-    name: string
-    phone?: string | null
-    role: $Enums.UserRole
-    accountStatus?: $Enums.AccountStatus
-    profileComplete?: boolean
-    isEmailVerified?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    warehouse?: WarehouseUncheckedCreateNestedOneWithoutUserInput
-    truckDealer?: TruckDealerUncheckedCreateNestedOneWithoutUserInput
-    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
-    shipmentsCreated?: ShipmentUncheckedCreateNestedManyWithoutCreatedByInput
-    bookingsRequested?: BookingRequestUncheckedCreateNestedManyWithoutRequestedByInput
-    optimizationRuns?: OptimizationRunUncheckedCreateNestedManyWithoutRequestedByInput
-    disputesResolved?: DisputeUncheckedCreateNestedManyWithoutResolvedByInput
-    sessions?: RefreshSessionUncheckedCreateNestedManyWithoutUserInput
-    emailVerificationTokens?: EmailVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-    passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  }
-
-  export type UserCreateOrConnectWithoutDisputesRaisedInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutDisputesRaisedInput, UserUncheckedCreateWithoutDisputesRaisedInput>
-  }
-
-  export type UserCreateWithoutDisputesResolvedInput = {
-    id?: string
-    email: string
-    passwordHash: string
-    name: string
-    phone?: string | null
-    role: $Enums.UserRole
-    accountStatus?: $Enums.AccountStatus
-    profileComplete?: boolean
-    isEmailVerified?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    warehouse?: WarehouseCreateNestedOneWithoutUserInput
-    truckDealer?: TruckDealerCreateNestedOneWithoutUserInput
-    notifications?: NotificationCreateNestedManyWithoutUserInput
-    shipmentsCreated?: ShipmentCreateNestedManyWithoutCreatedByInput
-    bookingsRequested?: BookingRequestCreateNestedManyWithoutRequestedByInput
-    optimizationRuns?: OptimizationRunCreateNestedManyWithoutRequestedByInput
-    disputesRaised?: DisputeCreateNestedManyWithoutRaisedByInput
-    sessions?: RefreshSessionCreateNestedManyWithoutUserInput
-    emailVerificationTokens?: EmailVerificationTokenCreateNestedManyWithoutUserInput
-    passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
-  }
-
-  export type UserUncheckedCreateWithoutDisputesResolvedInput = {
-    id?: string
-    email: string
-    passwordHash: string
-    name: string
-    phone?: string | null
-    role: $Enums.UserRole
-    accountStatus?: $Enums.AccountStatus
-    profileComplete?: boolean
-    isEmailVerified?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    warehouse?: WarehouseUncheckedCreateNestedOneWithoutUserInput
-    truckDealer?: TruckDealerUncheckedCreateNestedOneWithoutUserInput
-    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
-    shipmentsCreated?: ShipmentUncheckedCreateNestedManyWithoutCreatedByInput
-    bookingsRequested?: BookingRequestUncheckedCreateNestedManyWithoutRequestedByInput
-    optimizationRuns?: OptimizationRunUncheckedCreateNestedManyWithoutRequestedByInput
-    disputesRaised?: DisputeUncheckedCreateNestedManyWithoutRaisedByInput
-    sessions?: RefreshSessionUncheckedCreateNestedManyWithoutUserInput
-    emailVerificationTokens?: EmailVerificationTokenUncheckedCreateNestedManyWithoutUserInput
-    passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  }
-
-  export type UserCreateOrConnectWithoutDisputesResolvedInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutDisputesResolvedInput, UserUncheckedCreateWithoutDisputesResolvedInput>
-  }
-
-  export type ShipmentCreateWithoutDisputesInput = {
-    id?: string
-    referenceNo?: string | null
-    title?: string | null
-    description?: string | null
-    weightKg: number
-    volumeM3: number
-    originCity: string
-    originAddress?: string | null
-    originLat: number
-    originLng: number
-    destCity: string
-    destAddress?: string | null
-    destLat: number
-    destLng: number
-    deadline: Date | string
-    fragile?: boolean
-    hazardous?: boolean
-    priority?: number
-    status?: $Enums.ShipmentStatus
-    specialInstructions?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    warehouse: WarehouseCreateNestedOneWithoutShipmentsInput
-    createdBy?: UserCreateNestedOneWithoutShipmentsCreatedInput
-    bookingShipments?: BookingShipmentCreateNestedManyWithoutShipmentInput
-    tripShipments?: TripShipmentCreateNestedManyWithoutShipmentInput
-    returnLoadMatches?: ReturnLoadMatchCreateNestedManyWithoutShipmentInput
-    optimizationRuns?: OptimizationRunShipmentCreateNestedManyWithoutShipmentInput
-    stopEvents?: TripStopCreateNestedManyWithoutShipmentInput
-  }
-
-  export type ShipmentUncheckedCreateWithoutDisputesInput = {
-    id?: string
-    warehouseId: string
-    createdById?: string | null
-    referenceNo?: string | null
-    title?: string | null
-    description?: string | null
-    weightKg: number
-    volumeM3: number
-    originCity: string
-    originAddress?: string | null
-    originLat: number
-    originLng: number
-    destCity: string
-    destAddress?: string | null
-    destLat: number
-    destLng: number
-    deadline: Date | string
-    fragile?: boolean
-    hazardous?: boolean
-    priority?: number
-    status?: $Enums.ShipmentStatus
-    specialInstructions?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    bookingShipments?: BookingShipmentUncheckedCreateNestedManyWithoutShipmentInput
-    tripShipments?: TripShipmentUncheckedCreateNestedManyWithoutShipmentInput
-    returnLoadMatches?: ReturnLoadMatchUncheckedCreateNestedManyWithoutShipmentInput
-    optimizationRuns?: OptimizationRunShipmentUncheckedCreateNestedManyWithoutShipmentInput
-    stopEvents?: TripStopUncheckedCreateNestedManyWithoutShipmentInput
-  }
-
-  export type ShipmentCreateOrConnectWithoutDisputesInput = {
-    where: ShipmentWhereUniqueInput
-    create: XOR<ShipmentCreateWithoutDisputesInput, ShipmentUncheckedCreateWithoutDisputesInput>
-  }
-
-  export type TripCreateWithoutDisputesInput = {
-    id?: string
-    status?: $Enums.TripStatus
-    routeGeometry?: NullableJsonNullValueInput | InputJsonValue
-    routeSummary?: NullableJsonNullValueInput | InputJsonValue
-    estimatedDistanceKm?: number | null
-    estimatedDurationMin?: number | null
-    estimatedCost?: number | null
-    actualCost?: number | null
-    baselineCo2Kg?: number | null
-    tripCo2Kg?: number | null
-    co2SavedKg?: number | null
-    startedAt?: Date | string | null
-    completedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    bookingRequest?: BookingRequestCreateNestedOneWithoutTripInput
-    truck: TruckCreateNestedOneWithoutTripsInput
-    dealer: TruckDealerCreateNestedOneWithoutTripsInput
-    shipments?: TripShipmentCreateNestedManyWithoutTripInput
-    stops?: TripStopCreateNestedManyWithoutTripInput
-    locations?: TripLocationCreateNestedManyWithoutTripInput
-    returnLoadMatches?: ReturnLoadMatchCreateNestedManyWithoutTripInput
-    documents?: DocumentCreateNestedManyWithoutTripInput
-  }
-
-  export type TripUncheckedCreateWithoutDisputesInput = {
-    id?: string
-    bookingRequestId?: string | null
-    truckId: string
-    dealerId: string
-    status?: $Enums.TripStatus
-    routeGeometry?: NullableJsonNullValueInput | InputJsonValue
-    routeSummary?: NullableJsonNullValueInput | InputJsonValue
-    estimatedDistanceKm?: number | null
-    estimatedDurationMin?: number | null
-    estimatedCost?: number | null
-    actualCost?: number | null
-    baselineCo2Kg?: number | null
-    tripCo2Kg?: number | null
-    co2SavedKg?: number | null
-    startedAt?: Date | string | null
-    completedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    shipments?: TripShipmentUncheckedCreateNestedManyWithoutTripInput
-    stops?: TripStopUncheckedCreateNestedManyWithoutTripInput
-    locations?: TripLocationUncheckedCreateNestedManyWithoutTripInput
-    returnLoadMatches?: ReturnLoadMatchUncheckedCreateNestedManyWithoutTripInput
-    documents?: DocumentUncheckedCreateNestedManyWithoutTripInput
-  }
-
-  export type TripCreateOrConnectWithoutDisputesInput = {
-    where: TripWhereUniqueInput
-    create: XOR<TripCreateWithoutDisputesInput, TripUncheckedCreateWithoutDisputesInput>
-  }
-
-  export type BookingRequestCreateWithoutDisputesInput = {
-    id?: string
-    status?: $Enums.BookingStatus
-    quotedPrice: number
-    counterPrice?: number | null
-    finalPrice?: number | null
-    dealerNote?: string | null
-    warehouseNote?: string | null
-    expiresAt?: Date | string | null
-    respondedAt?: Date | string | null
-    approvedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    warehouse: WarehouseCreateNestedOneWithoutBookingRequestsInput
-    requestedBy: UserCreateNestedOneWithoutBookingsRequestedInput
-    truck: TruckCreateNestedOneWithoutBookingRequestsInput
-    optimizationRun?: OptimizationRunCreateNestedOneWithoutBookingRequestsInput
-    optimizationCandidate?: OptimizationCandidateCreateNestedOneWithoutBookingRequestsInput
-    shipments?: BookingShipmentCreateNestedManyWithoutBookingRequestInput
-    trip?: TripCreateNestedOneWithoutBookingRequestInput
-    documents?: DocumentCreateNestedManyWithoutBookingRequestInput
-  }
-
-  export type BookingRequestUncheckedCreateWithoutDisputesInput = {
-    id?: string
-    warehouseId: string
-    requestedById: string
-    truckId: string
-    optimizationRunId?: string | null
-    optimizationCandidateId?: string | null
-    status?: $Enums.BookingStatus
-    quotedPrice: number
-    counterPrice?: number | null
-    finalPrice?: number | null
-    dealerNote?: string | null
-    warehouseNote?: string | null
-    expiresAt?: Date | string | null
-    respondedAt?: Date | string | null
-    approvedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    shipments?: BookingShipmentUncheckedCreateNestedManyWithoutBookingRequestInput
-    trip?: TripUncheckedCreateNestedOneWithoutBookingRequestInput
-    documents?: DocumentUncheckedCreateNestedManyWithoutBookingRequestInput
-  }
-
-  export type BookingRequestCreateOrConnectWithoutDisputesInput = {
-    where: BookingRequestWhereUniqueInput
-    create: XOR<BookingRequestCreateWithoutDisputesInput, BookingRequestUncheckedCreateWithoutDisputesInput>
-  }
-
-  export type UserUpsertWithoutDisputesRaisedInput = {
-    update: XOR<UserUpdateWithoutDisputesRaisedInput, UserUncheckedUpdateWithoutDisputesRaisedInput>
-    create: XOR<UserCreateWithoutDisputesRaisedInput, UserUncheckedCreateWithoutDisputesRaisedInput>
-    where?: UserWhereInput
-  }
-
-  export type UserUpdateToOneWithWhereWithoutDisputesRaisedInput = {
-    where?: UserWhereInput
-    data: XOR<UserUpdateWithoutDisputesRaisedInput, UserUncheckedUpdateWithoutDisputesRaisedInput>
-  }
-
-  export type UserUpdateWithoutDisputesRaisedInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
-    accountStatus?: EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
-    profileComplete?: BoolFieldUpdateOperationsInput | boolean
-    isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    warehouse?: WarehouseUpdateOneWithoutUserNestedInput
-    truckDealer?: TruckDealerUpdateOneWithoutUserNestedInput
-    notifications?: NotificationUpdateManyWithoutUserNestedInput
-    shipmentsCreated?: ShipmentUpdateManyWithoutCreatedByNestedInput
-    bookingsRequested?: BookingRequestUpdateManyWithoutRequestedByNestedInput
-    optimizationRuns?: OptimizationRunUpdateManyWithoutRequestedByNestedInput
-    disputesResolved?: DisputeUpdateManyWithoutResolvedByNestedInput
-    sessions?: RefreshSessionUpdateManyWithoutUserNestedInput
-    emailVerificationTokens?: EmailVerificationTokenUpdateManyWithoutUserNestedInput
-    passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutDisputesRaisedInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
-    accountStatus?: EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
-    profileComplete?: BoolFieldUpdateOperationsInput | boolean
-    isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    warehouse?: WarehouseUncheckedUpdateOneWithoutUserNestedInput
-    truckDealer?: TruckDealerUncheckedUpdateOneWithoutUserNestedInput
-    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
-    shipmentsCreated?: ShipmentUncheckedUpdateManyWithoutCreatedByNestedInput
-    bookingsRequested?: BookingRequestUncheckedUpdateManyWithoutRequestedByNestedInput
-    optimizationRuns?: OptimizationRunUncheckedUpdateManyWithoutRequestedByNestedInput
-    disputesResolved?: DisputeUncheckedUpdateManyWithoutResolvedByNestedInput
-    sessions?: RefreshSessionUncheckedUpdateManyWithoutUserNestedInput
-    emailVerificationTokens?: EmailVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-    passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  }
-
-  export type UserUpsertWithoutDisputesResolvedInput = {
-    update: XOR<UserUpdateWithoutDisputesResolvedInput, UserUncheckedUpdateWithoutDisputesResolvedInput>
-    create: XOR<UserCreateWithoutDisputesResolvedInput, UserUncheckedCreateWithoutDisputesResolvedInput>
-    where?: UserWhereInput
-  }
-
-  export type UserUpdateToOneWithWhereWithoutDisputesResolvedInput = {
-    where?: UserWhereInput
-    data: XOR<UserUpdateWithoutDisputesResolvedInput, UserUncheckedUpdateWithoutDisputesResolvedInput>
-  }
-
-  export type UserUpdateWithoutDisputesResolvedInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
-    accountStatus?: EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
-    profileComplete?: BoolFieldUpdateOperationsInput | boolean
-    isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    warehouse?: WarehouseUpdateOneWithoutUserNestedInput
-    truckDealer?: TruckDealerUpdateOneWithoutUserNestedInput
-    notifications?: NotificationUpdateManyWithoutUserNestedInput
-    shipmentsCreated?: ShipmentUpdateManyWithoutCreatedByNestedInput
-    bookingsRequested?: BookingRequestUpdateManyWithoutRequestedByNestedInput
-    optimizationRuns?: OptimizationRunUpdateManyWithoutRequestedByNestedInput
-    disputesRaised?: DisputeUpdateManyWithoutRaisedByNestedInput
-    sessions?: RefreshSessionUpdateManyWithoutUserNestedInput
-    emailVerificationTokens?: EmailVerificationTokenUpdateManyWithoutUserNestedInput
-    passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutDisputesResolvedInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
-    accountStatus?: EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
-    profileComplete?: BoolFieldUpdateOperationsInput | boolean
-    isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    warehouse?: WarehouseUncheckedUpdateOneWithoutUserNestedInput
-    truckDealer?: TruckDealerUncheckedUpdateOneWithoutUserNestedInput
-    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
-    shipmentsCreated?: ShipmentUncheckedUpdateManyWithoutCreatedByNestedInput
-    bookingsRequested?: BookingRequestUncheckedUpdateManyWithoutRequestedByNestedInput
-    optimizationRuns?: OptimizationRunUncheckedUpdateManyWithoutRequestedByNestedInput
-    disputesRaised?: DisputeUncheckedUpdateManyWithoutRaisedByNestedInput
-    sessions?: RefreshSessionUncheckedUpdateManyWithoutUserNestedInput
-    emailVerificationTokens?: EmailVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
-    passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  }
-
-  export type ShipmentUpsertWithoutDisputesInput = {
-    update: XOR<ShipmentUpdateWithoutDisputesInput, ShipmentUncheckedUpdateWithoutDisputesInput>
-    create: XOR<ShipmentCreateWithoutDisputesInput, ShipmentUncheckedCreateWithoutDisputesInput>
-    where?: ShipmentWhereInput
-  }
-
-  export type ShipmentUpdateToOneWithWhereWithoutDisputesInput = {
-    where?: ShipmentWhereInput
-    data: XOR<ShipmentUpdateWithoutDisputesInput, ShipmentUncheckedUpdateWithoutDisputesInput>
-  }
-
-  export type ShipmentUpdateWithoutDisputesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    referenceNo?: NullableStringFieldUpdateOperationsInput | string | null
-    title?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    weightKg?: FloatFieldUpdateOperationsInput | number
-    volumeM3?: FloatFieldUpdateOperationsInput | number
-    originCity?: StringFieldUpdateOperationsInput | string
-    originAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    originLat?: FloatFieldUpdateOperationsInput | number
-    originLng?: FloatFieldUpdateOperationsInput | number
-    destCity?: StringFieldUpdateOperationsInput | string
-    destAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    destLat?: FloatFieldUpdateOperationsInput | number
-    destLng?: FloatFieldUpdateOperationsInput | number
-    deadline?: DateTimeFieldUpdateOperationsInput | Date | string
-    fragile?: BoolFieldUpdateOperationsInput | boolean
-    hazardous?: BoolFieldUpdateOperationsInput | boolean
-    priority?: IntFieldUpdateOperationsInput | number
-    status?: EnumShipmentStatusFieldUpdateOperationsInput | $Enums.ShipmentStatus
-    specialInstructions?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    warehouse?: WarehouseUpdateOneRequiredWithoutShipmentsNestedInput
-    createdBy?: UserUpdateOneWithoutShipmentsCreatedNestedInput
-    bookingShipments?: BookingShipmentUpdateManyWithoutShipmentNestedInput
-    tripShipments?: TripShipmentUpdateManyWithoutShipmentNestedInput
-    returnLoadMatches?: ReturnLoadMatchUpdateManyWithoutShipmentNestedInput
-    optimizationRuns?: OptimizationRunShipmentUpdateManyWithoutShipmentNestedInput
-    stopEvents?: TripStopUpdateManyWithoutShipmentNestedInput
-  }
-
-  export type ShipmentUncheckedUpdateWithoutDisputesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    warehouseId?: StringFieldUpdateOperationsInput | string
-    createdById?: NullableStringFieldUpdateOperationsInput | string | null
-    referenceNo?: NullableStringFieldUpdateOperationsInput | string | null
-    title?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    weightKg?: FloatFieldUpdateOperationsInput | number
-    volumeM3?: FloatFieldUpdateOperationsInput | number
-    originCity?: StringFieldUpdateOperationsInput | string
-    originAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    originLat?: FloatFieldUpdateOperationsInput | number
-    originLng?: FloatFieldUpdateOperationsInput | number
-    destCity?: StringFieldUpdateOperationsInput | string
-    destAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    destLat?: FloatFieldUpdateOperationsInput | number
-    destLng?: FloatFieldUpdateOperationsInput | number
-    deadline?: DateTimeFieldUpdateOperationsInput | Date | string
-    fragile?: BoolFieldUpdateOperationsInput | boolean
-    hazardous?: BoolFieldUpdateOperationsInput | boolean
-    priority?: IntFieldUpdateOperationsInput | number
-    status?: EnumShipmentStatusFieldUpdateOperationsInput | $Enums.ShipmentStatus
-    specialInstructions?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    bookingShipments?: BookingShipmentUncheckedUpdateManyWithoutShipmentNestedInput
-    tripShipments?: TripShipmentUncheckedUpdateManyWithoutShipmentNestedInput
-    returnLoadMatches?: ReturnLoadMatchUncheckedUpdateManyWithoutShipmentNestedInput
-    optimizationRuns?: OptimizationRunShipmentUncheckedUpdateManyWithoutShipmentNestedInput
-    stopEvents?: TripStopUncheckedUpdateManyWithoutShipmentNestedInput
-  }
-
-  export type TripUpsertWithoutDisputesInput = {
-    update: XOR<TripUpdateWithoutDisputesInput, TripUncheckedUpdateWithoutDisputesInput>
-    create: XOR<TripCreateWithoutDisputesInput, TripUncheckedCreateWithoutDisputesInput>
-    where?: TripWhereInput
-  }
-
-  export type TripUpdateToOneWithWhereWithoutDisputesInput = {
-    where?: TripWhereInput
-    data: XOR<TripUpdateWithoutDisputesInput, TripUncheckedUpdateWithoutDisputesInput>
-  }
-
-  export type TripUpdateWithoutDisputesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    status?: EnumTripStatusFieldUpdateOperationsInput | $Enums.TripStatus
-    routeGeometry?: NullableJsonNullValueInput | InputJsonValue
-    routeSummary?: NullableJsonNullValueInput | InputJsonValue
-    estimatedDistanceKm?: NullableFloatFieldUpdateOperationsInput | number | null
-    estimatedDurationMin?: NullableIntFieldUpdateOperationsInput | number | null
-    estimatedCost?: NullableFloatFieldUpdateOperationsInput | number | null
-    actualCost?: NullableFloatFieldUpdateOperationsInput | number | null
-    baselineCo2Kg?: NullableFloatFieldUpdateOperationsInput | number | null
-    tripCo2Kg?: NullableFloatFieldUpdateOperationsInput | number | null
-    co2SavedKg?: NullableFloatFieldUpdateOperationsInput | number | null
-    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    bookingRequest?: BookingRequestUpdateOneWithoutTripNestedInput
-    truck?: TruckUpdateOneRequiredWithoutTripsNestedInput
-    dealer?: TruckDealerUpdateOneRequiredWithoutTripsNestedInput
-    shipments?: TripShipmentUpdateManyWithoutTripNestedInput
-    stops?: TripStopUpdateManyWithoutTripNestedInput
-    locations?: TripLocationUpdateManyWithoutTripNestedInput
-    returnLoadMatches?: ReturnLoadMatchUpdateManyWithoutTripNestedInput
-    documents?: DocumentUpdateManyWithoutTripNestedInput
-  }
-
-  export type TripUncheckedUpdateWithoutDisputesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    bookingRequestId?: NullableStringFieldUpdateOperationsInput | string | null
-    truckId?: StringFieldUpdateOperationsInput | string
-    dealerId?: StringFieldUpdateOperationsInput | string
-    status?: EnumTripStatusFieldUpdateOperationsInput | $Enums.TripStatus
-    routeGeometry?: NullableJsonNullValueInput | InputJsonValue
-    routeSummary?: NullableJsonNullValueInput | InputJsonValue
-    estimatedDistanceKm?: NullableFloatFieldUpdateOperationsInput | number | null
-    estimatedDurationMin?: NullableIntFieldUpdateOperationsInput | number | null
-    estimatedCost?: NullableFloatFieldUpdateOperationsInput | number | null
-    actualCost?: NullableFloatFieldUpdateOperationsInput | number | null
-    baselineCo2Kg?: NullableFloatFieldUpdateOperationsInput | number | null
-    tripCo2Kg?: NullableFloatFieldUpdateOperationsInput | number | null
-    co2SavedKg?: NullableFloatFieldUpdateOperationsInput | number | null
-    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    shipments?: TripShipmentUncheckedUpdateManyWithoutTripNestedInput
-    stops?: TripStopUncheckedUpdateManyWithoutTripNestedInput
-    locations?: TripLocationUncheckedUpdateManyWithoutTripNestedInput
-    returnLoadMatches?: ReturnLoadMatchUncheckedUpdateManyWithoutTripNestedInput
-    documents?: DocumentUncheckedUpdateManyWithoutTripNestedInput
-  }
-
-  export type BookingRequestUpsertWithoutDisputesInput = {
-    update: XOR<BookingRequestUpdateWithoutDisputesInput, BookingRequestUncheckedUpdateWithoutDisputesInput>
-    create: XOR<BookingRequestCreateWithoutDisputesInput, BookingRequestUncheckedCreateWithoutDisputesInput>
-    where?: BookingRequestWhereInput
-  }
-
-  export type BookingRequestUpdateToOneWithWhereWithoutDisputesInput = {
-    where?: BookingRequestWhereInput
-    data: XOR<BookingRequestUpdateWithoutDisputesInput, BookingRequestUncheckedUpdateWithoutDisputesInput>
-  }
-
-  export type BookingRequestUpdateWithoutDisputesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    status?: EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
-    quotedPrice?: FloatFieldUpdateOperationsInput | number
-    counterPrice?: NullableFloatFieldUpdateOperationsInput | number | null
-    finalPrice?: NullableFloatFieldUpdateOperationsInput | number | null
-    dealerNote?: NullableStringFieldUpdateOperationsInput | string | null
-    warehouseNote?: NullableStringFieldUpdateOperationsInput | string | null
-    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    warehouse?: WarehouseUpdateOneRequiredWithoutBookingRequestsNestedInput
-    requestedBy?: UserUpdateOneRequiredWithoutBookingsRequestedNestedInput
-    truck?: TruckUpdateOneRequiredWithoutBookingRequestsNestedInput
-    optimizationRun?: OptimizationRunUpdateOneWithoutBookingRequestsNestedInput
-    optimizationCandidate?: OptimizationCandidateUpdateOneWithoutBookingRequestsNestedInput
-    shipments?: BookingShipmentUpdateManyWithoutBookingRequestNestedInput
-    trip?: TripUpdateOneWithoutBookingRequestNestedInput
-    documents?: DocumentUpdateManyWithoutBookingRequestNestedInput
-  }
-
-  export type BookingRequestUncheckedUpdateWithoutDisputesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    warehouseId?: StringFieldUpdateOperationsInput | string
-    requestedById?: StringFieldUpdateOperationsInput | string
-    truckId?: StringFieldUpdateOperationsInput | string
-    optimizationRunId?: NullableStringFieldUpdateOperationsInput | string | null
-    optimizationCandidateId?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
-    quotedPrice?: FloatFieldUpdateOperationsInput | number
-    counterPrice?: NullableFloatFieldUpdateOperationsInput | number | null
-    finalPrice?: NullableFloatFieldUpdateOperationsInput | number | null
-    dealerNote?: NullableStringFieldUpdateOperationsInput | string | null
-    warehouseNote?: NullableStringFieldUpdateOperationsInput | string | null
-    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    shipments?: BookingShipmentUncheckedUpdateManyWithoutBookingRequestNestedInput
-    trip?: TripUncheckedUpdateOneWithoutBookingRequestNestedInput
-    documents?: DocumentUncheckedUpdateManyWithoutBookingRequestNestedInput
   }
 
   export type TripCreateWithoutDocumentsInput = {
@@ -45493,7 +42356,6 @@ export namespace Prisma {
     stops?: TripStopCreateNestedManyWithoutTripInput
     locations?: TripLocationCreateNestedManyWithoutTripInput
     returnLoadMatches?: ReturnLoadMatchCreateNestedManyWithoutTripInput
-    disputes?: DisputeCreateNestedManyWithoutTripInput
   }
 
   export type TripUncheckedCreateWithoutDocumentsInput = {
@@ -45519,7 +42381,6 @@ export namespace Prisma {
     stops?: TripStopUncheckedCreateNestedManyWithoutTripInput
     locations?: TripLocationUncheckedCreateNestedManyWithoutTripInput
     returnLoadMatches?: ReturnLoadMatchUncheckedCreateNestedManyWithoutTripInput
-    disputes?: DisputeUncheckedCreateNestedManyWithoutTripInput
   }
 
   export type TripCreateOrConnectWithoutDocumentsInput = {
@@ -45547,7 +42408,6 @@ export namespace Prisma {
     optimizationCandidate?: OptimizationCandidateCreateNestedOneWithoutBookingRequestsInput
     shipments?: BookingShipmentCreateNestedManyWithoutBookingRequestInput
     trip?: TripCreateNestedOneWithoutBookingRequestInput
-    disputes?: DisputeCreateNestedManyWithoutBookingRequestInput
   }
 
   export type BookingRequestUncheckedCreateWithoutDocumentsInput = {
@@ -45570,7 +42430,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     shipments?: BookingShipmentUncheckedCreateNestedManyWithoutBookingRequestInput
     trip?: TripUncheckedCreateNestedOneWithoutBookingRequestInput
-    disputes?: DisputeUncheckedCreateNestedManyWithoutBookingRequestInput
   }
 
   export type BookingRequestCreateOrConnectWithoutDocumentsInput = {
@@ -45612,7 +42471,6 @@ export namespace Prisma {
     stops?: TripStopUpdateManyWithoutTripNestedInput
     locations?: TripLocationUpdateManyWithoutTripNestedInput
     returnLoadMatches?: ReturnLoadMatchUpdateManyWithoutTripNestedInput
-    disputes?: DisputeUpdateManyWithoutTripNestedInput
   }
 
   export type TripUncheckedUpdateWithoutDocumentsInput = {
@@ -45638,7 +42496,6 @@ export namespace Prisma {
     stops?: TripStopUncheckedUpdateManyWithoutTripNestedInput
     locations?: TripLocationUncheckedUpdateManyWithoutTripNestedInput
     returnLoadMatches?: ReturnLoadMatchUncheckedUpdateManyWithoutTripNestedInput
-    disputes?: DisputeUncheckedUpdateManyWithoutTripNestedInput
   }
 
   export type BookingRequestUpsertWithoutDocumentsInput = {
@@ -45672,7 +42529,6 @@ export namespace Prisma {
     optimizationCandidate?: OptimizationCandidateUpdateOneWithoutBookingRequestsNestedInput
     shipments?: BookingShipmentUpdateManyWithoutBookingRequestNestedInput
     trip?: TripUpdateOneWithoutBookingRequestNestedInput
-    disputes?: DisputeUpdateManyWithoutBookingRequestNestedInput
   }
 
   export type BookingRequestUncheckedUpdateWithoutDocumentsInput = {
@@ -45695,7 +42551,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     shipments?: BookingShipmentUncheckedUpdateManyWithoutBookingRequestNestedInput
     trip?: TripUncheckedUpdateOneWithoutBookingRequestNestedInput
-    disputes?: DisputeUncheckedUpdateManyWithoutBookingRequestNestedInput
   }
 
   export type NotificationCreateManyUserInput = {
@@ -45727,6 +42582,10 @@ export namespace Prisma {
     destLat: number
     destLng: number
     deadline: Date | string
+    pickupDeadline?: Date | string | null
+    shipmentType?: string
+    systemPrice?: number | null
+    estimatedDistanceKm?: number | null
     fragile?: boolean
     hazardous?: boolean
     priority?: number
@@ -45764,38 +42623,6 @@ export namespace Prisma {
     errorMessage?: string | null
     requestedAt?: Date | string
     completedAt?: Date | string | null
-  }
-
-  export type DisputeCreateManyRaisedByInput = {
-    id?: string
-    type: $Enums.DisputeEntityType
-    status?: $Enums.DisputeStatus
-    title: string
-    description: string
-    resolvedById?: string | null
-    shipmentId?: string | null
-    tripId?: string | null
-    bookingRequestId?: string | null
-    resolution?: string | null
-    resolvedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type DisputeCreateManyResolvedByInput = {
-    id?: string
-    type: $Enums.DisputeEntityType
-    status?: $Enums.DisputeStatus
-    title: string
-    description: string
-    raisedById: string
-    shipmentId?: string | null
-    tripId?: string | null
-    bookingRequestId?: string | null
-    resolution?: string | null
-    resolvedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
   }
 
   export type RefreshSessionCreateManyUserInput = {
@@ -45878,6 +42705,10 @@ export namespace Prisma {
     destLat?: FloatFieldUpdateOperationsInput | number
     destLng?: FloatFieldUpdateOperationsInput | number
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
+    pickupDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shipmentType?: StringFieldUpdateOperationsInput | string
+    systemPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimatedDistanceKm?: NullableFloatFieldUpdateOperationsInput | number | null
     fragile?: BoolFieldUpdateOperationsInput | boolean
     hazardous?: BoolFieldUpdateOperationsInput | boolean
     priority?: IntFieldUpdateOperationsInput | number
@@ -45890,7 +42721,6 @@ export namespace Prisma {
     tripShipments?: TripShipmentUpdateManyWithoutShipmentNestedInput
     returnLoadMatches?: ReturnLoadMatchUpdateManyWithoutShipmentNestedInput
     optimizationRuns?: OptimizationRunShipmentUpdateManyWithoutShipmentNestedInput
-    disputes?: DisputeUpdateManyWithoutShipmentNestedInput
     stopEvents?: TripStopUpdateManyWithoutShipmentNestedInput
   }
 
@@ -45911,6 +42741,10 @@ export namespace Prisma {
     destLat?: FloatFieldUpdateOperationsInput | number
     destLng?: FloatFieldUpdateOperationsInput | number
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
+    pickupDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shipmentType?: StringFieldUpdateOperationsInput | string
+    systemPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimatedDistanceKm?: NullableFloatFieldUpdateOperationsInput | number | null
     fragile?: BoolFieldUpdateOperationsInput | boolean
     hazardous?: BoolFieldUpdateOperationsInput | boolean
     priority?: IntFieldUpdateOperationsInput | number
@@ -45922,7 +42756,6 @@ export namespace Prisma {
     tripShipments?: TripShipmentUncheckedUpdateManyWithoutShipmentNestedInput
     returnLoadMatches?: ReturnLoadMatchUncheckedUpdateManyWithoutShipmentNestedInput
     optimizationRuns?: OptimizationRunShipmentUncheckedUpdateManyWithoutShipmentNestedInput
-    disputes?: DisputeUncheckedUpdateManyWithoutShipmentNestedInput
     stopEvents?: TripStopUncheckedUpdateManyWithoutShipmentNestedInput
   }
 
@@ -45943,6 +42776,10 @@ export namespace Prisma {
     destLat?: FloatFieldUpdateOperationsInput | number
     destLng?: FloatFieldUpdateOperationsInput | number
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
+    pickupDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shipmentType?: StringFieldUpdateOperationsInput | string
+    systemPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimatedDistanceKm?: NullableFloatFieldUpdateOperationsInput | number | null
     fragile?: BoolFieldUpdateOperationsInput | boolean
     hazardous?: BoolFieldUpdateOperationsInput | boolean
     priority?: IntFieldUpdateOperationsInput | number
@@ -45971,7 +42808,6 @@ export namespace Prisma {
     optimizationCandidate?: OptimizationCandidateUpdateOneWithoutBookingRequestsNestedInput
     shipments?: BookingShipmentUpdateManyWithoutBookingRequestNestedInput
     trip?: TripUpdateOneWithoutBookingRequestNestedInput
-    disputes?: DisputeUpdateManyWithoutBookingRequestNestedInput
     documents?: DocumentUpdateManyWithoutBookingRequestNestedInput
   }
 
@@ -45994,7 +42830,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     shipments?: BookingShipmentUncheckedUpdateManyWithoutBookingRequestNestedInput
     trip?: TripUncheckedUpdateOneWithoutBookingRequestNestedInput
-    disputes?: DisputeUncheckedUpdateManyWithoutBookingRequestNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutBookingRequestNestedInput
   }
 
@@ -46054,102 +42889,6 @@ export namespace Prisma {
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
     requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type DisputeUpdateWithoutRaisedByInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: EnumDisputeEntityTypeFieldUpdateOperationsInput | $Enums.DisputeEntityType
-    status?: EnumDisputeStatusFieldUpdateOperationsInput | $Enums.DisputeStatus
-    title?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    resolution?: NullableStringFieldUpdateOperationsInput | string | null
-    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    resolvedBy?: UserUpdateOneWithoutDisputesResolvedNestedInput
-    shipment?: ShipmentUpdateOneWithoutDisputesNestedInput
-    trip?: TripUpdateOneWithoutDisputesNestedInput
-    bookingRequest?: BookingRequestUpdateOneWithoutDisputesNestedInput
-  }
-
-  export type DisputeUncheckedUpdateWithoutRaisedByInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: EnumDisputeEntityTypeFieldUpdateOperationsInput | $Enums.DisputeEntityType
-    status?: EnumDisputeStatusFieldUpdateOperationsInput | $Enums.DisputeStatus
-    title?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    resolvedById?: NullableStringFieldUpdateOperationsInput | string | null
-    shipmentId?: NullableStringFieldUpdateOperationsInput | string | null
-    tripId?: NullableStringFieldUpdateOperationsInput | string | null
-    bookingRequestId?: NullableStringFieldUpdateOperationsInput | string | null
-    resolution?: NullableStringFieldUpdateOperationsInput | string | null
-    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type DisputeUncheckedUpdateManyWithoutRaisedByInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: EnumDisputeEntityTypeFieldUpdateOperationsInput | $Enums.DisputeEntityType
-    status?: EnumDisputeStatusFieldUpdateOperationsInput | $Enums.DisputeStatus
-    title?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    resolvedById?: NullableStringFieldUpdateOperationsInput | string | null
-    shipmentId?: NullableStringFieldUpdateOperationsInput | string | null
-    tripId?: NullableStringFieldUpdateOperationsInput | string | null
-    bookingRequestId?: NullableStringFieldUpdateOperationsInput | string | null
-    resolution?: NullableStringFieldUpdateOperationsInput | string | null
-    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type DisputeUpdateWithoutResolvedByInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: EnumDisputeEntityTypeFieldUpdateOperationsInput | $Enums.DisputeEntityType
-    status?: EnumDisputeStatusFieldUpdateOperationsInput | $Enums.DisputeStatus
-    title?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    resolution?: NullableStringFieldUpdateOperationsInput | string | null
-    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    raisedBy?: UserUpdateOneRequiredWithoutDisputesRaisedNestedInput
-    shipment?: ShipmentUpdateOneWithoutDisputesNestedInput
-    trip?: TripUpdateOneWithoutDisputesNestedInput
-    bookingRequest?: BookingRequestUpdateOneWithoutDisputesNestedInput
-  }
-
-  export type DisputeUncheckedUpdateWithoutResolvedByInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: EnumDisputeEntityTypeFieldUpdateOperationsInput | $Enums.DisputeEntityType
-    status?: EnumDisputeStatusFieldUpdateOperationsInput | $Enums.DisputeStatus
-    title?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    raisedById?: StringFieldUpdateOperationsInput | string
-    shipmentId?: NullableStringFieldUpdateOperationsInput | string | null
-    tripId?: NullableStringFieldUpdateOperationsInput | string | null
-    bookingRequestId?: NullableStringFieldUpdateOperationsInput | string | null
-    resolution?: NullableStringFieldUpdateOperationsInput | string | null
-    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type DisputeUncheckedUpdateManyWithoutResolvedByInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: EnumDisputeEntityTypeFieldUpdateOperationsInput | $Enums.DisputeEntityType
-    status?: EnumDisputeStatusFieldUpdateOperationsInput | $Enums.DisputeStatus
-    title?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    raisedById?: StringFieldUpdateOperationsInput | string
-    shipmentId?: NullableStringFieldUpdateOperationsInput | string | null
-    tripId?: NullableStringFieldUpdateOperationsInput | string | null
-    bookingRequestId?: NullableStringFieldUpdateOperationsInput | string | null
-    resolution?: NullableStringFieldUpdateOperationsInput | string | null
-    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RefreshSessionUpdateWithoutUserInput = {
@@ -46253,6 +42992,10 @@ export namespace Prisma {
     destLat: number
     destLng: number
     deadline: Date | string
+    pickupDeadline?: Date | string | null
+    shipmentType?: string
+    systemPrice?: number | null
+    estimatedDistanceKm?: number | null
     fragile?: boolean
     hazardous?: boolean
     priority?: number
@@ -46308,6 +43051,10 @@ export namespace Prisma {
     destLat?: FloatFieldUpdateOperationsInput | number
     destLng?: FloatFieldUpdateOperationsInput | number
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
+    pickupDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shipmentType?: StringFieldUpdateOperationsInput | string
+    systemPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimatedDistanceKm?: NullableFloatFieldUpdateOperationsInput | number | null
     fragile?: BoolFieldUpdateOperationsInput | boolean
     hazardous?: BoolFieldUpdateOperationsInput | boolean
     priority?: IntFieldUpdateOperationsInput | number
@@ -46320,7 +43067,6 @@ export namespace Prisma {
     tripShipments?: TripShipmentUpdateManyWithoutShipmentNestedInput
     returnLoadMatches?: ReturnLoadMatchUpdateManyWithoutShipmentNestedInput
     optimizationRuns?: OptimizationRunShipmentUpdateManyWithoutShipmentNestedInput
-    disputes?: DisputeUpdateManyWithoutShipmentNestedInput
     stopEvents?: TripStopUpdateManyWithoutShipmentNestedInput
   }
 
@@ -46341,6 +43087,10 @@ export namespace Prisma {
     destLat?: FloatFieldUpdateOperationsInput | number
     destLng?: FloatFieldUpdateOperationsInput | number
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
+    pickupDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shipmentType?: StringFieldUpdateOperationsInput | string
+    systemPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimatedDistanceKm?: NullableFloatFieldUpdateOperationsInput | number | null
     fragile?: BoolFieldUpdateOperationsInput | boolean
     hazardous?: BoolFieldUpdateOperationsInput | boolean
     priority?: IntFieldUpdateOperationsInput | number
@@ -46352,7 +43102,6 @@ export namespace Prisma {
     tripShipments?: TripShipmentUncheckedUpdateManyWithoutShipmentNestedInput
     returnLoadMatches?: ReturnLoadMatchUncheckedUpdateManyWithoutShipmentNestedInput
     optimizationRuns?: OptimizationRunShipmentUncheckedUpdateManyWithoutShipmentNestedInput
-    disputes?: DisputeUncheckedUpdateManyWithoutShipmentNestedInput
     stopEvents?: TripStopUncheckedUpdateManyWithoutShipmentNestedInput
   }
 
@@ -46373,6 +43122,10 @@ export namespace Prisma {
     destLat?: FloatFieldUpdateOperationsInput | number
     destLng?: FloatFieldUpdateOperationsInput | number
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
+    pickupDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shipmentType?: StringFieldUpdateOperationsInput | string
+    systemPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimatedDistanceKm?: NullableFloatFieldUpdateOperationsInput | number | null
     fragile?: BoolFieldUpdateOperationsInput | boolean
     hazardous?: BoolFieldUpdateOperationsInput | boolean
     priority?: IntFieldUpdateOperationsInput | number
@@ -46401,7 +43154,6 @@ export namespace Prisma {
     optimizationCandidate?: OptimizationCandidateUpdateOneWithoutBookingRequestsNestedInput
     shipments?: BookingShipmentUpdateManyWithoutBookingRequestNestedInput
     trip?: TripUpdateOneWithoutBookingRequestNestedInput
-    disputes?: DisputeUpdateManyWithoutBookingRequestNestedInput
     documents?: DocumentUpdateManyWithoutBookingRequestNestedInput
   }
 
@@ -46424,7 +43176,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     shipments?: BookingShipmentUncheckedUpdateManyWithoutBookingRequestNestedInput
     trip?: TripUncheckedUpdateOneWithoutBookingRequestNestedInput
-    disputes?: DisputeUncheckedUpdateManyWithoutBookingRequestNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutBookingRequestNestedInput
   }
 
@@ -46605,7 +43356,6 @@ export namespace Prisma {
     locations?: TripLocationUpdateManyWithoutTripNestedInput
     returnLoadMatches?: ReturnLoadMatchUpdateManyWithoutTripNestedInput
     documents?: DocumentUpdateManyWithoutTripNestedInput
-    disputes?: DisputeUpdateManyWithoutTripNestedInput
   }
 
   export type TripUncheckedUpdateWithoutDealerInput = {
@@ -46631,7 +43381,6 @@ export namespace Prisma {
     locations?: TripLocationUncheckedUpdateManyWithoutTripNestedInput
     returnLoadMatches?: ReturnLoadMatchUncheckedUpdateManyWithoutTripNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutTripNestedInput
-    disputes?: DisputeUncheckedUpdateManyWithoutTripNestedInput
   }
 
   export type TripUncheckedUpdateManyWithoutDealerInput = {
@@ -46738,7 +43487,6 @@ export namespace Prisma {
     optimizationCandidate?: OptimizationCandidateUpdateOneWithoutBookingRequestsNestedInput
     shipments?: BookingShipmentUpdateManyWithoutBookingRequestNestedInput
     trip?: TripUpdateOneWithoutBookingRequestNestedInput
-    disputes?: DisputeUpdateManyWithoutBookingRequestNestedInput
     documents?: DocumentUpdateManyWithoutBookingRequestNestedInput
   }
 
@@ -46761,7 +43509,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     shipments?: BookingShipmentUncheckedUpdateManyWithoutBookingRequestNestedInput
     trip?: TripUncheckedUpdateOneWithoutBookingRequestNestedInput
-    disputes?: DisputeUncheckedUpdateManyWithoutBookingRequestNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutBookingRequestNestedInput
   }
 
@@ -46807,7 +43554,6 @@ export namespace Prisma {
     locations?: TripLocationUpdateManyWithoutTripNestedInput
     returnLoadMatches?: ReturnLoadMatchUpdateManyWithoutTripNestedInput
     documents?: DocumentUpdateManyWithoutTripNestedInput
-    disputes?: DisputeUpdateManyWithoutTripNestedInput
   }
 
   export type TripUncheckedUpdateWithoutTruckInput = {
@@ -46833,7 +43579,6 @@ export namespace Prisma {
     locations?: TripLocationUncheckedUpdateManyWithoutTripNestedInput
     returnLoadMatches?: ReturnLoadMatchUncheckedUpdateManyWithoutTripNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutTripNestedInput
-    disputes?: DisputeUncheckedUpdateManyWithoutTripNestedInput
   }
 
   export type TripUncheckedUpdateManyWithoutTruckInput = {
@@ -46964,22 +43709,6 @@ export namespace Prisma {
     optimizationRunId: string
   }
 
-  export type DisputeCreateManyShipmentInput = {
-    id?: string
-    type: $Enums.DisputeEntityType
-    status?: $Enums.DisputeStatus
-    title: string
-    description: string
-    raisedById: string
-    resolvedById?: string | null
-    tripId?: string | null
-    bookingRequestId?: string | null
-    resolution?: string | null
-    resolvedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
   export type TripStopCreateManyShipmentInput = {
     id?: string
     tripId: string
@@ -47078,54 +43807,6 @@ export namespace Prisma {
 
   export type OptimizationRunShipmentUncheckedUpdateManyWithoutShipmentInput = {
     optimizationRunId?: StringFieldUpdateOperationsInput | string
-  }
-
-  export type DisputeUpdateWithoutShipmentInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: EnumDisputeEntityTypeFieldUpdateOperationsInput | $Enums.DisputeEntityType
-    status?: EnumDisputeStatusFieldUpdateOperationsInput | $Enums.DisputeStatus
-    title?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    resolution?: NullableStringFieldUpdateOperationsInput | string | null
-    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    raisedBy?: UserUpdateOneRequiredWithoutDisputesRaisedNestedInput
-    resolvedBy?: UserUpdateOneWithoutDisputesResolvedNestedInput
-    trip?: TripUpdateOneWithoutDisputesNestedInput
-    bookingRequest?: BookingRequestUpdateOneWithoutDisputesNestedInput
-  }
-
-  export type DisputeUncheckedUpdateWithoutShipmentInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: EnumDisputeEntityTypeFieldUpdateOperationsInput | $Enums.DisputeEntityType
-    status?: EnumDisputeStatusFieldUpdateOperationsInput | $Enums.DisputeStatus
-    title?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    raisedById?: StringFieldUpdateOperationsInput | string
-    resolvedById?: NullableStringFieldUpdateOperationsInput | string | null
-    tripId?: NullableStringFieldUpdateOperationsInput | string | null
-    bookingRequestId?: NullableStringFieldUpdateOperationsInput | string | null
-    resolution?: NullableStringFieldUpdateOperationsInput | string | null
-    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type DisputeUncheckedUpdateManyWithoutShipmentInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: EnumDisputeEntityTypeFieldUpdateOperationsInput | $Enums.DisputeEntityType
-    status?: EnumDisputeStatusFieldUpdateOperationsInput | $Enums.DisputeStatus
-    title?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    raisedById?: StringFieldUpdateOperationsInput | string
-    resolvedById?: NullableStringFieldUpdateOperationsInput | string | null
-    tripId?: NullableStringFieldUpdateOperationsInput | string | null
-    bookingRequestId?: NullableStringFieldUpdateOperationsInput | string | null
-    resolution?: NullableStringFieldUpdateOperationsInput | string | null
-    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type TripStopUpdateWithoutShipmentInput = {
@@ -47292,7 +43973,6 @@ export namespace Prisma {
     optimizationCandidate?: OptimizationCandidateUpdateOneWithoutBookingRequestsNestedInput
     shipments?: BookingShipmentUpdateManyWithoutBookingRequestNestedInput
     trip?: TripUpdateOneWithoutBookingRequestNestedInput
-    disputes?: DisputeUpdateManyWithoutBookingRequestNestedInput
     documents?: DocumentUpdateManyWithoutBookingRequestNestedInput
   }
 
@@ -47315,7 +43995,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     shipments?: BookingShipmentUncheckedUpdateManyWithoutBookingRequestNestedInput
     trip?: TripUncheckedUpdateOneWithoutBookingRequestNestedInput
-    disputes?: DisputeUncheckedUpdateManyWithoutBookingRequestNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutBookingRequestNestedInput
   }
 
@@ -47376,7 +44055,6 @@ export namespace Prisma {
     optimizationRun?: OptimizationRunUpdateOneWithoutBookingRequestsNestedInput
     shipments?: BookingShipmentUpdateManyWithoutBookingRequestNestedInput
     trip?: TripUpdateOneWithoutBookingRequestNestedInput
-    disputes?: DisputeUpdateManyWithoutBookingRequestNestedInput
     documents?: DocumentUpdateManyWithoutBookingRequestNestedInput
   }
 
@@ -47399,7 +44077,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     shipments?: BookingShipmentUncheckedUpdateManyWithoutBookingRequestNestedInput
     trip?: TripUncheckedUpdateOneWithoutBookingRequestNestedInput
-    disputes?: DisputeUncheckedUpdateManyWithoutBookingRequestNestedInput
     documents?: DocumentUncheckedUpdateManyWithoutBookingRequestNestedInput
   }
 
@@ -47426,22 +44103,6 @@ export namespace Prisma {
     shipmentId: string
   }
 
-  export type DisputeCreateManyBookingRequestInput = {
-    id?: string
-    type: $Enums.DisputeEntityType
-    status?: $Enums.DisputeStatus
-    title: string
-    description: string
-    raisedById: string
-    resolvedById?: string | null
-    shipmentId?: string | null
-    tripId?: string | null
-    resolution?: string | null
-    resolvedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
   export type DocumentCreateManyBookingRequestInput = {
     id?: string
     tripId?: string | null
@@ -47463,54 +44124,6 @@ export namespace Prisma {
 
   export type BookingShipmentUncheckedUpdateManyWithoutBookingRequestInput = {
     shipmentId?: StringFieldUpdateOperationsInput | string
-  }
-
-  export type DisputeUpdateWithoutBookingRequestInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: EnumDisputeEntityTypeFieldUpdateOperationsInput | $Enums.DisputeEntityType
-    status?: EnumDisputeStatusFieldUpdateOperationsInput | $Enums.DisputeStatus
-    title?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    resolution?: NullableStringFieldUpdateOperationsInput | string | null
-    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    raisedBy?: UserUpdateOneRequiredWithoutDisputesRaisedNestedInput
-    resolvedBy?: UserUpdateOneWithoutDisputesResolvedNestedInput
-    shipment?: ShipmentUpdateOneWithoutDisputesNestedInput
-    trip?: TripUpdateOneWithoutDisputesNestedInput
-  }
-
-  export type DisputeUncheckedUpdateWithoutBookingRequestInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: EnumDisputeEntityTypeFieldUpdateOperationsInput | $Enums.DisputeEntityType
-    status?: EnumDisputeStatusFieldUpdateOperationsInput | $Enums.DisputeStatus
-    title?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    raisedById?: StringFieldUpdateOperationsInput | string
-    resolvedById?: NullableStringFieldUpdateOperationsInput | string | null
-    shipmentId?: NullableStringFieldUpdateOperationsInput | string | null
-    tripId?: NullableStringFieldUpdateOperationsInput | string | null
-    resolution?: NullableStringFieldUpdateOperationsInput | string | null
-    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type DisputeUncheckedUpdateManyWithoutBookingRequestInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: EnumDisputeEntityTypeFieldUpdateOperationsInput | $Enums.DisputeEntityType
-    status?: EnumDisputeStatusFieldUpdateOperationsInput | $Enums.DisputeStatus
-    title?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    raisedById?: StringFieldUpdateOperationsInput | string
-    resolvedById?: NullableStringFieldUpdateOperationsInput | string | null
-    shipmentId?: NullableStringFieldUpdateOperationsInput | string | null
-    tripId?: NullableStringFieldUpdateOperationsInput | string | null
-    resolution?: NullableStringFieldUpdateOperationsInput | string | null
-    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DocumentUpdateWithoutBookingRequestInput = {
@@ -47602,22 +44215,6 @@ export namespace Prisma {
     mimeType?: string | null
     sizeBytes?: number | null
     createdAt?: Date | string
-  }
-
-  export type DisputeCreateManyTripInput = {
-    id?: string
-    type: $Enums.DisputeEntityType
-    status?: $Enums.DisputeStatus
-    title: string
-    description: string
-    raisedById: string
-    resolvedById?: string | null
-    shipmentId?: string | null
-    bookingRequestId?: string | null
-    resolution?: string | null
-    resolvedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
   }
 
   export type TripShipmentUpdateWithoutTripInput = {
@@ -47792,54 +44389,6 @@ export namespace Prisma {
     mimeType?: NullableStringFieldUpdateOperationsInput | string | null
     sizeBytes?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type DisputeUpdateWithoutTripInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: EnumDisputeEntityTypeFieldUpdateOperationsInput | $Enums.DisputeEntityType
-    status?: EnumDisputeStatusFieldUpdateOperationsInput | $Enums.DisputeStatus
-    title?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    resolution?: NullableStringFieldUpdateOperationsInput | string | null
-    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    raisedBy?: UserUpdateOneRequiredWithoutDisputesRaisedNestedInput
-    resolvedBy?: UserUpdateOneWithoutDisputesResolvedNestedInput
-    shipment?: ShipmentUpdateOneWithoutDisputesNestedInput
-    bookingRequest?: BookingRequestUpdateOneWithoutDisputesNestedInput
-  }
-
-  export type DisputeUncheckedUpdateWithoutTripInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: EnumDisputeEntityTypeFieldUpdateOperationsInput | $Enums.DisputeEntityType
-    status?: EnumDisputeStatusFieldUpdateOperationsInput | $Enums.DisputeStatus
-    title?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    raisedById?: StringFieldUpdateOperationsInput | string
-    resolvedById?: NullableStringFieldUpdateOperationsInput | string | null
-    shipmentId?: NullableStringFieldUpdateOperationsInput | string | null
-    bookingRequestId?: NullableStringFieldUpdateOperationsInput | string | null
-    resolution?: NullableStringFieldUpdateOperationsInput | string | null
-    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type DisputeUncheckedUpdateManyWithoutTripInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: EnumDisputeEntityTypeFieldUpdateOperationsInput | $Enums.DisputeEntityType
-    status?: EnumDisputeStatusFieldUpdateOperationsInput | $Enums.DisputeStatus
-    title?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    raisedById?: StringFieldUpdateOperationsInput | string
-    resolvedById?: NullableStringFieldUpdateOperationsInput | string | null
-    shipmentId?: NullableStringFieldUpdateOperationsInput | string | null
-    bookingRequestId?: NullableStringFieldUpdateOperationsInput | string | null
-    resolution?: NullableStringFieldUpdateOperationsInput | string | null
-    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

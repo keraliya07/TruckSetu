@@ -17,7 +17,7 @@ const prisma = new PrismaClient();
 
 const seedUsers = [
   {
-    email: 'warehouse@stlos.dev',
+    email: 'warehouse@trucksetu.dev',
     password: 'Warehouse123',
     name: 'Surat Hub',
     phone: '9876543210',
@@ -30,7 +30,7 @@ const seedUsers = [
     },
   },
   {
-    email: 'dealer@stlos.dev',
+    email: 'dealer@trucksetu.dev',
     password: 'Dealer123',
     name: 'Roadlink Transport',
     phone: '9876501234',
@@ -43,7 +43,7 @@ const seedUsers = [
     },
   },
   {
-    email: 'admin@stlos.dev',
+    email: 'admin@trucksetu.dev',
     password: 'Admin123',
     name: 'Platform Admin',
     phone: '9999999999',
@@ -54,7 +54,7 @@ const seedUsers = [
 
 const seedTrucks = [
   {
-    registrationNo: 'GJ05STLOS1001',
+    registrationNo: 'GJ05TSETU1001',
     truckType: 'Heavy Truck',
     maxWeightKg: 16000,
     maxVolumeM3: 65,
@@ -65,7 +65,7 @@ const seedTrucks = [
     isActive: true,
   },
   {
-    registrationNo: 'GJ01STLOS2002',
+    registrationNo: 'GJ01TSETU2002',
     truckType: 'Container Truck',
     maxWeightKg: 22000,
     maxVolumeM3: 82,
@@ -76,7 +76,7 @@ const seedTrucks = [
     isActive: true,
   },
   {
-    registrationNo: 'MH04STLOS3003',
+    registrationNo: 'MH04TSETU3003',
     truckType: 'Reefer Truck',
     maxWeightKg: 12000,
     maxVolumeM3: 48,
@@ -261,7 +261,7 @@ async function main() {
   }
 
   const deliveredTruck = await prisma.truck.findUnique({
-    where: { registrationNo: 'GJ01STLOS2002' },
+    where: { registrationNo: 'GJ01TSETU2002' },
   });
 
   const deliveredBookingNote = 'Seeded approved booking for analytics coverage';

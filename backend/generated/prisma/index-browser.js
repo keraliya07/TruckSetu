@@ -230,6 +230,10 @@ exports.Prisma.ShipmentScalarFieldEnum = {
   destLat: 'destLat',
   destLng: 'destLng',
   deadline: 'deadline',
+  pickupDeadline: 'pickupDeadline',
+  shipmentType: 'shipmentType',
+  systemPrice: 'systemPrice',
+  estimatedDistanceKm: 'estimatedDistanceKm',
   fragile: 'fragile',
   hazardous: 'hazardous',
   priority: 'priority',
@@ -382,23 +386,6 @@ exports.Prisma.NotificationScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
-exports.Prisma.DisputeScalarFieldEnum = {
-  id: 'id',
-  type: 'type',
-  status: 'status',
-  title: 'title',
-  description: 'description',
-  raisedById: 'raisedById',
-  resolvedById: 'resolvedById',
-  shipmentId: 'shipmentId',
-  tripId: 'tripId',
-  bookingRequestId: 'bookingRequestId',
-  resolution: 'resolution',
-  resolvedAt: 'resolvedAt',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
 exports.Prisma.DocumentScalarFieldEnum = {
   id: 'id',
   tripId: 'tripId',
@@ -438,6 +425,7 @@ exports.Prisma.JsonNullValueFilter = {
 };
 exports.UserRole = exports.$Enums.UserRole = {
   ADMIN: 'ADMIN',
+  ANALYST: 'ANALYST',
   WAREHOUSE: 'WAREHOUSE',
   DEALER: 'DEALER'
 };
@@ -520,21 +508,6 @@ exports.NotificationType = exports.$Enums.NotificationType = {
   ADMIN: 'ADMIN'
 };
 
-exports.DisputeEntityType = exports.$Enums.DisputeEntityType = {
-  SHIPMENT: 'SHIPMENT',
-  TRIP: 'TRIP',
-  BOOKING: 'BOOKING',
-  PAYMENT: 'PAYMENT',
-  OTHER: 'OTHER'
-};
-
-exports.DisputeStatus = exports.$Enums.DisputeStatus = {
-  OPEN: 'OPEN',
-  IN_REVIEW: 'IN_REVIEW',
-  RESOLVED: 'RESOLVED',
-  REJECTED: 'REJECTED'
-};
-
 exports.DocumentType = exports.$Enums.DocumentType = {
   INVOICE: 'INVOICE',
   CO2_REPORT: 'CO2_REPORT',
@@ -562,7 +535,6 @@ exports.Prisma.ModelName = {
   TripLocation: 'TripLocation',
   ReturnLoadMatch: 'ReturnLoadMatch',
   Notification: 'Notification',
-  Dispute: 'Dispute',
   Document: 'Document'
 };
 

@@ -47,41 +47,66 @@ async function processExpiredBookings(options = {}) {
         where: { id: booking.id },
         data: {
           status: 'EXPIRED',
+          respondedAt: now,
         },
       });
 
-      await tx.shipment.updateMany({
-        where: {
-          id: {
-            in: booking.shipments.map((entry) => entry.shipmentId),
+      for (const entry of booking.shipments) {
+        const approvedCount = await tx.bookingRequest.count({
+          where: {
+            status: 'APPROVED',
+            shipments: {
+              some: {
+                shipmentId: entry.shipmentId,
+              },
+            },
           },
-        },
-        data: {
-          status: 'PENDING',
-        },
-      });
+        });
+
+        if (approvedCount > 0) {
+          continue;
+        }
+
+        const openInviteCount = await tx.bookingRequest.count({
+          where: {
+            status: 'SENT',
+            shipments: {
+              some: {
+                shipmentId: entry.shipmentId,
+              },
+            },
+          },
+        });
+
+        await tx.shipment.update({
+          where: { id: entry.shipmentId },
+          data: {
+            status: openInviteCount > 0 ? 'BOOKING_PENDING' : 'PENDING',
+          },
+        });
+      }
     });
 
     await notifier.sendNotification({
       userId: booking.requestedById || booking.warehouse.user?.id,
       type: 'BOOKING',
       title: 'Booking request expired',
-      message: `Booking ${booking.id.slice(0, 8)} expired without dealer response. Re-run optimization or resend to another truck.`,
-      link: '/warehouse/optimization',
+      message: `Shipment request ${booking.id.slice(0, 8)} expired without a dealer response.`,
+      link: '/warehouse/bookings',
       metadata: {
         bookingId: booking.id,
       },
       email: {
-        subject: 'STLOS booking request expired',
-        text: `Booking ${booking.id.slice(0, 8)} expired without a response.`,
+        subject: 'TruckSetu shipment request expired',
+        text: `Shipment request ${booking.id.slice(0, 8)} expired without a response.`,
       },
     });
 
     await notifier.sendNotification({
       userId: booking.truck.dealer.user?.id,
       type: 'BOOKING',
-      title: 'Booking request closed',
-      message: `Booking ${booking.id.slice(0, 8)} was marked expired after the response window elapsed.`,
+      title: 'Shipment request closed',
+      message: `Shipment request ${booking.id.slice(0, 8)} was marked expired after the response window elapsed.`,
       link: `/dealer/bookings/${booking.id}`,
       metadata: {
         bookingId: booking.id,

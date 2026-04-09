@@ -57,19 +57,6 @@ export const useBookingStore = create((set, get) => ({
       throw error;
     }
   },
-  acceptCounter: async (id, payload) => {
-    set({ error: null });
-    try {
-      const booking = await bookingApi.acceptCounterOffer(id, payload);
-      set((state) => ({
-        bookings: state.bookings.map((item) => (item.id === id ? booking : item)),
-      }));
-      return booking;
-    } catch (error) {
-      set({ error: error.message });
-      throw error;
-    }
-  },
   setActiveBooking: (booking) => set({ activeBooking: booking }),
   setFilter: (key, value) =>
     set((state) => ({

@@ -13,10 +13,10 @@ before(async () => {
   dealerClient = createClient(testServer.baseUrl);
 
   const warehouseLogin = await warehouseClient.login(
-    'warehouse@stlos.dev',
+  'warehouse@trucksetu.dev',
     'Warehouse123'
   );
-  const dealerLogin = await dealerClient.login('dealer@stlos.dev', 'Dealer123');
+  const dealerLogin = await dealerClient.login('dealer@trucksetu.dev', 'Dealer123');
 
   assert.equal(warehouseLogin.response.status, 200);
   assert.equal(dealerLogin.response.status, 200);
@@ -70,43 +70,17 @@ test('warehouse and dealer logistics flow supports shipment, truck, booking, and
 
   assert.equal(createShipment.response.status, 201);
   const shipmentId = createShipment.body.id;
-  assert.equal(createShipment.body.status, 'DRAFT');
+  assert.equal(createShipment.body.status, 'BOOKING_PENDING');
 
-  const updateShipment = await warehouseClient.request(`/shipments/${shipmentId}`, {
-    method: 'PUT',
-    body: {
-      title: `Integration Shipment ${stamp} Updated`,
-      weightKg: 2500,
-    },
-  });
+  const dealerBookings = await dealerClient.request('/bookings?status=SENT&limit=50');
+  assert.equal(dealerBookings.response.status, 200);
 
-  assert.equal(updateShipment.response.status, 200);
-  assert.equal(updateShipment.body.title, `Integration Shipment ${stamp} Updated`);
+  const autoBooking = dealerBookings.body.bookings.find((booking) =>
+    booking.shipments.some((entry) => entry.shipment.id === shipmentId)
+  );
 
-  const markPending = await warehouseClient.request('/shipments/batch-status', {
-    method: 'PATCH',
-    body: {
-      shipmentIds: [shipmentId],
-      status: 'PENDING',
-    },
-  });
-
-  assert.equal(markPending.response.status, 200);
-  assert.equal(markPending.body.count, 1);
-  assert.equal(markPending.body.shipments[0].status, 'PENDING');
-
-  const createBooking = await warehouseClient.request('/bookings', {
-    method: 'POST',
-    body: {
-      shipmentIds: [shipmentId],
-      truckId,
-      quotedPrice: 18500,
-    },
-  });
-
-  assert.equal(createBooking.response.status, 201);
-  const bookingId = createBooking.body.id;
-  assert.equal(createBooking.body.status, 'SENT');
+  assert.ok(autoBooking);
+  const bookingId = autoBooking.id;
 
   const approveBooking = await dealerClient.request(`/bookings/${bookingId}/respond`, {
     method: 'PATCH',
@@ -120,6 +94,7 @@ test('warehouse and dealer logistics flow supports shipment, truck, booking, and
   assert.equal(approveBooking.body.status, 'APPROVED');
   assert.ok(approveBooking.body.trip);
   const tripId = approveBooking.body.trip.id;
+  const assignedTruckId = approveBooking.body.truckId;
 
   const tripsList = await dealerClient.request('/trips');
   assert.equal(tripsList.response.status, 200);
@@ -148,7 +123,7 @@ test('warehouse and dealer logistics flow supports shipment, truck, booking, and
   assert.equal(finalTrip.response.status, 200);
   assert.equal(finalTrip.body.status, 'DELIVERED');
 
-  const finalTruck = await dealerClient.request(`/trucks/${truckId}`);
+  const finalTruck = await dealerClient.request(`/trucks/${assignedTruckId}`);
   assert.equal(finalTruck.response.status, 200);
   assert.equal(finalTruck.body.status, 'AVAILABLE');
 

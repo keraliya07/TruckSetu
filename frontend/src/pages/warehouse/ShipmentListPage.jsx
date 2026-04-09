@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useDeferredValue, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import ConfirmModal from '../../components/common/ConfirmModal';
@@ -27,10 +27,11 @@ export default function ShipmentListPage() {
     deleteShipment,
   } = useShipmentStore();
   const [deleteId, setDeleteId] = useState(null);
+  const deferredSearch = useDeferredValue(filters.search);
 
   useEffect(() => {
-    fetchShipments(filters).catch(() => {});
-  }, [filters.status, filters.search, filters.limit, filters.page]);
+    fetchShipments({ ...filters, search: deferredSearch }).catch(() => {});
+  }, [deferredSearch, filters.status, filters.limit, filters.page]);
 
   const selectedShipments = shipments.filter((shipment) =>
     selectedIds.includes(shipment.id)
@@ -48,117 +49,103 @@ export default function ShipmentListPage() {
       accent="text-brand-600"
       eyebrow="Warehouse Flow"
       title={`Shipment board for ${user?.warehouse?.warehouseName || user?.name}`}
-      subtitle="Review outbound loads, promote drafts into pending shipments, and prepare batches for optimization or booking."
+      subtitle="Review outbound shipments, monitor which loads are waiting on dealer responses, and follow assignments through delivery."
     >
       <PageTabs
         items={[
           { to: '/warehouse/shipments', label: 'Shipment board', active: true },
-          { to: '/warehouse/shipments/new', label: 'Create shipment' },
+          { to: '/warehouse/shipments/history', label: 'Shipment history' },
+          { to: '/warehouse/shipments/new', label: 'Dispatch workspace' },
           { to: '/warehouse/bookings', label: 'Bookings' },
-          { to: '/warehouse/optimization', label: 'Optimization' },
+          { to: '/warehouse/truck-estimation', label: 'Truck estimation' },
         ]}
       />
 
       <section className="panel p-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div className="grid gap-4 sm:grid-cols-3">
-            <label>
-              <span className="field-label">Search</span>
-              <input
-                className="input-base"
-                placeholder="Title or destination"
-                value={filters.search}
-                onChange={(event) => setFilter('search', event.target.value)}
-              />
-            </label>
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-4 lg:items-end">
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-end">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="w-full sm:w-72">
+                  <span className="field-label">Search</span>
+                  <input
+                    className="input-base"
+                    placeholder="Title or destination"
+                    value={filters.search}
+                    onChange={(event) => setFilter('search', event.target.value)}
+                  />
+                </label>
 
-            <label>
-              <span className="field-label">Status</span>
-              <select
-                className="input-base"
-                value={filters.status}
-                onChange={(event) => setFilter('status', event.target.value)}
+                <label className="w-full sm:w-56">
+                  <span className="field-label">Status</span>
+                  <select
+                    className="input-base"
+                    value={filters.status}
+                    onChange={(event) => setFilter('status', event.target.value)}
+                  >
+                    <option value="">All statuses</option>
+                    <option value="DRAFT">Draft</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="BOOKING_PENDING">Booking pending</option>
+                    <option value="BOOKING_CONFIRMED">Booking confirmed</option>
+                    <option value="DELIVERED">Delivered</option>
+                    <option value="CANCELLED">Cancelled</option>
+                  </select>
+                </label>
+              </div>
+
+              <div className="flex flex-wrap gap-3 xl:justify-end">
+                <button className="btn-secondary" onClick={() => fetchShipments(filters)} type="button">
+                  Refresh
+                </button>
+                <Link className="btn-primary" to="/warehouse/shipments/new">
+                  New shipment
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 text-sm text-slate-600">
+            <span>{total} shipment(s)</span>
+            <button className="font-semibold text-freight-700" onClick={selectAllVisible} type="button">
+              Select visible
+            </button>
+            <button className="font-semibold text-slate-700" onClick={clearSelection} type="button">
+              Clear selection
+            </button>
+          </div>
+
+          {selectedIds.length > 0 ? (
+            <div className="flex flex-wrap items-center gap-3 rounded-3xl border border-freight-200 bg-teal-50 px-4 py-4">
+              <span className="text-sm font-semibold text-slate-900">
+                {selectedIds.length} shipment(s) selected
+              </span>
+              <button
+                className="btn-secondary"
+                disabled={!canMoveToPending}
+                onClick={() =>
+                  batchUpdateStatus({ shipmentIds: selectedIds, status: 'PENDING' })
+                }
+                type="button"
               >
-                <option value="">All statuses</option>
-                <option value="DRAFT">Draft</option>
-                <option value="PENDING">Pending</option>
-                <option value="BOOKING_PENDING">Booking pending</option>
-                <option value="BOOKING_CONFIRMED">Booking confirmed</option>
-                <option value="DELIVERED">Delivered</option>
-                <option value="CANCELLED">Cancelled</option>
-              </select>
-            </label>
-
-            <label>
-              <span className="field-label">Page size</span>
-              <select
-                className="input-base"
-                value={filters.limit}
-                onChange={(event) => setFilter('limit', Number(event.target.value))}
+                Mark pending
+              </button>
+              <button
+                className="btn-secondary"
+                disabled={!canCancel}
+                onClick={() =>
+                  batchUpdateStatus({ shipmentIds: selectedIds, status: 'CANCELLED' })
+                }
+                type="button"
               >
-                <option value={6}>6</option>
-                <option value={12}>12</option>
-                <option value={24}>24</option>
-              </select>
-            </label>
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            <button className="btn-secondary" onClick={() => fetchShipments(filters)} type="button">
-              Refresh
-            </button>
-            <Link className="btn-primary" to="/warehouse/shipments/new">
-              New shipment
-            </Link>
-          </div>
+                Cancel selected
+              </button>
+              <Link className="btn-primary" to="/warehouse/bookings">
+                Open requests
+              </Link>
+            </div>
+          ) : null}
         </div>
-
-        <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-slate-600">
-          <span>{total} shipment(s)</span>
-          <button className="font-semibold text-freight-700" onClick={selectAllVisible} type="button">
-            Select visible
-          </button>
-          <button className="font-semibold text-slate-700" onClick={clearSelection} type="button">
-            Clear selection
-          </button>
-        </div>
-
-        {selectedIds.length > 0 ? (
-          <div className="mt-6 flex flex-wrap items-center gap-3 rounded-3xl border border-freight-200 bg-teal-50 px-4 py-4">
-            <span className="text-sm font-semibold text-slate-900">
-              {selectedIds.length} shipment(s) selected
-            </span>
-            <button
-              className="btn-secondary"
-              disabled={!canMoveToPending}
-              onClick={() =>
-                batchUpdateStatus({ shipmentIds: selectedIds, status: 'PENDING' })
-              }
-              type="button"
-            >
-              Mark pending
-            </button>
-            <button
-              className="btn-secondary"
-              disabled={!canCancel}
-              onClick={() =>
-                batchUpdateStatus({ shipmentIds: selectedIds, status: 'CANCELLED' })
-              }
-              type="button"
-            >
-              Cancel selected
-            </button>
-            <Link
-              className="btn-secondary"
-              to={`/warehouse/optimization?shipmentIds=${selectedIds.join(',')}`}
-            >
-              Optimize selected
-            </Link>
-            <Link className="btn-primary" to="/warehouse/bookings">
-              Create booking
-            </Link>
-          </div>
-        ) : null}
       </section>
 
       {error ? (
@@ -173,7 +160,7 @@ export default function ShipmentListPage() {
           description="Create your first shipment to start the warehouse workflow."
           action={
             <Link className="btn-primary" to="/warehouse/shipments/new">
-              Create shipment
+              Open dispatch workspace
             </Link>
           }
         />
@@ -231,14 +218,6 @@ export default function ShipmentListPage() {
                 <Link className="btn-secondary" to={`/warehouse/shipments/${shipment.id}`}>
                   Open detail
                 </Link>
-                {['DRAFT', 'PENDING'].includes(shipment.status) ? (
-                  <Link
-                    className="btn-secondary"
-                    to={`/warehouse/optimization?shipmentIds=${shipment.id}`}
-                  >
-                    Optimize
-                  </Link>
-                ) : null}
                 {shipment.status === 'DRAFT' ? (
                   <button
                     className="btn-secondary"
@@ -250,7 +229,7 @@ export default function ShipmentListPage() {
                     }
                     type="button"
                   >
-                    Promote to pending
+                    Move to pending
                   </button>
                 ) : null}
                 {['DRAFT', 'PENDING', 'BOOKING_PENDING'].includes(shipment.status) ? (

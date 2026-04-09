@@ -35,12 +35,3 @@ exports.respond = async (req, res, next) => {
     next(error);
   }
 };
-
-exports.acceptCounter = async (req, res, next) => {
-  try {
-    const result = await service.acceptCounter(req.params.id, req.body, req.user);
-    res.status(200).json(result);
-  } catch (error) {
-    next(error);
-  }
-};

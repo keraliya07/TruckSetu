@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import ConfirmModal from '../../components/common/ConfirmModal';
@@ -12,68 +12,77 @@ export default function BookingRequestsPage() {
   const { bookings, filters, error, fetchBookings, setFilter, respondToBooking } =
     useBookingStore();
   const [rejectId, setRejectId] = useState(null);
-  const [counterState, setCounterState] = useState({
-    bookingId: '',
-    counterPrice: '',
-    dealerNote: '',
-  });
 
   useEffect(() => {
     fetchBookings(filters).catch(() => {});
   }, [filters.status, filters.limit, filters.page]);
 
+  const metrics = useMemo(
+    () => ({
+      open: bookings.filter((booking) => booking.status === 'SENT').length,
+      accepted: bookings.filter((booking) => booking.status === 'APPROVED').length,
+      closed: bookings.filter((booking) =>
+        ['REJECTED', 'CANCELLED', 'EXPIRED'].includes(booking.status)
+      ).length,
+    }),
+    [bookings]
+  );
+
   return (
     <DashboardShell
       accent="text-freight-600"
       eyebrow="Dealer Flow"
-      title="Booking requests"
-      subtitle="Review incoming booking demand, counter when the economics need adjustment, and approve when a trip is ready to launch."
+      title="Shipment requests"
+      subtitle="Review optimized shipment requests from warehouses and respond with either accept or reject. Once another dealer accepts, the remaining open requests are closed automatically."
     >
       <PageTabs
         items={[
-          { to: '/dealer/fleet', label: 'Fleet' },
           { to: '/dealer/fleet/new', label: 'Add truck' },
-          { to: '/dealer/bookings', label: 'Booking requests', active: true },
+          { to: '/dealer/bookings', label: 'Shipment requests', active: true },
           { to: '/dealer/analytics', label: 'Analytics' },
         ]}
       />
 
       <section className="panel p-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label>
-              <span className="field-label">Status</span>
-              <select
-                className="input-base"
-                value={filters.status}
-                onChange={(event) => setFilter('status', event.target.value)}
-              >
-                <option value="">All requests</option>
-                <option value="SENT">Pending</option>
-                <option value="COUNTERED">Countered</option>
-                <option value="APPROVED">Approved</option>
-                <option value="REJECTED">Rejected</option>
-                <option value="EXPIRED">Expired</option>
-              </select>
-            </label>
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-4 lg:items-end">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end lg:justify-end">
+              <label className="w-full sm:w-56">
+                <span className="field-label">Status</span>
+                <select
+                  className="input-base"
+                  value={filters.status}
+                  onChange={(event) => setFilter('status', event.target.value)}
+                >
+                  <option value="">All requests</option>
+                  <option value="SENT">Open for response</option>
+                  <option value="APPROVED">Accepted</option>
+                  <option value="REJECTED">Rejected</option>
+                  <option value="CANCELLED">Closed by assignment</option>
+                  <option value="EXPIRED">Expired</option>
+                </select>
+              </label>
 
-            <label>
-              <span className="field-label">Page size</span>
-              <select
-                className="input-base"
-                value={filters.limit}
-                onChange={(event) => setFilter('limit', Number(event.target.value))}
-              >
-                <option value={6}>6</option>
-                <option value={12}>12</option>
-                <option value={24}>24</option>
-              </select>
-            </label>
+              <button className="btn-secondary" onClick={() => fetchBookings(filters)} type="button">
+                Refresh
+              </button>
+            </div>
           </div>
 
-          <button className="btn-secondary" onClick={() => fetchBookings(filters)} type="button">
-            Refresh
-          </button>
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Open requests</p>
+              <p className="mt-2 text-2xl font-semibold text-slate-950">{metrics.open}</p>
+            </div>
+            <div className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Accepted</p>
+              <p className="mt-2 text-2xl font-semibold text-slate-950">{metrics.accepted}</p>
+            </div>
+            <div className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Closed</p>
+              <p className="mt-2 text-2xl font-semibold text-slate-950">{metrics.closed}</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -85,8 +94,8 @@ export default function BookingRequestsPage() {
 
       {bookings.length === 0 ? (
         <EmptyState
-          title="No booking requests"
-          description="Incoming booking demand will appear here once warehouses start sending requests."
+          title="No shipment requests"
+          description="Optimized warehouse shipment requests will appear here when your available trucks match the route and load."
         />
       ) : (
         <section className="grid gap-4 xl:grid-cols-2">
@@ -109,11 +118,11 @@ export default function BookingRequestsPage() {
 
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 <div className="rounded-3xl bg-slate-50 px-4 py-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Quoted</p>
+                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Quoted price</p>
                   <p className="mt-2 text-lg font-semibold text-slate-900">Rs {booking.quotedPrice}</p>
                 </div>
                 <div className="rounded-3xl bg-slate-50 px-4 py-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Expires</p>
+                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Response window</p>
                   <p className="mt-2 text-sm font-semibold text-slate-900">
                     {booking.expiresAt ? new Date(booking.expiresAt).toLocaleString() : 'No expiry'}
                   </p>
@@ -140,44 +149,27 @@ export default function BookingRequestsPage() {
               </div>
 
               {booking.status === 'SENT' ? (
-                <div className="mt-5 space-y-3">
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <button
-                      className="btn-primary"
-                      onClick={() => respondToBooking(booking.id, { action: 'APPROVE' })}
-                      type="button"
-                    >
-                      Approve
-                    </button>
-                    <button
-                      className="btn-secondary"
-                      onClick={() =>
-                        setCounterState({
-                          bookingId: booking.id,
-                          counterPrice: String(
-                            booking.counterPrice || Math.round(booking.quotedPrice * 1.08)
-                          ),
-                          dealerNote: '',
-                        })
-                      }
-                      type="button"
-                    >
-                      Counter
-                    </button>
-                  </div>
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">
                   <button
-                    className="btn-secondary w-full"
+                    className="btn-primary"
+                    onClick={() => respondToBooking(booking.id, { action: 'APPROVE' })}
+                    type="button"
+                  >
+                    Accept request
+                  </button>
+                  <button
+                    className="btn-secondary"
                     onClick={() => setRejectId(booking.id)}
                     type="button"
                   >
-                    Reject
+                    Reject request
                   </button>
                 </div>
               ) : null}
 
-              {booking.status === 'APPROVED' && booking.trip ? (
-                <div className="mt-5 rounded-3xl border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm text-emerald-900">
-                  Trip {booking.trip.id.slice(0, 8)} is ready in {booking.trip.status} state.
+              {booking.status === 'CANCELLED' ? (
+                <div className="mt-5 rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-700">
+                  This request was closed because another dealer accepted the shipment first.
                 </div>
               ) : null}
             </article>
@@ -186,88 +178,16 @@ export default function BookingRequestsPage() {
       )}
 
       <ConfirmModal
-        confirmText="Reject booking"
+        confirmText="Reject request"
         isOpen={Boolean(rejectId)}
-        message="The warehouse will get the shipments back into a pending state if you reject this request."
+        message="This rejection will be recorded, and the shipment will remain open for the other invited dealers."
         onClose={() => setRejectId(null)}
         onConfirm={async () => {
           await respondToBooking(rejectId, { action: 'REJECT' });
           setRejectId(null);
         }}
-        title="Reject request"
+        title="Reject shipment request"
       />
-
-      {counterState.bookingId ? (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/45 px-4">
-          <div className="panel w-full max-w-lg p-6">
-            <h3 className="font-heading text-2xl text-slate-950">Counter offer</h3>
-            <div className="mt-5 grid gap-4">
-              <label>
-                <span className="field-label">Counter price</span>
-                <input
-                  className="input-base"
-                  min="1"
-                  type="number"
-                  value={counterState.counterPrice}
-                  onChange={(event) =>
-                    setCounterState((state) => ({
-                      ...state,
-                      counterPrice: event.target.value,
-                    }))
-                  }
-                />
-              </label>
-              <label>
-                <span className="field-label">Dealer note</span>
-                <textarea
-                  className="input-base min-h-24"
-                  placeholder="Explain the revised economics or route assumptions"
-                  value={counterState.dealerNote}
-                  onChange={(event) =>
-                    setCounterState((state) => ({
-                      ...state,
-                      dealerNote: event.target.value,
-                    }))
-                  }
-                />
-              </label>
-            </div>
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                className="btn-secondary"
-                onClick={() =>
-                  setCounterState({
-                    bookingId: '',
-                    counterPrice: '',
-                    dealerNote: '',
-                  })
-                }
-                type="button"
-              >
-                Cancel
-              </button>
-              <button
-                className="btn-primary"
-                onClick={async () => {
-                  await respondToBooking(counterState.bookingId, {
-                    action: 'COUNTER',
-                    counterPrice: Number(counterState.counterPrice),
-                    dealerNote: counterState.dealerNote,
-                  });
-                  setCounterState({
-                    bookingId: '',
-                    counterPrice: '',
-                    dealerNote: '',
-                  });
-                }}
-                type="button"
-              >
-                Send counter
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
     </DashboardShell>
   );
 }

@@ -2,6 +2,7 @@ const prisma = require('../config/db');
 const ApiError = require('../utils/apiError.utils');
 const { BOOKING_TIMEOUT_HOURS } = require('../config/env');
 const notificationService = require('./notification.service');
+const { resolveCityCoordinates } = require('../utils/cityCoordinates');
 
 const bookingInclude = {
   warehouse: true,
@@ -28,6 +29,55 @@ const bookingInclude = {
           shipment: true,
         },
       },
+    },
+  },
+};
+
+const bookingListInclude = {
+  warehouse: {
+    select: {
+      id: true,
+      warehouseName: true,
+      city: true,
+    },
+  },
+  truck: {
+    select: {
+      id: true,
+      registrationNo: true,
+      dealerId: true,
+      dealer: {
+        select: {
+          id: true,
+          companyName: true,
+        },
+      },
+    },
+  },
+  shipments: {
+    include: {
+      shipment: {
+        select: {
+          id: true,
+          title: true,
+          referenceNo: true,
+          originCity: true,
+          destCity: true,
+          weightKg: true,
+          volumeM3: true,
+          shipmentType: true,
+          systemPrice: true,
+          status: true,
+          pickupDeadline: true,
+          deadline: true,
+        },
+      },
+    },
+  },
+  trip: {
+    select: {
+      id: true,
+      status: true,
     },
   },
 };
@@ -69,15 +119,19 @@ const getBookingById = async (bookingId) => {
   return booking;
 };
 
+const getShipmentIds = (booking) =>
+  [...new Set(booking.shipments.map((entry) => entry.shipment.id))];
+
 const buildTripStops = (warehouse, shipments) => {
+  const warehouseLocation = resolveCityCoordinates(warehouse.city);
   const pickupStop = {
     sequence: 1,
     type: 'PICKUP',
     status: 'PENDING',
     city: warehouse.city,
     address: warehouse.address,
-    lat: warehouse.latitude || shipments[0]?.shipment.originLat || 0,
-    lng: warehouse.longitude || shipments[0]?.shipment.originLng || 0,
+    lat: warehouse.latitude ?? warehouseLocation?.lat ?? shipments[0]?.shipment.originLat ?? 0,
+    lng: warehouse.longitude ?? warehouseLocation?.lng ?? shipments[0]?.shipment.originLng ?? 0,
   };
 
   const deliveryStops = shipments.map((entry, index) => ({
@@ -94,13 +148,80 @@ const buildTripStops = (warehouse, shipments) => {
   return [pickupStop, ...deliveryStops];
 };
 
+const syncShipmentOpenState = async (tx, shipmentIds) => {
+  const uniqueIds = [...new Set(shipmentIds)];
+
+  // Single query to get booking status for all shipments — replaces 2N serial count queries
+  const shipments = await tx.shipment.findMany({
+    where: { id: { in: uniqueIds } },
+    select: {
+      id: true,
+      bookingShipments: {
+        select: {
+          bookingRequest: {
+            select: { status: true },
+          },
+        },
+      },
+    },
+  });
+
+  const updates = shipments
+    .filter(
+      (s) => !s.bookingShipments.some((bs) => bs.bookingRequest.status === 'APPROVED')
+    )
+    .map((s) => {
+      const hasOpen = s.bookingShipments.some(
+        (bs) => bs.bookingRequest.status === 'SENT'
+      );
+      return tx.shipment.update({
+        where: { id: s.id },
+        data: { status: hasOpen ? 'BOOKING_PENDING' : 'PENDING' },
+      });
+    });
+
+  await Promise.all(updates);
+};
+
 const createTripForBooking = async (tx, booking, finalPrice) => {
+  const shipmentIds = getShipmentIds(booking);
+
+  const lockedShipments = await tx.shipment.updateMany({
+    where: {
+      id: {
+        in: shipmentIds,
+      },
+      status: 'BOOKING_PENDING',
+    },
+    data: {
+      status: 'BOOKING_CONFIRMED',
+    },
+  });
+
+  if (lockedShipments.count !== shipmentIds.length) {
+    throw ApiError.conflict('This shipment has already been assigned to another dealer');
+  }
+
+  const lockedTruck = await tx.truck.updateMany({
+    where: {
+      id: booking.truckId,
+      status: 'AVAILABLE',
+    },
+    data: {
+      status: 'ON_TRIP',
+    },
+  });
+
+  if (lockedTruck.count !== 1) {
+    throw ApiError.conflict('The selected truck is no longer available');
+  }
+
   const totalDistanceEstimate = booking.shipments.reduce(
     (sum, entry) => sum + Math.max(entry.shipment.weightKg / 200, 10),
     0
   );
 
-  const trip = await tx.trip.create({
+  return tx.trip.create({
     data: {
       bookingRequestId: booking.id,
       truckId: booking.truckId,
@@ -122,26 +243,17 @@ const createTripForBooking = async (tx, booking, finalPrice) => {
       shipments: true,
     },
   });
+};
 
-  await tx.shipment.updateMany({
-    where: {
-      id: {
-        in: booking.shipments.map((entry) => entry.shipment.id),
-      },
-    },
-    data: {
-      status: 'BOOKING_CONFIRMED',
-    },
+const notifyRequestClosed = async (booking, message) => {
+  await notificationService.sendNotification({
+    userId: booking.truck.dealer.user?.id,
+    type: 'BOOKING',
+    title: 'Shipment request closed',
+    message,
+    link: `/dealer/bookings/${booking.id}`,
+    metadata: { bookingId: booking.id },
   });
-
-  await tx.truck.update({
-    where: { id: booking.truckId },
-    data: {
-      status: 'ON_TRIP',
-    },
-  });
-
-  return trip;
 };
 
 const create = async ({ shipmentIds, truckId, quotedPrice }, user) => {
@@ -218,15 +330,15 @@ const create = async ({ shipmentIds, truckId, quotedPrice }, user) => {
   await notificationService.sendNotification({
     userId: truck.dealer.user?.id,
     type: 'BOOKING',
-    title: 'New booking request',
-    message: `${booking.shipments.length} shipment(s) have been sent for your truck ${truck.registrationNo}.`,
+    title: 'New shipment request',
+    message: `${booking.shipments.length} shipment(s) have been sent for truck ${truck.registrationNo}.`,
     link: `/dealer/bookings/${booking.id}`,
     metadata: { bookingId: booking.id },
     email: {
-      subject: 'STLOS booking request received',
-      text: `A new booking request for truck ${truck.registrationNo} is waiting for review.`,
+      subject: 'TruckSetu shipment request received',
+      text: `A new shipment request for truck ${truck.registrationNo} is waiting for review.`,
       html: `
-        <p>A new booking request is waiting for review.</p>
+        <p>A new shipment request is waiting for review.</p>
         <p>Truck: <strong>${truck.registrationNo}</strong></p>
         <p>Shipments: <strong>${booking.shipments.length}</strong></p>
       `,
@@ -269,7 +381,7 @@ const getAll = async (filters, user) => {
       skip,
       take: limit,
       orderBy: { createdAt: 'desc' },
-      include: bookingInclude,
+      include: bookingListInclude,
     }),
     prisma.bookingRequest.count({ where }),
   ]);
@@ -305,157 +417,162 @@ const respond = async (bookingId, data, user) => {
     throw ApiError.forbidden('You cannot respond to this booking');
   }
 
-  if (!['SENT', 'COUNTERED'].includes(booking.status)) {
-    throw ApiError.badRequest('Booking is not awaiting dealer response');
+  if (booking.status !== 'SENT') {
+    throw ApiError.conflict('This shipment request is no longer open for response');
   }
 
   if (data.action === 'REJECT') {
-    const updated = await prisma.bookingRequest.update({
-      where: { id: bookingId },
-      data: {
-        status: 'REJECTED',
-        dealerNote: data.dealerNote || null,
-        respondedAt: new Date(),
-      },
-      include: bookingInclude,
-    });
+    const shipmentIds = getShipmentIds(booking);
 
-    await prisma.shipment.updateMany({
-      where: {
-        id: { in: updated.shipments.map((entry) => entry.shipment.id) },
+    await prisma.$transaction(
+      async (tx) => {
+        const updated = await tx.bookingRequest.updateMany({
+          where: {
+            id: bookingId,
+            status: 'SENT',
+          },
+          data: {
+            status: 'REJECTED',
+            dealerNote: data.dealerNote || null,
+            respondedAt: new Date(),
+          },
+        });
+
+        if (updated.count !== 1) {
+          throw ApiError.conflict('This shipment request is no longer open for response');
+        }
+
+        await syncShipmentOpenState(tx, shipmentIds);
       },
-      data: { status: 'PENDING' },
-    });
+      { timeout: 20000 }
+    );
+
+    const rejected = await getBookingById(bookingId);
 
     await notificationService.sendNotification({
-      userId: updated.requestedById,
+      userId: rejected.requestedById,
       type: 'BOOKING',
-      title: 'Booking rejected',
-      message: `Dealer rejected booking for truck ${updated.truck.registrationNo}.`,
-      link: `/warehouse/bookings/${updated.id}`,
-      metadata: { bookingId: updated.id },
+      title: 'Shipment request rejected',
+      message: `Dealer rejected shipment request for truck ${rejected.truck.registrationNo}.`,
+      link: `/warehouse/bookings/${rejected.id}`,
+      metadata: { bookingId: rejected.id },
       email: {
-        subject: 'STLOS booking rejected',
-        text: `Your booking for truck ${updated.truck.registrationNo} was rejected.`,
+        subject: 'TruckSetu shipment request rejected',
+        text: `Your shipment request for truck ${rejected.truck.registrationNo} was rejected.`,
       },
     });
 
-    return getBookingById(updated.id);
+    return rejected;
   }
 
-  if (data.action === 'COUNTER') {
-    const updated = await prisma.bookingRequest.update({
-      where: { id: bookingId },
-      data: {
-        status: 'COUNTERED',
-        counterPrice: data.counterPrice,
-        dealerNote: data.dealerNote || null,
-        respondedAt: new Date(),
-      },
-      include: bookingInclude,
-    });
-
-    await notificationService.sendNotification({
-      userId: updated.requestedById,
-      type: 'BOOKING',
-      title: 'Counter offer received',
-      message: `Dealer proposed Rs ${data.counterPrice} for booking ${updated.id}.`,
-      link: `/warehouse/bookings/${updated.id}`,
-      metadata: { bookingId: updated.id },
-      email: {
-        subject: 'STLOS counter offer received',
-        text: `A counter offer of Rs ${data.counterPrice} was received for booking ${updated.id}.`,
-      },
-    });
-
-    return updated;
-  }
-
-  const approved = await prisma.$transaction(
+  const approval = await prisma.$transaction(
     async (tx) => {
-      const updatedBooking = await tx.bookingRequest.update({
-        where: { id: bookingId },
+      const updated = await tx.bookingRequest.updateMany({
+        where: {
+          id: bookingId,
+          status: 'SENT',
+        },
         data: {
           status: 'APPROVED',
           dealerNote: data.dealerNote || null,
-          finalPrice: booking.counterPrice || booking.quotedPrice,
+          finalPrice: booking.quotedPrice,
           respondedAt: new Date(),
           approvedAt: new Date(),
         },
+      });
+
+      if (updated.count !== 1) {
+        throw ApiError.conflict('This shipment request is no longer open for response');
+      }
+
+      const approvedBooking = await tx.bookingRequest.findUnique({
+        where: { id: bookingId },
         include: bookingInclude,
       });
 
-      await createTripForBooking(tx, updatedBooking, updatedBooking.finalPrice);
-      return updatedBooking;
+      await createTripForBooking(tx, approvedBooking, approvedBooking.finalPrice);
+
+      const competingRequests = await tx.bookingRequest.findMany({
+        where: {
+          id: {
+            not: bookingId,
+          },
+          status: 'SENT',
+          shipments: {
+            some: {
+              shipmentId: {
+                in: getShipmentIds(approvedBooking),
+              },
+            },
+          },
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (competingRequests.length) {
+        await tx.bookingRequest.updateMany({
+          where: {
+            id: {
+              in: competingRequests.map((entry) => entry.id),
+            },
+          },
+          data: {
+            status: 'CANCELLED',
+            respondedAt: new Date(),
+          },
+        });
+      }
+
+      return {
+        approvedBooking,
+        cancelledBookingIds: competingRequests.map((entry) => entry.id),
+      };
     },
     { timeout: 20000 }
   );
+
+  // Use the booking already fetched inside the transaction — saves 1 DB round-trip
+  const approved = approval.approvedBooking;
 
   await notificationService.sendNotification({
     userId: approved.requestedById,
     type: 'BOOKING',
-    title: 'Booking approved',
-    message: `Dealer approved your booking for truck ${approved.truck.registrationNo}.`,
+    title: 'Shipment assigned',
+    message: `Dealer accepted and shipment was assigned to truck ${approved.truck.registrationNo}.`,
     link: `/warehouse/bookings/${approved.id}`,
     metadata: { bookingId: approved.id },
     email: {
-      subject: 'STLOS booking approved',
-      text: `Your booking for truck ${approved.truck.registrationNo} was approved.`,
+      subject: 'TruckSetu shipment assigned',
+      text: `Your shipment was assigned to truck ${approved.truck.registrationNo}.`,
     },
   });
 
-  return getBookingById(approved.id);
-};
-
-const acceptCounter = async (bookingId, data, user) => {
-  const warehouse = await getWarehouseProfile(user.userId);
-  const booking = await getBookingById(bookingId);
-
-  if (booking.warehouseId !== warehouse.id) {
-    throw ApiError.forbidden('You cannot approve this booking');
-  }
-
-  if (booking.status !== 'COUNTERED' || !booking.counterPrice) {
-    throw ApiError.badRequest('Booking does not have a pending counter offer');
-  }
-
-  const approved = await prisma.$transaction(
-    async (tx) => {
-      const updatedBooking = await tx.bookingRequest.update({
-        where: { id: bookingId },
-        data: {
-          status: 'APPROVED',
-          warehouseNote: data.warehouseNote || null,
-          finalPrice: booking.counterPrice,
-          approvedAt: new Date(),
+  if (approval.cancelledBookingIds.length) {
+    const cancelledRequests = await prisma.bookingRequest.findMany({
+      where: {
+        id: {
+          in: approval.cancelledBookingIds,
         },
-        include: bookingInclude,
-      });
+      },
+      include: bookingInclude,
+    });
 
-      await createTripForBooking(tx, updatedBooking, updatedBooking.finalPrice);
-      return updatedBooking;
-    },
-    { timeout: 20000 }
-  );
+    await Promise.all(
+      cancelledRequests.map((cancelled) =>
+        notifyRequestClosed(
+          cancelled,
+          `Shipment request ${cancelled.id.slice(0, 8)} was closed because another dealer accepted first.`
+        )
+      )
+    );
+  }
 
-  await notificationService.sendNotification({
-    userId: approved.truck.dealer.user?.id,
-    type: 'BOOKING',
-    title: 'Counter offer accepted',
-    message: `Warehouse accepted the counter price for booking ${approved.id}.`,
-    link: `/dealer/bookings/${approved.id}`,
-    metadata: { bookingId: approved.id },
-    email: {
-      subject: 'STLOS counter offer accepted',
-      text: `Warehouse accepted the counter offer for booking ${approved.id}.`,
-    },
-  });
-
-  return getBookingById(approved.id);
+  return approved;
 };
 
 module.exports = {
-  acceptCounter,
   create,
   getAll,
   getById,

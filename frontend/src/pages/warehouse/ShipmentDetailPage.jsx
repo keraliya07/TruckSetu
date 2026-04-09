@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
+import * as shipmentApi from '../../api/shipment.api';
 import DashboardShell from '../../components/common/DashboardShell';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import PageTabs from '../../components/common/PageTabs';
 import StatusBadge from '../../components/common/StatusBadge';
-import * as shipmentApi from '../../api/shipment.api';
 import {
+  formatCurrency,
   formatDate,
   formatDateTime,
   formatNumber,
@@ -36,13 +37,20 @@ export default function ShipmentDetailPage() {
     loadShipment().catch(() => {});
   }, [id]);
 
-  const activeBooking = useMemo(
-    () => shipment?.bookingShipments?.[0]?.bookingRequest || null,
+  const bookingRequests = useMemo(
+    () =>
+      (shipment?.bookingShipments || [])
+        .map((entry) => entry.bookingRequest)
+        .filter(Boolean),
     [shipment?.bookingShipments]
   );
+  const approvedBooking = useMemo(
+    () => bookingRequests.find((booking) => booking.status === 'APPROVED') || null,
+    [bookingRequests]
+  );
   const activeTrip = useMemo(
-    () => shipment?.tripShipments?.[0]?.trip || null,
-    [shipment?.tripShipments]
+    () => approvedBooking?.trip || shipment?.tripShipments?.[0]?.trip || null,
+    [approvedBooking?.trip, shipment?.tripShipments]
   );
 
   return (
@@ -50,13 +58,15 @@ export default function ShipmentDetailPage() {
       accent="text-brand-600"
       eyebrow="Warehouse Flow"
       title={shipment?.title || shipment?.referenceNo || 'Shipment detail'}
-      subtitle="Inspect lane, load profile, commercial state, and downstream trip activity for a single shipment."
+      subtitle="Inspect the shipment lane, system price, dealer request board, and downstream assignment status from one place."
     >
       <PageTabs
         items={[
           { to: '/warehouse/shipments', label: 'Shipment board' },
+          { to: '/warehouse/shipments/history', label: 'Shipment history' },
           { to: '/warehouse/shipments/new', label: 'Create shipment' },
           { to: '/warehouse/bookings', label: 'Bookings' },
+          { to: '/warehouse/truck-estimation', label: 'Truck estimation' },
         ]}
       />
 
@@ -89,14 +99,6 @@ export default function ShipmentDetailPage() {
                   size="md"
                   status={shipment.status}
                 />
-                {['DRAFT', 'PENDING'].includes(shipment.status) ? (
-                  <Link
-                    className="btn-secondary"
-                    to={`/warehouse/optimization?shipmentIds=${shipment.id}`}
-                  >
-                    Optimize
-                  </Link>
-                ) : null}
                 {activeTrip ? (
                   <Link className="btn-primary" to={`/warehouse/tracking/${activeTrip.id}`}>
                     Track trip
@@ -116,28 +118,26 @@ export default function ShipmentDetailPage() {
                 </p>
               </div>
               <div className="rounded-3xl bg-slate-50 px-4 py-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Deadline</p>
-                <p className="mt-2 text-lg font-semibold text-slate-950">
-                  {formatDate(shipment.deadline)}
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Timing</p>
+                <p className="mt-2 text-sm font-semibold text-slate-950">
+                  Pickup {formatDateTime(shipment.pickupDeadline)}
                 </p>
+                <p className="mt-1 text-sm text-slate-600">
+                  Delivery {formatDate(shipment.deadline)}
+                </p>
+              </div>
+              <div className="rounded-3xl bg-slate-50 px-4 py-4">
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Shipment type</p>
+                <p className="mt-2 text-lg font-semibold text-slate-950">{shipment.shipmentType}</p>
                 <p className="mt-1 text-sm text-slate-600">Priority {shipment.priority}</p>
               </div>
               <div className="rounded-3xl bg-slate-50 px-4 py-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Risk flags</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-500">System price</p>
                 <p className="mt-2 text-lg font-semibold text-slate-950">
-                  {shipment.fragile ? 'Fragile' : 'Standard'}
+                  {shipment.systemPrice ? formatCurrency(shipment.systemPrice) : 'Not available'}
                 </p>
                 <p className="mt-1 text-sm text-slate-600">
-                  {shipment.hazardous ? 'Hazardous handling' : 'No hazardous restriction'}
-                </p>
-              </div>
-              <div className="rounded-3xl bg-slate-50 px-4 py-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Created</p>
-                <p className="mt-2 text-lg font-semibold text-slate-950">
-                  {formatDateTime(shipment.createdAt)}
-                </p>
-                <p className="mt-1 text-sm text-slate-600">
-                  Updated {formatDateTime(shipment.updatedAt)}
+                  Distance {shipment.estimatedDistanceKm ? `${shipment.estimatedDistanceKm} km` : 'N/A'}
                 </p>
               </div>
             </div>
@@ -148,17 +148,17 @@ export default function ShipmentDetailPage() {
               <h3 className="font-heading text-2xl text-slate-950">Lane breakdown</h3>
               <div className="mt-6 grid gap-4">
                 <div className="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-5">
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Origin</p>
+                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Pickup</p>
                   <p className="mt-2 text-lg font-semibold text-slate-950">{shipment.originCity}</p>
                   <p className="mt-1 text-sm text-slate-600">
-                    {shipment.originAddress || 'Warehouse address on file'}
+                    {shipment.originAddress || 'Pickup address pending'}
                   </p>
                 </div>
                 <div className="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-5">
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Destination</p>
+                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Delivery</p>
                   <p className="mt-2 text-lg font-semibold text-slate-950">{shipment.destCity}</p>
                   <p className="mt-1 text-sm text-slate-600">
-                    {shipment.destAddress || 'Destination address pending'}
+                    {shipment.destAddress || 'Delivery address pending'}
                   </p>
                 </div>
                 <div className="rounded-3xl border border-slate-200 bg-white px-5 py-5">
@@ -172,25 +172,34 @@ export default function ShipmentDetailPage() {
 
             <article className="space-y-6">
               <div className="panel p-6">
-                <h3 className="font-heading text-2xl text-slate-950">Booking state</h3>
-                {activeBooking ? (
-                  <div className="mt-5 rounded-3xl border border-slate-200 bg-slate-50 px-5 py-5">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div>
-                        <p className="font-semibold text-slate-900">
-                          Booking {activeBooking.id.slice(0, 8)}
+                <h3 className="font-heading text-2xl text-slate-950">Dealer request board</h3>
+                {bookingRequests.length ? (
+                  <div className="mt-5 space-y-4">
+                    {bookingRequests.map((booking) => (
+                      <div key={booking.id} className="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-5">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                          <div>
+                            <p className="font-semibold text-slate-900">
+                              {booking.truck?.dealer?.companyName}
+                            </p>
+                            <p className="mt-1 text-sm text-slate-600">
+                              Truck {booking.truck?.registrationNo}
+                            </p>
+                          </div>
+                          <StatusBadge status={booking.status} />
+                        </div>
+                        <p className="mt-3 text-sm text-slate-600">
+                          Quote {formatCurrency(booking.quotedPrice)}
                         </p>
-                        <p className="mt-1 text-sm text-slate-600">Truck {activeBooking.truckId}</p>
+                        <Link className="btn-secondary mt-4" to={`/warehouse/bookings/${booking.id}`}>
+                          Open request detail
+                        </Link>
                       </div>
-                      <StatusBadge status={activeBooking.status} />
-                    </div>
-                    <Link className="btn-secondary mt-4" to={`/warehouse/bookings/${activeBooking.id}`}>
-                      Open booking detail
-                    </Link>
+                    ))}
                   </div>
                 ) : (
                   <p className="mt-5 text-sm text-slate-600">
-                    This shipment has not been attached to a booking request yet.
+                    No dealer requests have been created for this shipment yet.
                   </p>
                 )}
               </div>
@@ -216,7 +225,7 @@ export default function ShipmentDetailPage() {
                   </div>
                 ) : (
                   <p className="mt-5 text-sm text-slate-600">
-                    A trip will appear here once the booking request is approved.
+                    A trip will appear here once one dealer accepts the shipment request.
                   </p>
                 )}
               </div>

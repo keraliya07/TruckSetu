@@ -202,7 +202,7 @@ const generateInvoice = async (tripId, user) => {
   const trip = await getTripWithAccess(tripId, user);
   const payload = buildInvoicePayload(trip);
   const buffer = await generateInvoicePDF(payload);
-  const fileName = `stlos-invoice-${trip.id.slice(0, 8)}.pdf`;
+  const fileName = `trucksetu-invoice-${trip.id.slice(0, 8)}.pdf`;
 
   await persistGeneratedDocument({
     tripId: trip.id,
@@ -223,7 +223,7 @@ const generateCO2Report = async (tripId, user) => {
   const trip = await getTripWithAccess(tripId, user);
   const payload = buildCO2ReportPayload(trip);
   const buffer = await generateCO2ReportPDF(payload);
-  const fileName = `stlos-co2-report-${trip.id.slice(0, 8)}.pdf`;
+  const fileName = `trucksetu-co2-report-${trip.id.slice(0, 8)}.pdf`;
 
   await persistGeneratedDocument({
     tripId: trip.id,

@@ -49,8 +49,8 @@ services:
       CHOKIDAR_INTERVAL: 500
       CORS_ORIGIN: http://localhost:3000
       APP_BASE_URL: http://localhost:3000
-      DATABASE_URL: postgresql://postgres.rmltpmdwikneodahzfns:NCCGl8DwcCDOVo9w@aws-1-ap-south-1.pooler.supabase.com:6543/postgres?pgbouncer=true
-      DIRECT_URL: postgresql://postgres.rmltpmdwikneodahzfns:NCCGl8DwcCDOVo9w@aws-1-ap-south-1.pooler.supabase.com:5432/postgres
+      DATABASE_URL: postgresql://postgres.rmltpmdwikneodahzfns:NCCGl8DwcCDOVo9w@aws-1-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require
+      DIRECT_URL: postgresql://postgres.rmltpmdwikneodahzfns:NCCGl8DwcCDOVo9w@aws-1-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require
       REDIS_URL: redis://redis:6379
       JWT_SECRET: change-me-to-a-long-random-secret
       JWT_REFRESH_SECRET: change-me-to-a-different-long-random-refresh-secret
@@ -96,7 +96,7 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://postgres.rmltpmdwikneodahzfns:NCCGl8DwcCDOVo9w@aws-1-ap-south-1.pooler.supabase.com:6543/postgres?pgbouncer=true
+      DATABASE_URL: postgresql://postgres.rmltpmdwikneodahzfns:NCCGl8DwcCDOVo9w@aws-1-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require
       OSRM_URL: http://osrm:5000
       PORT: 8000
       ENVIRONMENT: development

@@ -16,11 +16,12 @@ export default function TrackingPage() {
       accent="text-brand-600"
       eyebrow="Warehouse Flow"
       title={tracking.trip ? `Trip ${tracking.trip.id.slice(0, 8)}` : 'Live tracking'}
-      subtitle="Monitor trip movement, stop completion, ETA drift, and shipment handoff status from the warehouse control room."
     >
       <PageTabs
         items={[
           { to: '/warehouse/shipments', label: 'Shipment board' },
+          { to: '/warehouse/shipments/history', label: 'Shipment history' },
+          { to: '/warehouse/shipments/new', label: 'Create workspace' },
           { to: '/warehouse/bookings', label: 'Bookings' },
           { to: '/warehouse/truck-estimation', label: 'Truck estimation' },
         ]}

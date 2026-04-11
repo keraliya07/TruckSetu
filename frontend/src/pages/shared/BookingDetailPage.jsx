@@ -130,9 +130,11 @@ export default function BookingDetailPage() {
           </section>
 
           <section className="grid gap-6 xl:grid-cols-[1fr_1fr]">
-            <article className="panel p-6">
-              <h3 className="font-heading text-2xl text-slate-950">Shipment bundle</h3>
-              <div className="mt-6 space-y-4">
+            <article className="panel flex max-h-[600px] flex-col xl:sticky xl:top-6">
+              <div className="flex-none p-6 pb-0">
+                <h3 className="font-heading text-2xl text-slate-950">Shipment bundle</h3>
+              </div>
+              <div className="mt-2 flex-1 space-y-4 overflow-y-auto p-6">
                 {booking.shipments.map((entry) => (
                   <div key={entry.shipment.id} className="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-5">
                     <div className="flex flex-wrap items-center justify-between gap-3">

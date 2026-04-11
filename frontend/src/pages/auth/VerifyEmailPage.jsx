@@ -72,56 +72,58 @@ export default function VerifyEmailPage() {
 
   return (
     <main className="min-h-screen px-4 py-8 sm:px-6">
-      <div className="mx-auto max-w-3xl">
-        <section className="panel p-6 sm:p-8">
-          <p className="font-heading text-sm uppercase tracking-[0.3em] text-brand-600">
-            Email Verification
-          </p>
-          <h1 className="mt-4 font-heading text-4xl text-slate-950">
-            Confirm your account email
-          </h1>
-          <p className="mt-3 max-w-2xl text-slate-600">
-            Verification stays optional for the current build, but it helps prepare the app for
-            production-style authentication flows.
-          </p>
-
-          <div className="mt-8 rounded-3xl border border-slate-200 bg-slate-50 p-5">
-            <p className="text-sm text-slate-600">
-              Current status:{' '}
-              <span className="font-semibold text-slate-900">
-                {user?.isEmailVerified ? 'Verified' : 'Not verified'}
-              </span>
+      <div className="mx-auto max-w-xl">
+        <section className="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden">
+          <div className="px-6 py-5 border-b border-slate-100">
+            <p className="text-xs font-medium text-brand-600">Email Verification</p>
+            <h1 className="mt-1.5 font-heading text-xl font-bold text-slate-900">
+              Confirm your account email
+            </h1>
+            <p className="mt-1.5 text-sm text-slate-500">
+              Verification stays optional for the current build, but it helps prepare the app for
+              production-style authentication flows.
             </p>
-            <FormFeedback
-              className="mt-3"
-              message={message}
-              tone={status === 'error' ? 'error' : 'success'}
-            />
-            {devUrl ? (
-              <a className="mt-3 inline-block font-semibold text-freight-700 underline" href={devUrl}>
-                Open development verification link
-              </a>
-            ) : null}
-            {devToken ? (
-              <p className="mt-3 break-all font-mono text-xs text-slate-700">{devToken}</p>
-            ) : null}
           </div>
 
-          {!hasToken && isAuthenticated ? (
-            <button
-              className="btn-primary mt-6"
-              disabled={status === 'pending'}
-              onClick={handleSendVerification}
-              type="button"
-            >
-              {status === 'pending' ? 'Generating link...' : 'Send verification link'}
-            </button>
-          ) : null}
+          <div className="p-6 space-y-5">
+            <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+              <p className="text-sm text-slate-600">
+                Current status:{' '}
+                <span className="font-semibold text-slate-900">
+                  {user?.isEmailVerified ? 'Verified' : 'Not verified'}
+                </span>
+              </p>
+              <FormFeedback
+                className="mt-3"
+                message={message}
+                tone={status === 'error' ? 'error' : 'success'}
+              />
+              {devUrl ? (
+                <a className="mt-3 inline-block text-sm font-semibold text-brand-600 underline" href={devUrl}>
+                  Open development verification link
+                </a>
+              ) : null}
+              {devToken ? (
+                <p className="mt-3 break-all font-mono text-xs text-slate-700">{devToken}</p>
+              ) : null}
+            </div>
 
-          <div className="mt-6 flex flex-wrap gap-3 text-sm text-slate-600">
-            <Link className="font-semibold text-freight-700" to="/login">
-              Sign in
-            </Link>
+            {!hasToken && isAuthenticated ? (
+              <button
+                className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-brand-600 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-brand-700 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
+                disabled={status === 'pending'}
+                onClick={handleSendVerification}
+                type="button"
+              >
+                {status === 'pending' ? 'Generating link...' : 'Send verification link'}
+              </button>
+            ) : null}
+
+            <div className="flex flex-wrap gap-3 text-sm text-slate-500">
+              <Link className="font-semibold text-brand-600 transition hover:text-brand-700" to="/login">
+                Sign in
+              </Link>
+            </div>
           </div>
         </section>
       </div>

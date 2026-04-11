@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useDeferredValue, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import ConfirmModal from '../../components/common/ConfirmModal';
@@ -6,174 +6,184 @@ import DashboardShell from '../../components/common/DashboardShell';
 import EmptyState from '../../components/common/EmptyState';
 import PageTabs from '../../components/common/PageTabs';
 import StatusBadge from '../../components/common/StatusBadge';
+import BookingDetailPane from '../../components/shared/BookingDetailPane';
 import { useBookingStore } from '../../store/bookingStore';
+import { formatCurrency } from '../../utils/formatters';
 
 export default function BookingRequestsPage() {
   const { bookings, filters, error, fetchBookings, setFilter, respondToBooking } =
     useBookingStore();
   const [rejectId, setRejectId] = useState(null);
+  const [selectedBookingId, setSelectedBookingId] = useState(null);
+  const [search, setSearch] = useState('');
+  const deferredSearch = useDeferredValue(search);
+
+  useEffect(() => {
+    if (filters.limit !== 1000) {
+      setFilter('limit', 1000);
+    }
+  }, [filters.limit, setFilter]);
 
   useEffect(() => {
     fetchBookings(filters).catch(() => {});
   }, [filters.status, filters.limit, filters.page]);
 
-  const metrics = useMemo(
-    () => ({
-      open: bookings.filter((booking) => booking.status === 'SENT').length,
-      accepted: bookings.filter((booking) => booking.status === 'APPROVED').length,
-      closed: bookings.filter((booking) =>
-        ['REJECTED', 'CANCELLED', 'EXPIRED'].includes(booking.status)
-      ).length,
-    }),
-    [bookings]
-  );
+  /* Client-side search filtering */
+  const filtered = bookings.filter((booking) => {
+    if (!deferredSearch) return true;
+    const q = deferredSearch.toLowerCase();
+    const truck = booking.truck?.registrationNo || '';
+    const warehouse = booking.warehouse?.warehouseName || '';
+    const id = booking.id || '';
+    return (
+      truck.toLowerCase().includes(q) ||
+      warehouse.toLowerCase().includes(q) ||
+      id.toLowerCase().includes(q)
+    );
+  });
 
   return (
     <DashboardShell
       accent="text-freight-600"
       eyebrow="Dealer Flow"
       title="Shipment requests"
-      subtitle="Review optimized shipment requests from warehouses and respond with either accept or reject. Once another dealer accepts, the remaining open requests are closed automatically."
     >
       <PageTabs
         items={[
-          { to: '/dealer/fleet/new', label: 'Add truck' },
-          { to: '/dealer/bookings', label: 'Shipment requests', active: true },
+          { to: '/dealer/fleet', label: 'Fleet' },
+          { to: '/dealer/bookings', label: 'Booking requests', active: true },
           { to: '/dealer/analytics', label: 'Analytics' },
+          { to: '/dealer/return-loads', label: 'Return loads' },
         ]}
       />
 
-      <section className="panel p-6">
-        <div className="flex flex-col gap-6">
-          <div className="flex flex-col gap-4 lg:items-end">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-end lg:justify-end">
-              <label className="w-full sm:w-56">
-                <span className="field-label">Status</span>
-                <select
-                  className="input-base"
-                  value={filters.status}
-                  onChange={(event) => setFilter('status', event.target.value)}
-                >
-                  <option value="">All requests</option>
-                  <option value="SENT">Open for response</option>
-                  <option value="APPROVED">Accepted</option>
-                  <option value="REJECTED">Rejected</option>
-                  <option value="CANCELLED">Closed by assignment</option>
-                  <option value="EXPIRED">Expired</option>
-                </select>
-              </label>
+      {/* ── Toolbar ── */}
+      <section className="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden">
+        {/* Top row: title + count */}
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <h2 className="text-base font-semibold text-slate-900">Requests</h2>
+            <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600 tabular-nums">
+              {bookings.length}
+            </span>
+          </div>
+        </div>
 
-              <button className="btn-secondary" onClick={() => fetchBookings(filters)} type="button">
-                Refresh
-              </button>
-            </div>
+        {/* Bottom row: search + filter + refresh */}
+        <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center px-5 py-3 bg-slate-50/50">
+          <div className="relative flex-1">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              className="w-full rounded-lg border border-slate-200 py-2 pl-9 pr-3 text-sm text-slate-900 outline-none transition-all duration-200 bg-white placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10"
+              placeholder="Search requests..."
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
           </div>
 
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4">
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Open requests</p>
-              <p className="mt-2 text-2xl font-semibold text-slate-950">{metrics.open}</p>
-            </div>
-            <div className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4">
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Accepted</p>
-              <p className="mt-2 text-2xl font-semibold text-slate-950">{metrics.accepted}</p>
-            </div>
-            <div className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4">
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Closed</p>
-              <p className="mt-2 text-2xl font-semibold text-slate-950">{metrics.closed}</p>
-            </div>
-          </div>
+          <select
+            className="w-full sm:w-44 rounded-lg border border-slate-200 py-2 px-3 text-sm text-slate-700 outline-none transition-all duration-200 bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10"
+            value={filters.status}
+            onChange={(event) => setFilter('status', event.target.value)}
+          >
+            <option value="">All requests</option>
+            <option value="SENT">Open for response</option>
+            <option value="APPROVED">Accepted</option>
+            <option value="REJECTED">Rejected</option>
+            <option value="CANCELLED">Closed by assignment</option>
+            <option value="EXPIRED">Expired</option>
+          </select>
+
+          <button
+            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all duration-200 shrink-0"
+            onClick={() => fetchBookings(filters)}
+            type="button"
+            title="Refresh"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
         </div>
       </section>
 
       {error ? (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+        <div className="rounded-xl border border-rose-200/60 bg-rose-50/60 px-4 py-3 text-sm text-rose-700">
           {error}
         </div>
       ) : null}
 
-      {bookings.length === 0 ? (
+      {filtered.length === 0 ? (
         <EmptyState
           title="No shipment requests"
           description="Optimized warehouse shipment requests will appear here when your available trucks match the route and load."
         />
       ) : (
-        <section className="grid gap-4 xl:grid-cols-2">
-          {bookings.map((booking) => (
-            <article key={booking.id} className="panel p-5">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <Link
-                    className="font-heading text-2xl text-slate-950 hover:text-freight-700"
-                    to={`/dealer/bookings/${booking.id}`}
-                  >
-                    {booking.truck?.registrationNo}
-                  </Link>
-                  <p className="mt-1 text-sm text-slate-600">
-                    {booking.shipments.length} shipment(s) from {booking.warehouse?.warehouseName}
-                  </p>
-                </div>
-                <StatusBadge animate={booking.status === 'SENT'} size="md" status={booking.status} />
-              </div>
+        <section
+          className={`transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${
+            selectedBookingId
+              ? 'grid gap-6 xl:grid-cols-[1.4fr_0.9fr] xl:items-start'
+              : 'mx-auto max-w-4xl'
+          }`}
+        >
+          {/* ── Compact card list ── */}
+          <div className="space-y-2.5">
+            {filtered.map((booking, index) => (
+              <button
+                key={booking.id}
+                onClick={() => setSelectedBookingId(booking.id)}
+                type="button"
+                className={`group w-full text-left relative overflow-hidden rounded-2xl border transition-all duration-250 px-5 py-5 block animate-fade-in ${
+                  selectedBookingId === booking.id
+                    ? 'border-brand-200 bg-brand-50/30 shadow-sm ring-1 ring-brand-100'
+                    : 'border-slate-200/70 bg-white hover:border-slate-300 hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.06)]'
+                }`}
+                style={{ animationDelay: `${index * 0.04}s` }}
+              >
+                <div className="flex items-center gap-4">
+                  {/* Core info — compact two-line layout */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3">
+                      <p className={`font-heading text-base font-semibold truncate transition ${
+                        selectedBookingId === booking.id ? 'text-brand-900' : 'text-slate-900 group-hover:text-brand-700'
+                      }`}>
+                        {booking.truck?.registrationNo || `Request ${booking.id.slice(0, 8)}`}
+                      </p>
+                      <span className="text-xs text-slate-400 font-medium hidden sm:inline">
+                        {booking.id.slice(0, 8).toUpperCase()}
+                      </span>
+                    </div>
+                    <p className="mt-0.5 text-sm text-slate-500 truncate">
+                      {booking.shipments.length} shipment{booking.shipments.length !== 1 ? 's' : ''}
+                      <span className="text-slate-200 mx-1.5">·</span>
+                      <span className="text-slate-400">{booking.warehouse?.warehouseName || 'Warehouse'}</span>
+                      <span className="text-slate-200 mx-1.5">·</span>
+                      <span className="text-slate-400">{formatCurrency(booking.quotedPrice)}</span>
+                    </p>
+                  </div>
 
-              <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                <div className="rounded-3xl bg-slate-50 px-4 py-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Quoted price</p>
-                  <p className="mt-2 text-lg font-semibold text-slate-900">Rs {booking.quotedPrice}</p>
+                  {/* Status badge */}
+                  <div className="flex items-center gap-3 shrink-0">
+                    <StatusBadge animate={booking.status === 'SENT'} size="sm" status={booking.status} />
+                  </div>
                 </div>
-                <div className="rounded-3xl bg-slate-50 px-4 py-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Response window</p>
-                  <p className="mt-2 text-sm font-semibold text-slate-900">
-                    {booking.expiresAt ? new Date(booking.expiresAt).toLocaleString() : 'No expiry'}
-                  </p>
-                </div>
-              </div>
+              </button>
+            ))}
+          </div>
 
-              <div className="mt-5 space-y-2 text-sm text-slate-600">
-                {booking.shipments.map((entry) => (
-                  <p key={entry.shipment.id}>
-                    {entry.shipment.title} and {entry.shipment.weightKg} kg to {entry.shipment.destCity}
-                  </p>
-                ))}
-              </div>
-
-              <div className="mt-5 flex flex-wrap gap-3">
-                <Link className="btn-secondary" to={`/dealer/bookings/${booking.id}`}>
-                  Open detail
-                </Link>
-                {booking.status === 'APPROVED' && booking.trip ? (
-                  <Link className="btn-secondary" to={`/dealer/trips/${booking.trip.id}`}>
-                    Manage trip
-                  </Link>
-                ) : null}
-              </div>
-
-              {booking.status === 'SENT' ? (
-                <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                  <button
-                    className="btn-primary"
-                    onClick={() => respondToBooking(booking.id, { action: 'APPROVE' })}
-                    type="button"
-                  >
-                    Accept request
-                  </button>
-                  <button
-                    className="btn-secondary"
-                    onClick={() => setRejectId(booking.id)}
-                    type="button"
-                  >
-                    Reject request
-                  </button>
-                </div>
-              ) : null}
-
-              {booking.status === 'CANCELLED' ? (
-                <div className="mt-5 rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-700">
-                  This request was closed because another dealer accepted the shipment first.
-                </div>
-              ) : null}
-            </article>
-          ))}
+          {/* Detail Pane */}
+          {selectedBookingId ? (
+            <div className="xl:sticky xl:top-3 flex h-[calc(100vh-1.5rem)] max-h-[1200px] flex-col animate-slide-up">
+              <BookingDetailPane
+                bookingId={selectedBookingId}
+                isDealer={true}
+                onClose={() => setSelectedBookingId(null)}
+                onUpdate={() => fetchBookings(filters)}
+              />
+            </div>
+          ) : null}
         </section>
       )}
 

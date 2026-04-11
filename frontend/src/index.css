@@ -17,8 +17,9 @@ body {
   min-height: 100vh;
   font-family: 'Inter', system-ui, sans-serif;
   background:
-    radial-gradient(circle at top, rgba(34, 197, 94, 0.16), transparent 30%),
-    linear-gradient(180deg, #f8fafc 0%, #eef6f1 100%);
+    radial-gradient(circle at 20% 0%, rgba(13, 148, 136, 0.10), transparent 40%),
+    radial-gradient(circle at 80% 0%, rgba(99, 102, 241, 0.06), transparent 40%),
+    linear-gradient(180deg, #f8fafc 0%, #f0f4f8 100%);
   color: #0f172a;
 }
 
@@ -26,6 +27,26 @@ body {
   min-height: 100vh;
 }
 
+/* ─── Custom Scrollbar ─── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.15);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(15, 23, 42, 0.28);
+}
+
+/* ─── Leaflet overrides ─── */
 .leaflet-container {
   font-family: 'Inter', system-ui, sans-serif;
 }
@@ -92,24 +113,145 @@ body {
   }
 }
 
+/* ─── Component Layer ─── */
 @layer components {
+  /* --- Panels --- */
   .panel {
-    @apply rounded-3xl border border-slate-200/70 bg-white/80 shadow-card backdrop-blur;
+    @apply rounded-3xl border border-slate-200/60 bg-white/70 shadow-card backdrop-blur-xl transition-shadow duration-300;
   }
 
+  .panel-hover {
+    @apply panel hover:-translate-y-0.5 hover:shadow-card-hover hover:border-slate-300/70;
+    transition: transform 0.25s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+
+  .panel-gradient {
+    @apply panel relative overflow-hidden;
+  }
+
+  .panel-gradient::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    height: 3px;
+    border-radius: 1.5rem 1.5rem 0 0;
+    background: linear-gradient(90deg, #0d9488, #6366f1, #22c55e);
+    opacity: 0.8;
+  }
+
+  /* --- Form Fields --- */
   .field-label {
     @apply mb-2 block text-sm font-medium text-slate-700;
   }
 
   .input-base {
-    @apply block w-full rounded-2xl border-slate-200 bg-white/90 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-freight-500 focus:ring-freight-500;
+    @apply block w-full rounded-2xl border-slate-200 bg-white/90 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 transition-all duration-200;
   }
 
+  .input-base:focus {
+    @apply border-freight-500 ring-2 ring-freight-500/20 outline-none;
+  }
+
+  /* --- Buttons --- */
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-full bg-freight-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-freight-700;
+    @apply inline-flex items-center justify-center rounded-full bg-gradient-to-r from-freight-600 to-freight-500 px-5 py-3 text-sm font-semibold text-white transition-all duration-200;
+    box-shadow: 0 4px 14px rgba(13, 148, 136, 0.25);
+  }
+
+  .btn-primary:hover {
+    @apply from-freight-700 to-freight-600;
+    box-shadow: 0 6px 24px rgba(13, 148, 136, 0.35);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(13, 148, 136, 0.2);
+  }
+
+  .btn-primary:disabled {
+    @apply opacity-60 cursor-not-allowed;
+    transform: none;
+    box-shadow: none;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50;
+    @apply inline-flex items-center justify-center rounded-full border border-slate-200 bg-white/80 px-5 py-3 text-sm font-semibold text-slate-700 backdrop-blur transition-all duration-200;
+  }
+
+  .btn-secondary:hover {
+    @apply border-slate-300 bg-white text-slate-900;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary:active {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center rounded-full bg-gradient-to-r from-rose-600 to-rose-500 px-5 py-3 text-sm font-semibold text-white transition-all duration-200;
+    box-shadow: 0 4px 14px rgba(244, 63, 94, 0.25);
+  }
+
+  .btn-danger:hover {
+    box-shadow: 0 6px 24px rgba(244, 63, 94, 0.35);
+    transform: translateY(-1px);
+  }
+
+  /* --- Shimmer Loading --- */
+  .shimmer-loading {
+    @apply relative overflow-hidden rounded-2xl bg-slate-100;
+  }
+
+  .shimmer-loading::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.5) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
+
+  /* --- Glow Card --- */
+  .glow-card {
+    @apply panel relative overflow-hidden;
+  }
+
+  .glow-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(
+      circle,
+      rgba(13, 148, 136, 0.06) 0%,
+      transparent 60%
+    );
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+
+  .glow-card:hover::after {
+    opacity: 1;
   }
 }
+
+/* ─── Stagger delay utilities ─── */
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.10s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.20s; }
+.stagger-5 { animation-delay: 0.25s; }
+.stagger-6 { animation-delay: 0.30s; }
+.stagger-7 { animation-delay: 0.35s; }
+.stagger-8 { animation-delay: 0.40s; }

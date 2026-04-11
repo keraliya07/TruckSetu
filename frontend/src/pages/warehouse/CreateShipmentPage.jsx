@@ -1,8 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
+import {
+  Package, MapPin, Zap, CheckCircle, Check,
+  ChevronRight, ChevronDown, ArrowRight, ArrowLeft,
+  Rocket, AlertCircle,
+} from 'lucide-react';
 
 import DashboardShell from '../../components/common/DashboardShell';
 import PageTabs from '../../components/common/PageTabs';
@@ -10,478 +15,665 @@ import { cityOptions, findCity } from '../../data/logisticsOptions';
 import { useAuth } from '../../hooks/useAuth';
 import { useShipmentStore } from '../../store/shipmentStore';
 
-const shipmentTypeOptions = [
-  { value: 'STANDARD', label: 'Standard' },
-  { value: 'FRAGILE', label: 'Fragile' },
-  { value: 'HAZARDOUS', label: 'Hazardous' },
-  { value: 'TEMPERATURE_CONTROLLED', label: 'Temperature controlled' },
-  { value: 'EXPRESS', label: 'Express' },
-  { value: 'BULK', label: 'Bulk' },
+// ─── Static config ─────────────────────────────────────────────────────────────
+
+const STEPS = [
+  { id: 1, label: 'Shipment Brief',   icon: Package  },
+  { id: 2, label: 'Pickup & Delivery', icon: MapPin   },
+  { id: 3, label: 'Review & Dispatch', icon: Rocket   },
 ];
 
+// Fields validated per step (used with react-hook-form trigger)
+const STEP_FIELDS = {
+  1: ['title', 'weightKg', 'volumeM3', 'shipmentType', 'priority'],
+  2: ['pickupCity', 'pickupAddress', 'pickupDeadline', 'deliveryCity', 'deliveryAddress', 'deliveryDeadline'],
+  3: [],
+};
+
+const shipmentTypeChips = [
+  { value: 'STANDARD',             label: 'Standard',     emoji: '📦' },
+  { value: 'FRAGILE',              label: 'Fragile',       emoji: '🔮' },
+  { value: 'HAZARDOUS',            label: 'Hazardous',     emoji: '⚠️' },
+  { value: 'TEMPERATURE_CONTROLLED', label: 'Temp Control', emoji: '❄️' },
+  { value: 'EXPRESS',              label: 'Express',       emoji: '⚡' },
+  { value: 'BULK',                 label: 'Bulk',          emoji: '🏗️' },
+];
+
+const priorityLevels = [
+  { val: 1, label: 'Normal',   color: 'bg-slate-100  text-slate-600  border-slate-200  ring-slate-300'  },
+  { val: 2, label: 'Planned',  color: 'bg-blue-50    text-blue-600   border-blue-100   ring-blue-300'   },
+  { val: 3, label: 'High',     color: 'bg-amber-50   text-amber-600  border-amber-100  ring-amber-300'  },
+  { val: 4, label: 'Urgent',   color: 'bg-orange-50  text-orange-600 border-orange-100 ring-orange-300' },
+  { val: 5, label: 'Critical', color: 'bg-rose-50    text-rose-600   border-rose-100   ring-rose-300'   },
+];
+
+// ─── Validation schema ─────────────────────────────────────────────────────────
+
 const schema = z.object({
-  title: z.string().min(2, 'Title is required'),
-  description: z.string().optional(),
-  pickupCity: z.string().min(2, 'Pickup city is required'),
-  pickupAddress: z.string().min(5, 'Pickup address is required'),
-  pickupLat: z.coerce.number().min(-90).max(90),
-  pickupLng: z.coerce.number().min(-180).max(180),
-  pickupDeadline: z.string().min(1, 'Pickup deadline is required'),
-  deliveryCity: z.string().min(2, 'Delivery city is required'),
-  deliveryAddress: z.string().min(5, 'Delivery address is required'),
-  deliveryLat: z.coerce.number().min(-90).max(90),
-  deliveryLng: z.coerce.number().min(-180).max(180),
-  deliveryDeadline: z.string().min(1, 'Delivery deadline is required'),
-  weightKg: z.coerce.number().positive('Weight is required'),
-  volumeM3: z.coerce.number().positive('Volume is required'),
-  shipmentType: z.enum([
-    'STANDARD',
-    'FRAGILE',
-    'HAZARDOUS',
-    'TEMPERATURE_CONTROLLED',
-    'EXPRESS',
-    'BULK',
-  ]),
-  fragile: z.boolean().default(false),
-  hazardous: z.boolean().default(false),
-  priority: z.coerce.number().min(1).max(5),
+  title:               z.string().min(2, 'Title is required'),
+  description:         z.string().optional(),
+  pickupCity:          z.string().min(2, 'Pickup city is required'),
+  pickupAddress:       z.string().min(5, 'Pickup address is required'),
+  pickupLat:           z.coerce.number().min(-90).max(90),
+  pickupLng:           z.coerce.number().min(-180).max(180),
+  pickupDeadline:      z.string().min(1, 'Pickup deadline is required'),
+  deliveryCity:        z.string().min(2, 'Delivery city is required'),
+  deliveryAddress:     z.string().min(5, 'Delivery address is required'),
+  deliveryLat:         z.coerce.number().min(-90).max(90),
+  deliveryLng:         z.coerce.number().min(-180).max(180),
+  deliveryDeadline:    z.string().min(1, 'Delivery deadline is required'),
+  weightKg:            z.coerce.number().positive('Weight is required'),
+  volumeM3:            z.coerce.number().positive('Volume is required'),
+  shipmentType:        z.enum(['STANDARD','FRAGILE','HAZARDOUS','TEMPERATURE_CONTROLLED','EXPRESS','BULK']),
+  fragile:             z.boolean().default(false),
+  hazardous:           z.boolean().default(false),
+  priority:            z.coerce.number().min(1).max(5),
   specialInstructions: z.string().optional(),
 });
 
+// ─── Helpers ───────────────────────────────────────────────────────────────────
+
 function toLocalInputValue(date) {
-  return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
-    .toISOString()
-    .slice(0, 16);
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+}
+const defaultPickupDeadline   = () => toLocalInputValue(new Date(Date.now() + 12 * 60 * 60 * 1000));
+const defaultDeliveryDeadline = () => toLocalInputValue(new Date(Date.now() + 48 * 60 * 60 * 1000));
+
+// ─── Style tokens ──────────────────────────────────────────────────────────────
+
+const inputCls =
+  'w-full rounded-xl border border-slate-200 py-3 px-4 text-sm text-slate-900 outline-none transition-all duration-200 bg-white hover:border-slate-300 focus:border-brand-500 focus:ring-3 focus:ring-brand-500/10 placeholder:text-slate-400';
+const labelCls = 'text-xs font-semibold text-slate-500 block mb-1.5';
+
+// ─── Sub-components ────────────────────────────────────────────────────────────
+
+function StepIndicator({ currentStep, completedSteps }) {
+  const progress = currentStep === 1 ? 0 : currentStep === 2 ? 50 : 100;
+
+  return (
+    <div className="space-y-4">
+      {/* Step dots */}
+      <div className="flex items-center justify-between w-full">
+        {STEPS.map((step, idx) => {
+          const isCompleted = completedSteps.includes(step.id);
+          const isCurrent   = currentStep === step.id;
+
+          return (
+            <div key={step.id} className="flex items-center flex-1 last:flex-none">
+              <div className="flex flex-col items-center gap-1.5">
+                <div
+                  className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold transition-all duration-300 ${
+                    isCompleted
+                      ? 'bg-emerald-500 text-white'
+                      : isCurrent
+                      ? 'bg-brand-600 text-white shadow-sm shadow-brand-300'
+                      : 'bg-slate-100 text-slate-400'
+                  }`}
+                >
+                  {isCompleted ? (
+                    <Check className="h-4 w-4" />
+                  ) : (
+                    <span>{step.id}</span>
+                  )}
+                </div>
+                <span className={`text-[0.65rem] font-semibold whitespace-nowrap ${
+                  isCurrent ? 'text-brand-600' : isCompleted ? 'text-emerald-600' : 'text-slate-400'
+                }`}>
+                  {step.label}
+                </span>
+              </div>
+
+              {/* Connector line */}
+              {idx < STEPS.length - 1 && (
+                <div className="flex-1 mx-3 mb-5">
+                  <div className={`h-[2px] w-full rounded-full transition-all duration-500 ${
+                    completedSteps.includes(step.id) ? 'bg-emerald-400' : 'bg-slate-200'
+                  }`} />
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Overall progress bar */}
+      <div className="h-1 w-full overflow-hidden rounded-full bg-slate-100">
+        <div
+          className="h-full rounded-full bg-gradient-to-r from-brand-500 to-emerald-500 transition-all duration-700 ease-out"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+    </div>
+  );
 }
 
-function defaultPickupDeadline() {
-  return toLocalInputValue(new Date(Date.now() + 12 * 60 * 60 * 1000));
+function ReviewRow({ label, value, highlight }) {
+  return (
+    <div className={`rounded-xl border px-4 py-3 transition-all ${
+      highlight ? 'border-brand-200 bg-brand-50/50' : 'border-slate-100 bg-slate-50/50'
+    }`}>
+      <p className={labelCls}>{label}</p>
+      <p className="mt-0.5 text-sm font-semibold text-slate-900">{value}</p>
+    </div>
+  );
 }
 
-function defaultDeliveryDeadline() {
-  return toLocalInputValue(new Date(Date.now() + 48 * 60 * 60 * 1000));
-}
+// ─── Main component ────────────────────────────────────────────────────────────
 
 export default function CreateShipmentPage() {
-  const navigate = useNavigate();
-  const { user } = useAuth();
-  const createShipment = useShipmentStore((state) => state.createShipment);
-  const [submitError, setSubmitError] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate       = useNavigate();
+  const { user }       = useAuth();
+  const createShipment = useShipmentStore((s) => s.createShipment);
 
-  const warehouseCity = user?.warehouse?.city || cityOptions[0].city;
+  const [currentStep,    setCurrentStep]    = useState(1);
+  const [completedSteps, setCompletedSteps] = useState([]);
+  const [slideDir,       setSlideDir]       = useState('right'); // 'right' | 'left'
+  const [isAnimating,    setIsAnimating]    = useState(false);
+  const [submitError,    setSubmitError]    = useState(null);
+  const [isSubmitting,   setIsSubmitting]   = useState(false);
+  const [showCoords,     setShowCoords]     = useState(false);
+  const [showAdvanced,   setShowAdvanced]   = useState(false);
+  const formRef = useRef(null);
+
+  const warehouseCity     = user?.warehouse?.city || cityOptions[0].city;
   const warehouseLocation = findCity(warehouseCity) || cityOptions[0];
 
   const {
-    register,
-    watch,
-    setValue,
-    handleSubmit,
+    register, watch, setValue, handleSubmit, trigger,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(schema),
+    mode: 'onChange',
     defaultValues: {
-      title: '',
-      description: '',
-      pickupCity: warehouseCity,
-      pickupAddress: user?.warehouse?.address || '',
-      pickupLat: warehouseLocation.lat,
-      pickupLng: warehouseLocation.lng,
-      pickupDeadline: defaultPickupDeadline(),
-      deliveryCity: 'Mumbai',
-      deliveryAddress: '',
-      deliveryLat: (findCity('Mumbai') || cityOptions[0]).lat,
-      deliveryLng: (findCity('Mumbai') || cityOptions[0]).lng,
-      deliveryDeadline: defaultDeliveryDeadline(),
-      weightKg: 1000,
-      volumeM3: 8,
-      shipmentType: 'STANDARD',
-      fragile: false,
-      hazardous: false,
-      priority: 2,
+      title:               '',
+      description:         '',
+      pickupCity:          warehouseCity,
+      pickupAddress:       user?.warehouse?.address || '',
+      pickupLat:           warehouseLocation.lat,
+      pickupLng:           warehouseLocation.lng,
+      pickupDeadline:      defaultPickupDeadline(),
+      deliveryCity:        'Mumbai',
+      deliveryAddress:     '',
+      deliveryLat:         (findCity('Mumbai') || cityOptions[0]).lat,
+      deliveryLng:         (findCity('Mumbai') || cityOptions[0]).lng,
+      deliveryDeadline:    defaultDeliveryDeadline(),
+      weightKg:            1000,
+      volumeM3:            8,
+      shipmentType:        'STANDARD',
+      fragile:             false,
+      hazardous:           false,
+      priority:            2,
       specialInstructions: '',
     },
   });
 
-  const pickupCity = watch('pickupCity');
-  const deliveryCity = watch('deliveryCity');
-  const title = watch('title');
-  const weightKg = Number(watch('weightKg') || 0);
-  const volumeM3 = Number(watch('volumeM3') || 0);
-  const shipmentType = watch('shipmentType');
-  const pickupDeadline = watch('pickupDeadline');
+  // Watched values
+  const title            = watch('title');
+  const pickupCity       = watch('pickupCity');
+  const pickupAddress    = watch('pickupAddress');
+  const deliveryCity     = watch('deliveryCity');
+  const deliveryAddress  = watch('deliveryAddress');
+  const weightKg         = Number(watch('weightKg')   || 0);
+  const volumeM3         = Number(watch('volumeM3')   || 0);
+  const shipmentType     = watch('shipmentType');
+  const pickupDeadline   = watch('pickupDeadline');
   const deliveryDeadline = watch('deliveryDeadline');
-  const fragile = Boolean(watch('fragile'));
-  const hazardous = Boolean(watch('hazardous'));
-  const priority = Number(watch('priority') || 0);
+  const fragile          = Boolean(watch('fragile'));
+  const hazardous        = Boolean(watch('hazardous'));
+  const priority         = Number(watch('priority')   || 0);
 
+  // Auto-update coordinates
   useEffect(() => {
     const city = findCity(pickupCity);
-    if (city) {
-      setValue('pickupLat', city.lat);
-      setValue('pickupLng', city.lng);
-    }
+    if (city) { setValue('pickupLat', city.lat); setValue('pickupLng', city.lng); }
   }, [pickupCity, setValue]);
 
   useEffect(() => {
     const city = findCity(deliveryCity);
-    if (city) {
-      setValue('deliveryLat', city.lat);
-      setValue('deliveryLng', city.lng);
-    }
+    if (city) { setValue('deliveryLat', city.lat); setValue('deliveryLng', city.lng); }
   }, [deliveryCity, setValue]);
 
-  const shipmentTypeLabel = useMemo(
-    () =>
-      shipmentTypeOptions.find((option) => option.value === shipmentType)?.label || shipmentType,
-    [shipmentType]
-  );
+  const shipmentTypeChip  = shipmentTypeChips.find((c) => c.value === shipmentType);
+  const priorityChip      = priorityLevels.find((p) => p.val === priority);
+
+  // ── Navigation ───────────────────────────────────────────────────────────────
+
+  const goToStep = async (targetStep) => {
+    if (isAnimating) return;
+
+    if (targetStep > currentStep) {
+      // Validate current step fields before advancing
+      const fields  = STEP_FIELDS[currentStep];
+      const isValid = fields.length ? await trigger(fields) : true;
+      if (!isValid) return;
+
+      // Mark current as completed
+      setCompletedSteps((prev) => [...new Set([...prev, currentStep])]);
+    }
+
+    setSlideDir(targetStep > currentStep ? 'right' : 'left');
+    setIsAnimating(true);
+    setTimeout(() => {
+      setCurrentStep(targetStep);
+      setIsAnimating(false);
+      // Scroll form top
+      formRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 200);
+  };
+
+  const goNext = () => goToStep(currentStep + 1);
+  const goBack = () => goToStep(currentStep - 1);
+
+  // ── Submit ───────────────────────────────────────────────────────────────────
 
   const onSubmit = handleSubmit(async (values) => {
     setIsSubmitting(true);
     setSubmitError(null);
-
     try {
-      const createdShipment = await createShipment({
+      const created = await createShipment({
         ...values,
-        pickupDeadline: new Date(values.pickupDeadline).toISOString(),
+        pickupDeadline:   new Date(values.pickupDeadline).toISOString(),
         deliveryDeadline: new Date(values.deliveryDeadline).toISOString(),
       });
-
-      navigate(`/warehouse/shipments/${createdShipment.id}`);
-    } catch (error) {
-      setSubmitError(error.message);
+      navigate(`/warehouse/shipments/${created.id}`);
+    } catch (err) {
+      setSubmitError(err.message);
     } finally {
       setIsSubmitting(false);
     }
   });
 
+  // ── Slide animation class ─────────────────────────────────────────────────────
+
+  const slideClass = isAnimating
+    ? slideDir === 'right'
+      ? 'opacity-0 translate-x-4'
+      : 'opacity-0 -translate-x-4'
+    : 'opacity-100 translate-x-0';
+
+  // ── Render ───────────────────────────────────────────────────────────────────
+
   return (
     <DashboardShell
       accent="text-brand-600"
       eyebrow="Warehouse Flow"
-      title="Create shipment"
-      subtitle="Capture the shipment once, then let the platform price it, fetch the best dealer matches, and send the request to the top 10 optimized dealers automatically."
+      title="Create workspace"
+      subtitle="Complete each step to build, price, and dispatch your shipment to the top 10 optimized dealers automatically."
     >
       <PageTabs
         items={[
-          { to: '/warehouse/shipments', label: 'Shipment board' },
+          { to: '/warehouse/shipments',         label: 'Shipment board' },
           { to: '/warehouse/shipments/history', label: 'Shipment history' },
-          { to: '/warehouse/shipments/new', label: 'Create shipment', active: true },
-          { to: '/warehouse/bookings', label: 'Bookings' },
-          { to: '/warehouse/truck-estimation', label: 'Truck estimation' },
+          { to: '/warehouse/shipments/new',     label: 'Create workspace', active: true },
+          { to: '/warehouse/bookings',          label: 'Bookings' },
+          { to: '/warehouse/truck-estimation',  label: 'Truck estimation' },
         ]}
       />
 
-      <div className="space-y-6">
-        <section className="panel p-6">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-            <div>
-              <p className="font-heading text-sm uppercase tracking-[0.3em] text-slate-500">
-                Auto dispatch flow
-              </p>
-              <h2 className="mt-2 font-heading text-3xl text-slate-950">
-                Create, price, optimize, and invite
-              </h2>
-            </div>
-            <div className="rounded-3xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
-              Shipment price and dealer requests are generated by the platform after submit.
-            </div>
+      {/* ── Single-column centered layout ─────────────────────────────────── */}
+      <div className="max-w-3xl mx-auto w-full">
+        <section className="rounded-2xl bg-white border border-slate-200 shadow-sm flex flex-col overflow-hidden">
+
+          {/* ── Step indicator (inline header) ────────────────────────────── */}
+          <div className="border-b border-slate-100 px-6 sm:px-8 pt-6 pb-5">
+            <StepIndicator currentStep={currentStep} completedSteps={completedSteps} />
           </div>
 
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
-            <div className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4">
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Step 1</p>
-              <p className="mt-2 font-semibold text-slate-900">Enter shipment details</p>
-              <p className="mt-1 text-sm text-slate-600">
-                Pickup, delivery, deadlines, load, and shipment type.
-              </p>
-            </div>
-            <div className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4">
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Step 2</p>
-              <p className="mt-2 font-semibold text-slate-900">System generates price</p>
-              <p className="mt-1 text-sm text-slate-600">
-                Pricing is based on distance, weight, volume, and shipment type.
-              </p>
-            </div>
-            <div className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4">
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Step 3</p>
-              <p className="mt-2 font-semibold text-slate-900">Top 10 dealers are invited</p>
-              <p className="mt-1 text-sm text-slate-600">
-                Only optimized dealer requests are sent, and the first acceptance wins.
-              </p>
-            </div>
-          </div>
-        </section>
+          {/* ── Scrollable form area ──────────────────────────────────────── */}
+          <div
+            ref={formRef}
+            className="flex-1 overflow-y-auto custom-scrollbar"
+          >
+            <form className="p-6 sm:p-8" onSubmit={(e) => e.preventDefault()}>
+              <div className={`transition-all duration-200 ease-out ${slideClass}`}>
 
-        <div className="grid gap-6 xl:grid-cols-[1.08fr_0.92fr]">
-          <section className="panel p-6 sm:p-8">
-            <form className="grid gap-6" onSubmit={(event) => event.preventDefault()}>
-              <div>
-                <p className="font-heading text-sm uppercase tracking-[0.3em] text-slate-500">
-                  Step 1 of 3
-                </p>
-                <h2 className="mt-2 font-heading text-3xl text-slate-950">Shipment brief</h2>
-              </div>
+                {/* ════ STEP 1: Shipment Brief ════════════════════════════════ */}
+                {currentStep === 1 && (
+                  <div className="space-y-6">
+                    {/* Section header */}
+                    <div>
+                      <h2 className="font-heading text-xl font-bold text-slate-900">Shipment brief</h2>
+                      <p className="mt-1 text-sm text-slate-500">What you're shipping — load profile, type, and handling.</p>
+                    </div>
 
-              <div>
-                <label className="field-label" htmlFor="title">
-                  Shipment title
-                </label>
-                <input className="input-base" id="title" {...register('title')} />
-                {errors.title ? (
-                  <p className="mt-2 text-sm text-rose-600">{errors.title.message}</p>
-                ) : null}
-              </div>
+                    {/* ── Basics group ──────────────────────────────────────── */}
+                    <div className="space-y-4">
+                      {/* Title */}
+                      <div>
+                        <label className={labelCls} htmlFor="title">Shipment title <span className="text-rose-400">*</span></label>
+                        <input className={inputCls} id="title" placeholder="e.g. Mumbai steel coils batch 12" {...register('title')} />
+                        {errors.title && (
+                          <p className="mt-1.5 flex items-center gap-1.5 text-xs text-rose-600">
+                            <AlertCircle className="h-3 w-3" />{errors.title.message}
+                          </p>
+                        )}
+                      </div>
 
-              <div>
-                <label className="field-label" htmlFor="description">
-                  Description
-                </label>
-                <textarea className="input-base min-h-24" id="description" {...register('description')} />
-              </div>
+                      {/* Description */}
+                      <div>
+                        <label className={labelCls} htmlFor="description">Description <span className="text-slate-300 font-normal">optional</span></label>
+                        <textarea className={`${inputCls} min-h-[72px] resize-none`} id="description" placeholder="Any context the dealer should know..." {...register('description')} />
+                      </div>
 
-              <div className="grid gap-5 sm:grid-cols-2">
-                <div>
-                  <label className="field-label" htmlFor="weightKg">
-                    Shipment weight (kg)
-                  </label>
-                  <input className="input-base" id="weightKg" type="number" {...register('weightKg')} />
-                  {errors.weightKg ? (
-                    <p className="mt-2 text-sm text-rose-600">{errors.weightKg.message}</p>
-                  ) : null}
-                </div>
-                <div>
-                  <label className="field-label" htmlFor="volumeM3">
-                    Shipment volume (m3)
-                  </label>
-                  <input
-                    className="input-base"
-                    id="volumeM3"
-                    step="0.1"
-                    type="number"
-                    {...register('volumeM3')}
-                  />
-                  {errors.volumeM3 ? (
-                    <p className="mt-2 text-sm text-rose-600">{errors.volumeM3.message}</p>
-                  ) : null}
-                </div>
-              </div>
+                      {/* Weight + Volume — side by side */}
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div>
+                          <label className={labelCls} htmlFor="weightKg">Weight (kg) <span className="text-rose-400">*</span></label>
+                          <input className={inputCls} id="weightKg" type="number" {...register('weightKg')} />
+                          {errors.weightKg && (
+                            <p className="mt-1.5 flex items-center gap-1.5 text-xs text-rose-600">
+                              <AlertCircle className="h-3 w-3" />{errors.weightKg.message}
+                            </p>
+                          )}
+                        </div>
+                        <div>
+                          <label className={labelCls} htmlFor="volumeM3">Volume (m³) <span className="text-rose-400">*</span></label>
+                          <input className={inputCls} id="volumeM3" step="0.1" type="number" {...register('volumeM3')} />
+                          {errors.volumeM3 && (
+                            <p className="mt-1.5 flex items-center gap-1.5 text-xs text-rose-600">
+                              <AlertCircle className="h-3 w-3" />{errors.volumeM3.message}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
 
-              <div className="grid gap-5 sm:grid-cols-2">
-                <div>
-                  <label className="field-label" htmlFor="shipmentType">
-                    Shipment type
-                  </label>
-                  <select className="input-base" id="shipmentType" {...register('shipmentType')}>
-                    {shipmentTypeOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="field-label" htmlFor="priority">
-                    Priority
-                  </label>
-                  <select className="input-base" id="priority" {...register('priority')}>
-                    <option value={1}>1 - Normal</option>
-                    <option value={2}>2 - Planned</option>
-                    <option value={3}>3 - High</option>
-                    <option value={4}>4 - Urgent</option>
-                    <option value={5}>5 - Critical</option>
-                  </select>
-                </div>
-              </div>
+                    {/* ── Classification group ─────────────────────────────── */}
+                    <div className="space-y-4">
+                      {/* Shipment type — compact horizontal pills */}
+                      <div>
+                        <p className={labelCls}>Shipment type <span className="text-rose-400">*</span></p>
+                        <input type="hidden" {...register('shipmentType')} />
+                        <div className="flex flex-wrap gap-2">
+                          {shipmentTypeChips.map((chip) => {
+                            const isSelected = shipmentType === chip.value;
+                            return (
+                              <button
+                                key={chip.value}
+                                type="button"
+                                onClick={() => setValue('shipmentType', chip.value, { shouldValidate: true })}
+                                className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-semibold transition-all duration-200 ${
+                                  isSelected
+                                    ? 'border-brand-400 bg-brand-50 text-brand-700 ring-2 ring-brand-400/20 shadow-sm'
+                                    : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                                }`}
+                              >
+                                <span className="text-sm">{chip.emoji}</span>
+                                {chip.label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-700">
-                  <input className="mr-3" type="checkbox" {...register('fragile')} />
-                  Fragile handling required
-                </label>
-                <label className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-700">
-                  <input className="mr-3" type="checkbox" {...register('hazardous')} />
-                  Hazardous cargo
-                </label>
-              </div>
+                      {/* Priority — compact pills */}
+                      <div>
+                        <p className={labelCls}>Priority level</p>
+                        <input type="hidden" {...register('priority')} />
+                        <div className="flex flex-wrap gap-2">
+                          {priorityLevels.map(({ val, label, color }) => {
+                            const isSelected = priority === val;
+                            return (
+                              <button
+                                key={val}
+                                type="button"
+                                onClick={() => setValue('priority', val, { shouldValidate: true })}
+                                className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-all duration-200 ${color} ${
+                                  isSelected ? 'ring-2 ring-offset-1 shadow-sm' : 'opacity-50 hover:opacity-80'
+                                }`}
+                              >
+                                <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                                {label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
 
-              <div>
-                <label className="field-label" htmlFor="specialInstructions">
-                  Special instructions
-                </label>
-                <textarea
-                  className="input-base min-h-24"
-                  id="specialInstructions"
-                  placeholder="Gate timing, unloading rules, stack limits, documents..."
-                  {...register('specialInstructions')}
-                />
-              </div>
+                    {/* ── Special handling (collapsed by default) ──────────── */}
+                    <div className="rounded-xl border border-slate-200 overflow-hidden">
+                      <button
+                        type="button"
+                        onClick={() => setShowAdvanced((v) => !v)}
+                        className="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-slate-50 transition-colors"
+                      >
+                        <span className="text-xs font-semibold text-slate-500">Special handling & instructions</span>
+                        {showAdvanced ? <ChevronDown className="h-4 w-4 text-slate-400" /> : <ChevronRight className="h-4 w-4 text-slate-400" />}
+                      </button>
+                      {showAdvanced && (
+                        <div className="border-t border-slate-100 px-4 py-4 space-y-4">
+                          {/* Fragile + Hazardous */}
+                          <div className="grid gap-3 sm:grid-cols-2">
+                            <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 px-4 py-3 transition hover:bg-slate-50">
+                              <input className="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" type="checkbox" {...register('fragile')} />
+                              <span className="text-sm text-slate-700">🔮 Fragile handling</span>
+                            </label>
+                            <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 px-4 py-3 transition hover:bg-slate-50">
+                              <input className="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" type="checkbox" {...register('hazardous')} />
+                              <span className="text-sm text-slate-700">⚠️ Hazardous cargo</span>
+                            </label>
+                          </div>
 
-              <div>
-                <p className="font-heading text-sm uppercase tracking-[0.3em] text-slate-500">
-                  Step 2 of 3
-                </p>
-                <h2 className="mt-2 font-heading text-3xl text-slate-950">Pickup and delivery</h2>
-              </div>
-
-              <div className="grid gap-6 lg:grid-cols-2">
-                <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Pickup</p>
-
-                  <div className="mt-4 grid gap-4">
-                    <label>
-                      <span className="field-label">Pickup city</span>
-                      <select className="input-base" {...register('pickupCity')}>
-                        {cityOptions.map((city) => (
-                          <option key={city.city} value={city.city}>
-                            {city.city}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-
-                    <label>
-                      <span className="field-label">Pickup address</span>
-                      <textarea className="input-base min-h-24" {...register('pickupAddress')} />
-                    </label>
-
-                    <label>
-                      <span className="field-label">Pickup deadline</span>
-                      <input className="input-base" type="datetime-local" {...register('pickupDeadline')} />
-                    </label>
+                          {/* Special instructions */}
+                          <div>
+                            <label className={labelCls} htmlFor="specialInstructions">Special instructions</label>
+                            <textarea
+                              className={`${inputCls} min-h-[72px] resize-none`}
+                              id="specialInstructions"
+                              placeholder="Gate timing, unloading rules, stack limits, documents..."
+                              {...register('specialInstructions')}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
+                )}
 
-                <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Delivery</p>
+                {/* ════ STEP 2: Pickup & Delivery ══════════════════════════════ */}
+                {currentStep === 2 && (
+                  <div className="space-y-6">
+                    <div>
+                      <h2 className="font-heading text-xl font-bold text-slate-900">Pickup & delivery</h2>
+                      <p className="mt-1 text-sm text-slate-500">Origin, destination, and deadlines for this lane.</p>
+                    </div>
 
-                  <div className="mt-4 grid gap-4">
-                    <label>
-                      <span className="field-label">Delivery city</span>
-                      <select className="input-base" {...register('deliveryCity')}>
-                        {cityOptions.map((city) => (
-                          <option key={city.city} value={city.city}>
-                            {city.city}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
+                    <div className="grid gap-5 lg:grid-cols-2">
+                      {/* Pickup — left accent border */}
+                      <div className="rounded-xl border border-slate-200 border-l-4 border-l-brand-500 bg-white p-5 space-y-4">
+                        <p className="text-xs font-semibold text-brand-600 uppercase tracking-wide">Origin · Pickup</p>
+                        <div>
+                          <label className={labelCls}>City <span className="text-rose-400">*</span></label>
+                          <select className={inputCls} {...register('pickupCity')}>
+                            {cityOptions.map((c) => <option key={c.city} value={c.city}>{c.city}</option>)}
+                          </select>
+                        </div>
+                        <div>
+                          <label className={labelCls}>Address <span className="text-rose-400">*</span></label>
+                          <textarea className={`${inputCls} min-h-[72px] resize-none`} {...register('pickupAddress')} />
+                          {errors.pickupAddress && (
+                            <p className="mt-1.5 flex items-center gap-1.5 text-xs text-rose-600">
+                              <AlertCircle className="h-3 w-3" />{errors.pickupAddress.message}
+                            </p>
+                          )}
+                        </div>
+                        <div>
+                          <label className={labelCls}>Pickup deadline <span className="text-rose-400">*</span></label>
+                          <input className={inputCls} type="datetime-local" {...register('pickupDeadline')} />
+                        </div>
+                      </div>
 
-                    <label>
-                      <span className="field-label">Delivery address</span>
-                      <textarea className="input-base min-h-24" {...register('deliveryAddress')} />
-                    </label>
+                      {/* Delivery — left accent border */}
+                      <div className="rounded-xl border border-slate-200 border-l-4 border-l-slate-700 bg-white p-5 space-y-4">
+                        <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Destination · Delivery</p>
+                        <div>
+                          <label className={labelCls}>City <span className="text-rose-400">*</span></label>
+                          <select className={inputCls} {...register('deliveryCity')}>
+                            {cityOptions.map((c) => <option key={c.city} value={c.city}>{c.city}</option>)}
+                          </select>
+                        </div>
+                        <div>
+                          <label className={labelCls}>Address <span className="text-rose-400">*</span></label>
+                          <textarea className={`${inputCls} min-h-[72px] resize-none`} {...register('deliveryAddress')} />
+                          {errors.deliveryAddress && (
+                            <p className="mt-1.5 flex items-center gap-1.5 text-xs text-rose-600">
+                              <AlertCircle className="h-3 w-3" />{errors.deliveryAddress.message}
+                            </p>
+                          )}
+                        </div>
+                        <div>
+                          <label className={labelCls}>Delivery deadline <span className="text-rose-400">*</span></label>
+                          <input className={inputCls} type="datetime-local" {...register('deliveryDeadline')} />
+                        </div>
+                      </div>
+                    </div>
 
-                    <label>
-                      <span className="field-label">Delivery deadline</span>
-                      <input className="input-base" type="datetime-local" {...register('deliveryDeadline')} />
-                    </label>
+                    {/* Collapsible coordinates */}
+                    <div>
+                      <button
+                        type="button"
+                        onClick={() => setShowCoords((v) => !v)}
+                        className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-slate-600 transition-colors"
+                      >
+                        {showCoords ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                        Advanced coordinates
+                      </button>
+                      {showCoords && (
+                        <div className="mt-3 grid gap-3 sm:grid-cols-4">
+                          {[
+                            { id: 'pickupLat',   label: 'Pickup lat',   key: 'pickupLat'   },
+                            { id: 'pickupLng',   label: 'Pickup lng',   key: 'pickupLng'   },
+                            { id: 'deliveryLat', label: 'Delivery lat', key: 'deliveryLat' },
+                            { id: 'deliveryLng', label: 'Delivery lng', key: 'deliveryLng' },
+                          ].map(({ id, label, key }) => (
+                            <div key={id}>
+                              <label className={labelCls} htmlFor={id}>{label}</label>
+                              <input className={inputCls} id={id} step="0.0001" type="number" {...register(key)} />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </div>
+                )}
 
-              <div className="grid gap-5 sm:grid-cols-4">
-                <div>
-                  <label className="field-label" htmlFor="pickupLat">
-                    Pickup lat
-                  </label>
-                  <input className="input-base" id="pickupLat" step="0.0001" type="number" {...register('pickupLat')} />
-                </div>
-                <div>
-                  <label className="field-label" htmlFor="pickupLng">
-                    Pickup lng
-                  </label>
-                  <input className="input-base" id="pickupLng" step="0.0001" type="number" {...register('pickupLng')} />
-                </div>
-                <div>
-                  <label className="field-label" htmlFor="deliveryLat">
-                    Delivery lat
-                  </label>
-                  <input className="input-base" id="deliveryLat" step="0.0001" type="number" {...register('deliveryLat')} />
-                </div>
-                <div>
-                  <label className="field-label" htmlFor="deliveryLng">
-                    Delivery lng
-                  </label>
-                  <input className="input-base" id="deliveryLng" step="0.0001" type="number" {...register('deliveryLng')} />
-                </div>
+                {/* ════ STEP 3: Review & Dispatch ══════════════════════════════ */}
+                {currentStep === 3 && (
+                  <div className="space-y-5">
+                    <div>
+                      <h2 className="font-heading text-xl font-bold text-slate-900">Review & dispatch</h2>
+                      <p className="mt-1 text-sm text-slate-500">Confirm details below. The platform will price it and invite the top 10 dealers.</p>
+                    </div>
+
+                    {/* Review grid */}
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <ReviewRow label="Shipment title" value={title || '—'} highlight />
+                      <ReviewRow label="Load profile" value={`${weightKg} kg · ${volumeM3} m³`} />
+                      <ReviewRow label="Type" value={`${shipmentTypeChip?.emoji} ${shipmentTypeChip?.label}`} />
+                      <ReviewRow label="Priority" value={priorityChip?.label || '—'} />
+                    </div>
+
+                    {/* Lane visualization */}
+                    <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-5">
+                      <p className={labelCls}>Lane</p>
+                      <div className="mt-2 flex items-center gap-4">
+                        <div className="text-center min-w-0">
+                          <span className="flex h-2.5 w-2.5 mx-auto rounded-full bg-brand-500 mb-1" />
+                          <p className="text-sm font-bold text-slate-900">{pickupCity}</p>
+                          <p className="text-xs text-slate-500 truncate max-w-[140px]">{pickupAddress}</p>
+                        </div>
+                        <div className="flex-1 flex items-center gap-1">
+                          <div className="flex-1 h-px bg-gradient-to-r from-brand-300 to-slate-300" />
+                          <ArrowRight className="h-4 w-4 text-slate-400 shrink-0" />
+                        </div>
+                        <div className="text-center min-w-0">
+                          <span className="flex h-2.5 w-2.5 mx-auto rounded-full bg-slate-700 mb-1" />
+                          <p className="text-sm font-bold text-slate-900">{deliveryCity}</p>
+                          <p className="text-xs text-slate-500 truncate max-w-[140px]">{deliveryAddress}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <ReviewRow label="Pickup deadline" value={pickupDeadline ? new Date(pickupDeadline).toLocaleString() : '—'} />
+                      <ReviewRow label="Delivery deadline" value={deliveryDeadline ? new Date(deliveryDeadline).toLocaleString() : '—'} />
+                    </div>
+
+                    {(fragile || hazardous) && (
+                      <div className="flex flex-wrap gap-2">
+                        {fragile   && <span className="inline-flex items-center rounded-full bg-purple-50 border border-purple-200 px-2.5 py-0.5 text-xs font-semibold text-purple-600">🔮 Fragile</span>}
+                        {hazardous && <span className="inline-flex items-center rounded-full bg-orange-50 border border-orange-200 px-2.5 py-0.5 text-xs font-semibold text-orange-600">⚠️ Hazardous</span>}
+                      </div>
+                    )}
+
+                    {submitError && (
+                      <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 flex items-center gap-2">
+                        <AlertCircle className="h-4 w-4 shrink-0" />{submitError}
+                      </div>
+                    )}
+                  </div>
+                )}
+
               </div>
             </form>
-          </section>
+          </div>
 
-          <aside className="space-y-6">
-            <section className="panel p-6">
-              <p className="font-heading text-sm uppercase tracking-[0.3em] text-slate-500">
-                Step 3 of 3
-              </p>
-              <h2 className="mt-2 font-heading text-3xl text-slate-950">System handoff</h2>
-              <p className="mt-3 text-sm text-slate-600">
-                After you create the shipment, the platform will price it, fetch eligible truck
-                dealers, rank them, and send requests only to the first 10 optimized matches.
-              </p>
-
-              <div className="mt-5 grid gap-4">
-                <div className="rounded-3xl bg-slate-50 px-4 py-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Shipment</p>
-                  <p className="mt-2 text-lg font-semibold text-slate-900">
-                    {title || 'Untitled shipment'}
-                  </p>
-                  <p className="mt-1 text-sm text-slate-600">
-                    {pickupCity} to {deliveryCity}
-                  </p>
-                </div>
-
-                <div className="rounded-3xl bg-slate-50 px-4 py-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Load profile</p>
-                  <p className="mt-2 text-lg font-semibold text-slate-900">
-                    {weightKg} kg and {volumeM3} m3
-                  </p>
-                  <p className="mt-1 text-sm text-slate-600">{shipmentTypeLabel}</p>
-                </div>
-
-                <div className="rounded-3xl bg-slate-50 px-4 py-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Timing</p>
-                  <p className="mt-2 text-sm font-semibold text-slate-900">
-                    Pickup {pickupDeadline ? new Date(pickupDeadline).toLocaleString() : 'Not set'}
-                  </p>
-                  <p className="mt-1 text-sm text-slate-600">
-                    Delivery {deliveryDeadline ? new Date(deliveryDeadline).toLocaleString() : 'Not set'}
-                  </p>
-                </div>
-
-                <div className="rounded-3xl bg-slate-50 px-4 py-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Handling</p>
-                  <p className="mt-2 text-sm font-semibold text-slate-900">
-                    {fragile ? 'Fragile' : 'Standard'} / {hazardous ? 'Hazardous' : 'Non-hazardous'}
-                  </p>
-                  <p className="mt-1 text-sm text-slate-600">Priority {priority}</p>
-                </div>
+          {/* ── Dispatching overlay ──────────────────────────────────────── */}
+          {isSubmitting && (
+            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 rounded-2xl bg-white/95 backdrop-blur-sm">
+              <div className="relative">
+                <div className="h-12 w-12 rounded-full border-[3px] border-slate-200" />
+                <div className="absolute inset-0 h-12 w-12 rounded-full border-[3px] border-emerald-500 border-t-transparent animate-spin" />
               </div>
+              <div className="text-center">
+                <p className="text-sm font-semibold text-slate-900">Dispatching shipment…</p>
+                <p className="mt-1 text-xs text-slate-500">Pricing, optimizing dealers, and sending invitations</p>
+              </div>
+            </div>
+          )}
 
+          {/* ── Step navigation footer ─────────────────────────────────────── */}
+          <div className="flex-none border-t border-slate-100 px-6 sm:px-8 py-4 flex items-center justify-between gap-4 bg-white">
+            {/* Back */}
+            {currentStep > 1 ? (
               <button
-                className="btn-primary mt-6 w-full"
-                disabled={isSubmitting}
-                onClick={onSubmit}
                 type="button"
+                onClick={goBack}
+                disabled={isSubmitting}
+                className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                {isSubmitting
-                  ? 'Creating shipment and sending requests...'
-                  : 'Create shipment and send top 10 requests'}
+                <ArrowLeft className="h-4 w-4" />
+                Back
               </button>
+            ) : (
+              <div />
+            )}
 
-              <p className="mt-4 text-sm text-slate-600">
-                Dealers can only accept or reject. Counter offers are disabled in this workflow.
-              </p>
+            {/* Next / Submit */}
+            {currentStep < 3 ? (
+              <button
+                type="button"
+                onClick={goNext}
+                className="inline-flex h-10 items-center gap-2 rounded-xl bg-brand-600 px-6 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-brand-700 hover:shadow-md"
+              >
+                Continue
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={onSubmit}
+                disabled={isSubmitting}
+                className="inline-flex h-10 items-center gap-2 rounded-xl bg-emerald-600 px-6 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-emerald-700 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                <Rocket className="h-4 w-4" />
+                {isSubmitting ? 'Dispatching…' : 'Confirm & dispatch'}
+              </button>
+            )}
+          </div>
 
-              {submitError ? (
-                <div className="mt-5 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                  {submitError}
-                </div>
-              ) : null}
-            </section>
-          </aside>
-        </div>
+        </section>
       </div>
     </DashboardShell>
   );

@@ -1,6 +1,6 @@
 import { Menu } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useAuth } from '../../hooks/useAuth';
+
 import { useSocket } from '../../hooks/useSocket';
 import Sidebar from './Sidebar';
 
@@ -11,7 +11,6 @@ export default function DashboardShell({
   subtitle,
   children,
 }) {
-  const { user } = useAuth();
   const { isConnected } = useSocket();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -37,45 +36,42 @@ export default function DashboardShell({
           onToggleCollapse={() => setIsSidebarCollapsed((current) => !current)}
         />
 
-        <div className="min-w-0 flex-1 space-y-6">
-          <header className="panel overflow-hidden">
-            <div className="flex flex-col gap-6 p-6 lg:flex-row lg:items-end lg:justify-between lg:p-8">
-              <div className="space-y-3">
-                <button
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 lg:hidden"
-                  onClick={() => setIsSidebarOpen(true)}
-                  type="button"
-                >
-                  <Menu className="h-5 w-5" />
-                </button>
-                <p className={`font-heading text-sm uppercase tracking-[0.35em] ${accent}`}>
-                  {eyebrow}
-                </p>
-                <div>
-                  <h1 className="font-heading text-3xl text-slate-950 sm:text-4xl">
-                    {title}
-                  </h1>
-                  <p className="mt-2 max-w-2xl text-slate-600">{subtitle}</p>
-                </div>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                <div className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-600">
-                  Signed in as <span className="font-semibold text-slate-900">{user?.name}</span>
-                </div>
+        <div className="min-w-0 flex-1 space-y-6 animate-fade-in">
+          <header className="flex items-center justify-between py-2 mb-2">
+            <div className="flex items-center gap-4">
+              <button
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200/60 bg-white/50 text-slate-700 backdrop-blur-md transition hover:border-slate-300 hover:bg-white hover:shadow-sm lg:hidden hover:-translate-y-px"
+                onClick={() => setIsSidebarOpen(true)}
+                type="button"
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+              <h1 className="font-heading text-xl font-semibold text-slate-900 tracking-tight lg:text-2xl">
+                {title}
+              </h1>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              {isConnected ? (
                 <div
-                  className={`rounded-3xl px-4 py-4 text-sm font-semibold ${
-                    isConnected
-                      ? 'border border-emerald-200 bg-emerald-50 text-emerald-700'
-                      : 'border border-amber-200 bg-amber-50 text-amber-700'
-                  }`}
+                  className="flex items-center gap-2 rounded-full bg-white/60 border border-emerald-100 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-emerald-700 shadow-sm backdrop-blur-md"
+                  title="Realtime connected"
                 >
-                  {isConnected ? 'Realtime connected' : 'Realtime reconnecting'}
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                  </span>
+                  Live
                 </div>
-                <div className="rounded-3xl border border-slate-200 bg-white px-4 py-4 text-sm text-slate-600 sm:col-span-2 xl:col-span-1">
-                  Role: <span className="font-semibold text-slate-900">{user?.role}</span>
+              ) : (
+                <div
+                  className="flex items-center gap-2 rounded-full bg-white/60 border border-amber-100 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-amber-700 shadow-sm backdrop-blur-md"
+                  title="Reconnecting"
+                >
+                  <span className="h-2 w-2 rounded-full bg-amber-500" />
+                  Offline
                 </div>
-              </div>
+              )}
             </div>
           </header>
 

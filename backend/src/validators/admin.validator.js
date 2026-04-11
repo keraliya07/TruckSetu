@@ -8,7 +8,7 @@ const passwordSchema = z
 
 const userQuerySchema = z.object({
   page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(50).default(12),
+  limit: z.coerce.number().int().positive().max(1000).default(12),
   role: z.enum(['ADMIN', 'ANALYST', 'WAREHOUSE', 'DEALER']).optional(),
   status: z.enum(['ACTIVE', 'PENDING', 'SUSPENDED', 'DISABLED']).optional(),
   search: z.string().trim().max(120).optional(),

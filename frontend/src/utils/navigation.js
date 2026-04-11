@@ -6,9 +6,9 @@ const roleNavigation = {
       {
         title: 'Operate',
         items: [
-          { key: 'shipments', label: 'Shipment Board', to: '/warehouse/shipments', icon: 'shipments' },
+          { key: 'shipments', label: 'Shipment Board', to: '/warehouse/shipments', icon: 'shipments', end: true },
           { key: 'shipment-history', label: 'Shipment History', to: '/warehouse/shipments/history', icon: 'shipments' },
-          { key: 'create-shipment', label: 'Dispatch Workspace', to: '/warehouse/shipments/new', icon: 'create' },
+          { key: 'create-shipment', label: 'Create workspace', to: '/warehouse/shipments/new', icon: 'create' },
           { key: 'bookings', label: 'Bookings', to: '/warehouse/bookings', icon: 'bookings' },
           { key: 'truck-estimation', label: 'Truck Estimation', to: '/warehouse/truck-estimation', icon: 'fleet' },
         ],
@@ -20,7 +20,7 @@ const roleNavigation = {
       {
         title: 'Operate',
         items: [
-          { key: 'fleet', label: 'Fleet', to: '/dealer/fleet', icon: 'fleet' },
+          { key: 'fleet', label: 'Fleet', to: '/dealer/fleet', icon: 'fleet', end: true },
           { key: 'add-truck', label: 'Add Truck', to: '/dealer/fleet/new', icon: 'create' },
           { key: 'bookings', label: 'Booking Requests', to: '/dealer/bookings', icon: 'bookings' },
           { key: 'return-loads', label: 'Return Loads', to: '/dealer/return-loads', icon: 'returnLoads' },

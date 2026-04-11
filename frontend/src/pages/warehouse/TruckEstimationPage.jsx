@@ -17,7 +17,7 @@ export default function TruckEstimationPage() {
         items={[
           { to: '/warehouse/shipments', label: 'Shipment board' },
           { to: '/warehouse/shipments/history', label: 'Shipment history' },
-          { to: '/warehouse/shipments/new', label: 'Dispatch workspace' },
+          { to: '/warehouse/shipments/new', label: 'Create workspace' },
           { to: '/warehouse/bookings', label: 'Bookings' },
           { to: '/warehouse/truck-estimation', label: 'Truck estimation', active: true },
         ]}

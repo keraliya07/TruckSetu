@@ -341,6 +341,9 @@ const create = async (data, user) => {
     };
   }
 
+  // ── Batch-create booking requests (replaces sequential for-loop) ─────────
+  const expiresAt = new Date(Date.now() + BOOKING_TIMEOUT_HOURS * 60 * 60 * 1000);
+
   const invitedRequests = await prisma.$transaction(
     async (tx) => {
       await tx.shipment.update({
@@ -350,69 +353,80 @@ const create = async (data, user) => {
         },
       });
 
-      const requests = [];
+      // Batch-create all booking requests at once
+      await tx.bookingRequest.createMany({
+        data: selectedCandidates.map((candidate) => ({
+          warehouseId: warehouse.id,
+          requestedById: user.userId,
+          truckId: candidate.truck.id,
+          optimizationRunId: optimizationResponse.optimizationRunId || null,
+          optimizationCandidateId: candidate.id || null,
+          status: 'SENT',
+          quotedPrice: pricing.systemPrice,
+          expiresAt,
+        })),
+      });
 
-      for (const candidate of selectedCandidates) {
-        const request = await tx.bookingRequest.create({
-          data: {
-            warehouseId: warehouse.id,
-            requestedById: user.userId,
-            truckId: candidate.truck.id,
-            optimizationRunId: optimizationResponse.optimizationRunId || null,
-            optimizationCandidateId: candidate.id || null,
-            status: 'SENT',
-            quotedPrice: pricing.systemPrice,
-            expiresAt: new Date(Date.now() + BOOKING_TIMEOUT_HOURS * 60 * 60 * 1000),
-            shipments: {
-              create: [
-                {
-                  shipmentId: createdShipment.id,
-                },
-              ],
-            },
-          },
-          include: {
-            truck: {
-              include: {
-                dealer: {
-                  include: {
-                    user: true,
-                  },
+      // Fetch the created requests with truck/dealer includes
+      const requests = await tx.bookingRequest.findMany({
+        where: {
+          warehouseId: warehouse.id,
+          truckId: { in: selectedCandidates.map((c) => c.truck.id) },
+          status: 'SENT',
+          expiresAt,
+        },
+        include: {
+          truck: {
+            include: {
+              dealer: {
+                include: {
+                  user: true,
                 },
               },
             },
           },
-        });
+        },
+      });
 
-        requests.push(request);
-      }
+      // Link shipments to booking requests in batch
+      await tx.bookingShipment.createMany({
+        data: requests.map((request) => ({
+          bookingRequestId: request.id,
+          shipmentId: createdShipment.id,
+        })),
+      });
 
       return requests;
     },
     { timeout: 20000 }
   );
 
-  await Promise.all(
-    invitedRequests.map((request) =>
-      notificationService.sendNotification({
-        userId: request.truck.dealer.user?.id,
-        type: 'BOOKING',
-        title: 'New shipment request',
-        message: `A new shipment request is available for truck ${request.truck.registrationNo}.`,
-        link: `/dealer/bookings/${request.id}`,
-        metadata: {
-          bookingId: request.id,
-          shipmentId: createdShipment.id,
-        },
-        email: {
-          subject: 'TruckSetu shipment request received',
-          text: `Shipment ${createdShipment.referenceNo} was sent for truck ${request.truck.registrationNo}.`,
-        },
-      })
-    )
-  );
+  // ── Fire notifications in background (don't block the response) ──────────
+  setImmediate(() => {
+    Promise.all(
+      invitedRequests.map((request) =>
+        notificationService.sendNotification({
+          userId: request.truck.dealer.user?.id,
+          type: 'BOOKING',
+          title: 'New shipment request',
+          message: `A new shipment request is available for truck ${request.truck.registrationNo}.`,
+          link: `/dealer/bookings/${request.id}`,
+          metadata: {
+            bookingId: request.id,
+            shipmentId: createdShipment.id,
+          },
+          email: {
+            subject: 'TruckSetu shipment request received',
+            text: `Shipment ${createdShipment.referenceNo} was sent for truck ${request.truck.registrationNo}.`,
+          },
+        })
+      )
+    ).catch((err) => {
+      console.warn(`[shipment] background notification failed: ${err.message}`);
+    });
+  });
 
-  // Single final fetch for the complete dispatched shipment — eliminates 1 redundant refetch
+  // Single final fetch for the complete dispatched shipment
   const dispatchedShipment = await getShipmentById(createdShipment.id, warehouse.id);
 
   return {

@@ -69,167 +69,174 @@ export default function TruckDetailPage() {
       accent="text-freight-600"
       eyebrow="Dealer Flow"
       title={truck?.registrationNo || 'Truck detail'}
-      subtitle="Inspect current truck status, review commercial performance, and jump into any active trip from one place."
     >
       <PageTabs
         items={[
-          { to: '/dealer/fleet/new', label: 'Add truck' },
+          { to: '/dealer/fleet', label: 'Fleet' },
           { to: '/dealer/bookings', label: 'Booking requests' },
           { to: '/dealer/analytics', label: 'Analytics' },
+          { to: '/dealer/return-loads', label: 'Return loads' },
         ]}
       />
 
       {isLoading ? <LoadingSpinner label="Loading truck detail..." /> : null}
 
       {error ? (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+        <div className="rounded-xl border border-rose-200/60 bg-rose-50/60 px-4 py-3 text-sm text-rose-700">
           {error}
         </div>
       ) : null}
 
       {truck ? (
         <div className="space-y-6">
-          <section className="panel p-6">
-            <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-              <div>
-                <p className="text-sm uppercase tracking-[0.25em] text-slate-500">
-                  Fleet vehicle
-                </p>
-                <h2 className="mt-3 font-heading text-4xl text-slate-950">
-                  {truck.registrationNo}
-                </h2>
-                <p className="mt-3 max-w-3xl text-slate-600">
-                  {truck.truckType} with {formatNumber(truck.maxWeightKg)} kg / {formatNumber(truck.maxVolumeM3)} m3 carrying capacity.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <StatusBadge animate={truck.status === 'ON_TRIP'} size="md" status={truck.status} />
-                {activeTrip ? (
-                  <Link className="btn-primary" to={`/dealer/trips/${activeTrip.id}`}>
-                    Manage active trip
-                  </Link>
-                ) : null}
+          {/* ── Header Card ── */}
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden">
+            <div className="px-6 py-5 border-b border-slate-100">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div className="min-w-0">
+                  <p className="text-xs font-medium text-slate-400">Fleet vehicle</p>
+                  <h2 className="mt-1 font-heading text-xl font-bold text-slate-900">
+                    {truck.registrationNo}
+                  </h2>
+                  <p className="mt-1.5 text-sm text-slate-500">
+                    {truck.truckType} with {formatNumber(truck.maxWeightKg)} kg / {formatNumber(truck.maxVolumeM3)} m³ carrying capacity.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2 shrink-0">
+                  <StatusBadge animate={truck.status === 'ON_TRIP'} size="sm" status={truck.status} />
+                  {activeTrip ? (
+                    <Link
+                      className="inline-flex h-9 items-center justify-center rounded-lg bg-brand-600 px-4 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-brand-700 hover:shadow-md hover:-translate-y-px"
+                      to={`/dealer/trips/${activeTrip.id}`}
+                    >
+                      Manage active trip
+                    </Link>
+                  ) : null}
+                </div>
               </div>
             </div>
 
-            <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              <div className="rounded-3xl bg-slate-50 px-4 py-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Current city</p>
-                <p className="mt-2 text-lg font-semibold text-slate-950">
-                  {truck.currentCity || 'Not set'}
-                </p>
-                <p className="mt-1 text-sm text-slate-600">Dealer {truck.dealer?.companyName}</p>
+            {/* Stats row */}
+            <div className="grid grid-cols-2 xl:grid-cols-4 gap-px bg-slate-100">
+              <div className="bg-white px-5 py-4">
+                <p className="text-xs font-medium text-slate-400">Current city</p>
+                <p className="mt-1 text-base font-bold text-slate-900">{truck.currentCity || 'Not set'}</p>
+                <p className="mt-0.5 text-xs text-slate-500">Dealer {truck.dealer?.companyName}</p>
               </div>
-              <div className="rounded-3xl bg-slate-50 px-4 py-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Emission factor</p>
-                <p className="mt-2 text-lg font-semibold text-slate-950">
-                  {formatNumber(truck.emissionFactor)}
-                </p>
-                <p className="mt-1 text-sm text-slate-600">
-                  Fuel efficiency {formatNumber(truck.fuelEfficiency)} km/l
-                </p>
+              <div className="bg-white px-5 py-4">
+                <p className="text-xs font-medium text-slate-400">Emission factor</p>
+                <p className="mt-1 text-base font-bold text-slate-900">{formatNumber(truck.emissionFactor)}</p>
+                <p className="mt-0.5 text-xs text-slate-500">Fuel efficiency {formatNumber(truck.fuelEfficiency)} km/l</p>
               </div>
-              <div className="rounded-3xl bg-slate-50 px-4 py-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Trips completed</p>
-                <p className="mt-2 text-lg font-semibold text-slate-950">{stats.completedTrips}</p>
-                <p className="mt-1 text-sm text-slate-600">
-                  Avg utilization {stats.avgUtilization.toFixed(0)}%
-                </p>
+              <div className="bg-white px-5 py-4">
+                <p className="text-xs font-medium text-slate-400">Trips completed</p>
+                <p className="mt-1 text-base font-bold text-slate-900">{stats.completedTrips}</p>
+                <p className="mt-0.5 text-xs text-slate-500">Avg utilization {stats.avgUtilization.toFixed(0)}%</p>
               </div>
-              <div className="rounded-3xl bg-slate-50 px-4 py-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Revenue tracked</p>
-                <p className="mt-2 text-lg font-semibold text-slate-950">
-                  {formatCurrency(stats.totalRevenue)}
-                </p>
-                <p className="mt-1 text-sm text-slate-600">
-                  {formatNumber(stats.totalDistance)} km moved
-                </p>
+              <div className="bg-white px-5 py-4">
+                <p className="text-xs font-medium text-slate-400">Revenue tracked</p>
+                <p className="mt-1 text-base font-bold text-slate-900">{formatCurrency(stats.totalRevenue)}</p>
+                <p className="mt-0.5 text-xs text-slate-500">{formatNumber(stats.totalDistance)} km moved</p>
               </div>
             </div>
           </section>
 
+          {/* ── Controls + Trip History ── */}
           <section className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
-            <article className="panel p-6">
-              <h3 className="font-heading text-2xl text-slate-950">Status controls</h3>
-              <div className="mt-6 flex flex-wrap gap-3">
-                {['AVAILABLE', 'MAINTENANCE', 'INACTIVE'].map((status) => (
-                  <button
-                    key={status}
-                    className="btn-secondary"
-                    disabled={truck.status === status || isSaving}
-                    onClick={async () => {
-                      setIsSaving(true);
-                      try {
-                        await updateTruckStatus(truck.id, { status });
-                        await loadTruck();
-                      } finally {
-                        setIsSaving(false);
-                      }
-                    }}
-                    type="button"
-                  >
-                    Mark {status.toLowerCase().replace('_', ' ')}
-                  </button>
-                ))}
-                {!activeTrip ? (
-                  <button
-                    className="btn-secondary"
-                    disabled={isSaving}
-                    onClick={async () => {
-                      setIsSaving(true);
-                      try {
-                        await removeTruck(truck.id);
-                        navigate('/dealer/fleet');
-                      } finally {
-                        setIsSaving(false);
-                      }
-                    }}
-                    type="button"
-                  >
-                    Remove truck
-                  </button>
-                ) : null}
+            {/* Status controls */}
+            <article className="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden">
+              <div className="px-6 py-5 border-b border-slate-100">
+                <h3 className="font-heading text-base font-semibold text-slate-900">Status controls</h3>
               </div>
+              <div className="p-5 space-y-5">
+                <div className="flex flex-wrap gap-2.5">
+                  {['AVAILABLE', 'MAINTENANCE', 'INACTIVE'].map((status) => (
+                    <button
+                      key={status}
+                      className={`inline-flex h-9 items-center rounded-lg border px-4 text-sm font-semibold transition-all ${
+                        truck.status === status
+                          ? 'border-brand-200 bg-brand-50 text-brand-700 pointer-events-none'
+                          : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                      }`}
+                      disabled={truck.status === status || isSaving}
+                      onClick={async () => {
+                        setIsSaving(true);
+                        try {
+                          await updateTruckStatus(truck.id, { status });
+                          await loadTruck();
+                        } finally {
+                          setIsSaving(false);
+                        }
+                      }}
+                      type="button"
+                    >
+                      Mark {status.toLowerCase().replace('_', ' ')}
+                    </button>
+                  ))}
+                  {!activeTrip ? (
+                    <button
+                      className="inline-flex h-9 items-center rounded-lg border border-rose-200 bg-white px-4 text-sm font-semibold text-rose-600 hover:bg-rose-50 transition-all"
+                      disabled={isSaving}
+                      onClick={async () => {
+                        setIsSaving(true);
+                        try {
+                          await removeTruck(truck.id);
+                          navigate('/dealer/fleet');
+                        } finally {
+                          setIsSaving(false);
+                        }
+                      }}
+                      type="button"
+                    >
+                      Remove truck
+                    </button>
+                  ) : null}
+                </div>
 
-              <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-50 px-5 py-5">
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Lifecycle</p>
-                <p className="mt-2 text-sm text-slate-700">
-                  Created {formatDateTime(truck.createdAt)}
-                </p>
-                <p className="mt-1 text-sm text-slate-700">
-                  Updated {formatDateTime(truck.updatedAt)}
-                </p>
+                <div className="rounded-xl bg-slate-50 border border-slate-100 p-4">
+                  <p className="text-xs font-medium text-slate-400">Lifecycle</p>
+                  <p className="mt-1.5 text-sm text-slate-600">Created {formatDateTime(truck.createdAt)}</p>
+                  <p className="mt-0.5 text-sm text-slate-600">Updated {formatDateTime(truck.updatedAt)}</p>
+                </div>
               </div>
             </article>
 
-            <article className="panel p-6">
-              <h3 className="font-heading text-2xl text-slate-950">Trip history</h3>
-              <div className="mt-6 space-y-4">
+            {/* Trip history */}
+            <article className="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden flex max-h-[600px] flex-col xl:sticky xl:top-6">
+              <div className="flex-none px-6 py-5 border-b border-slate-100">
+                <h3 className="font-heading text-base font-semibold text-slate-900">Trip history</h3>
+              </div>
+              <div className="flex-1 overflow-y-auto p-5 space-y-2.5 custom-scrollbar">
                 {truck.trips?.length ? (
                   truck.trips.map((trip) => (
-                    <div key={trip.id} className="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-5">
+                    <div key={trip.id} className="rounded-xl border border-slate-100 bg-white p-4 hover:border-slate-200 transition">
                       <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div>
-                          <p className="font-semibold text-slate-900">
+                        <div className="min-w-0">
+                          <p className="font-semibold text-sm text-slate-900">
                             Trip {trip.id.slice(0, 8)}
                           </p>
-                          <p className="mt-1 text-sm text-slate-600">
-                            {formatNumber(trip.estimatedDistanceKm)} km • {formatCurrency(trip.estimatedCost)}
+                          <p className="mt-0.5 text-xs text-slate-500">
+                            {formatNumber(trip.estimatedDistanceKm)} km · {formatCurrency(trip.estimatedCost)}
                           </p>
                         </div>
-                        <StatusBadge status={trip.status} />
+                        <StatusBadge status={trip.status} size="sm" />
                       </div>
-                      <div className="mt-4 flex flex-wrap gap-3">
-                        <Link className="btn-secondary" to={`/dealer/trips/${trip.id}`}>
-                          Open trip
+                      <div className="mt-3">
+                        <Link
+                          className="text-xs font-semibold text-brand-600 hover:text-brand-700 transition"
+                          to={`/dealer/trips/${trip.id}`}
+                        >
+                          Open trip →
                         </Link>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <p className="text-sm text-slate-600">
-                    No trips have been created for this truck yet.
-                  </p>
+                  <div className="rounded-xl border border-dashed border-slate-200 p-5 text-center">
+                    <p className="text-sm text-slate-400">
+                      No trips have been created for this truck yet.
+                    </p>
+                  </div>
                 )}
               </div>
             </article>

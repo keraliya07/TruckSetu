@@ -1,9 +1,14 @@
+import { AlertCircle } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { Navigate, useNavigate } from 'react-router-dom';
 
 import { cityOptions } from '../../data/logisticsOptions';
 import { useAuth } from '../../hooks/useAuth';
 import { getDashboardPath } from '../../utils/roleRoutes';
+
+const inputCls =
+  'w-full rounded-lg border border-slate-200 py-2.5 px-3.5 text-sm text-slate-900 outline-none transition-all duration-200 bg-white hover:border-slate-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 placeholder:text-slate-400';
+const labelCls = 'text-xs font-semibold text-slate-500 block mb-1.5';
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
@@ -52,44 +57,47 @@ export default function OnboardingPage() {
 
   return (
     <main className="min-h-screen px-4 py-8 sm:px-6">
-      <div className="mx-auto max-w-4xl space-y-6">
-        <section className="panel bg-gradient-to-r from-slate-950 to-freight-700 p-8 text-white">
-          <p className="font-heading text-sm uppercase tracking-[0.35em] text-white/65">
-            Onboarding
-          </p>
-          <h1 className="mt-4 font-heading text-4xl">
-            Finish your role setup
-          </h1>
-          <p className="mt-3 max-w-2xl text-white/80">
-            This step stores a small role-specific profile so the current demo workspace feels tailored instead of generic.
-          </p>
+      <div className="mx-auto max-w-2xl space-y-6">
+        {/* Hero card */}
+        <section className="rounded-2xl overflow-hidden shadow-sm">
+          <div className="relative px-8 py-8 text-white" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #0f766e 100%)' }}>
+            <p className="text-xs font-medium tracking-widest text-white/60 uppercase">Onboarding</p>
+            <h1 className="mt-2 font-heading text-2xl font-bold">
+              Finish your role setup
+            </h1>
+            <p className="mt-2 max-w-lg text-sm text-white/70 leading-relaxed">
+              This step stores a small role-specific profile so the workspace feels tailored instead of generic.
+            </p>
+          </div>
         </section>
 
         {user.role === 'WAREHOUSE' ? (
-          <section className="panel p-6 sm:p-8">
-            <h2 className="font-heading text-3xl text-slate-950">Warehouse details</h2>
-            <p className="mt-2 text-slate-600">
-              Add a warehouse name, city, and address for the current milestone.
-            </p>
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden">
+            <div className="px-6 py-5 border-b border-slate-100">
+              <h2 className="font-heading text-base font-semibold text-slate-900">Warehouse details</h2>
+              <p className="mt-1 text-sm text-slate-500">
+                Add a warehouse name, city, and address for the current milestone.
+              </p>
+            </div>
 
-            <form className="mt-6 grid gap-5" onSubmit={submitWarehouse}>
+            <form className="p-6 grid gap-4" onSubmit={submitWarehouse}>
               <div>
-                <label className="field-label" htmlFor="warehouseName">
+                <label className={labelCls} htmlFor="warehouseName">
                   Warehouse name
                 </label>
                 <input
-                  className="input-base"
+                  className={inputCls}
                   id="warehouseName"
                   {...warehouseForm.register('warehouseName', { required: true })}
                 />
               </div>
 
               <div>
-                <label className="field-label" htmlFor="city">
+                <label className={labelCls} htmlFor="city">
                   City
                 </label>
                 <select
-                  className="input-base"
+                  className={inputCls}
                   id="city"
                   {...warehouseForm.register('city', { required: true })}
                 >
@@ -102,52 +110,58 @@ export default function OnboardingPage() {
               </div>
 
               <div>
-                <label className="field-label" htmlFor="address">
+                <label className={labelCls} htmlFor="address">
                   Address
                 </label>
                 <textarea
-                  className="input-base min-h-28"
+                  className={`${inputCls} min-h-24`}
                   id="address"
                   {...warehouseForm.register('address', { required: true })}
                 />
               </div>
 
               {error ? (
-                <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                  {error}
+                <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 shrink-0" />{error}
                 </div>
               ) : null}
 
-              <button className="btn-primary" disabled={isLoading} type="submit">
+              <button
+                className="inline-flex h-10 items-center justify-center rounded-lg bg-brand-600 px-6 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-brand-700 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
+                disabled={isLoading}
+                type="submit"
+              >
                 {isLoading ? 'Saving...' : 'Complete onboarding'}
               </button>
             </form>
           </section>
         ) : (
-          <section className="panel p-6 sm:p-8">
-            <h2 className="font-heading text-3xl text-slate-950">Dealer details</h2>
-            <p className="mt-2 text-slate-600">
-              Add company information and a base rate so later pricing and booking tasks have a realistic starting point.
-            </p>
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden">
+            <div className="px-6 py-5 border-b border-slate-100">
+              <h2 className="font-heading text-base font-semibold text-slate-900">Dealer details</h2>
+              <p className="mt-1 text-sm text-slate-500">
+                Add company information and a base rate so pricing and booking tasks have a realistic starting point.
+              </p>
+            </div>
 
-            <form className="mt-6 grid gap-5" onSubmit={submitDealer}>
+            <form className="p-6 grid gap-4" onSubmit={submitDealer}>
               <div>
-                <label className="field-label" htmlFor="companyName">
+                <label className={labelCls} htmlFor="companyName">
                   Company name
                 </label>
                 <input
-                  className="input-base"
+                  className={inputCls}
                   id="companyName"
                   {...dealerForm.register('companyName', { required: true })}
                 />
               </div>
 
               <div>
-                <label className="field-label" htmlFor="primaryCity">
+                <label className={labelCls} htmlFor="primaryCity">
                   Primary city
                 </label>
                 <select
-                  className="input-base"
+                  className={inputCls}
                   id="primaryCity"
                   {...dealerForm.register('primaryCity', { required: true })}
                 >
@@ -160,11 +174,11 @@ export default function OnboardingPage() {
               </div>
 
               <div>
-                <label className="field-label" htmlFor="baseRatePerKmTon">
+                <label className={labelCls} htmlFor="baseRatePerKmTon">
                   Base rate per km/ton
                 </label>
                 <input
-                  className="input-base"
+                  className={inputCls}
                   id="baseRatePerKmTon"
                   min="1"
                   step="1"
@@ -174,12 +188,16 @@ export default function OnboardingPage() {
               </div>
 
               {error ? (
-                <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                  {error}
+                <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 shrink-0" />{error}
                 </div>
               ) : null}
 
-              <button className="btn-primary" disabled={isLoading} type="submit">
+              <button
+                className="inline-flex h-10 items-center justify-center rounded-lg bg-brand-600 px-6 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-brand-700 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
+                disabled={isLoading}
+                type="submit"
+              >
                 {isLoading ? 'Saving...' : 'Complete onboarding'}
               </button>
             </form>

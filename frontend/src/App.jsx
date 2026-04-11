@@ -58,55 +58,79 @@ function HomePage() {
     return <Navigate to={getDashboardPath(user.role)} replace />;
   }
 
+  const roles = [
+    { name: 'Warehouse', desc: 'Create shipments, compare truck matches, and track approved trips.', color: 'from-emerald-500 to-teal-600', glow: 'hover:shadow-emerald-500/15' },
+    { name: 'Dealer', desc: 'Manage fleet availability, negotiate bookings, and run trip operations.', color: 'from-freight-500 to-freight-700', glow: 'hover:shadow-freight-500/15' },
+    { name: 'Admin', desc: 'Review platform rollout and live system analytics from the command layer.', color: 'from-accent-500 to-accent-700', glow: 'hover:shadow-accent-500/15' },
+  ];
+
   return (
-    <main className="min-h-screen px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-        <section className="panel overflow-hidden">
-          <div className="bg-gradient-to-br from-slate-950 via-freight-700 to-brand-600 p-8 text-white sm:p-10">
-            <p className="font-heading text-sm uppercase tracking-[0.35em] text-white/65">
+    <main className="relative min-h-screen overflow-hidden px-4 py-8 sm:px-6 lg:px-8">
+      {/* Animated gradient orbs */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div
+          className="absolute -left-32 -top-32 h-[500px] w-[500px] rounded-full opacity-30 blur-3xl animate-float"
+          style={{ background: 'radial-gradient(circle, rgba(13,148,136,0.4), transparent 70%)' }}
+        />
+        <div
+          className="absolute -right-32 top-1/4 h-[400px] w-[400px] rounded-full opacity-20 blur-3xl animate-float"
+          style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.35), transparent 70%)', animationDelay: '1.5s' }}
+        />
+      </div>
+
+      <div className="relative mx-auto grid max-w-6xl gap-6 animate-fade-in lg:grid-cols-[1.1fr_0.9fr]">
+        <section className="panel-hover overflow-hidden">
+          <div
+            className="relative p-8 text-white sm:p-10"
+            style={{
+              background: 'linear-gradient(135deg, #0f172a 0%, #115e59 40%, #4f46e5 80%, #0f172a 100%)',
+            }}
+          >
+            <div className="pointer-events-none absolute inset-0 opacity-20" style={{
+              backgroundImage: 'radial-gradient(circle at 30% 50%, rgba(255,255,255,0.12) 0%, transparent 50%)'
+            }} />
+            <p className="relative font-heading text-sm uppercase tracking-[0.35em] text-white/60">
               TruckSetu
             </p>
-            <h1 className="mt-5 max-w-3xl font-heading text-4xl leading-tight sm:text-5xl">
+            <h1 className="relative mt-5 max-w-3xl font-heading text-4xl leading-tight sm:text-5xl">
               Smart truck logistics for every route, load, and role.
             </h1>
-            <p className="mt-4 max-w-2xl text-base text-white/80 sm:text-lg">
+            <p className="relative mt-4 max-w-2xl text-base text-white/75 sm:text-lg">
               A multi-role logistics platform with real shipment, fleet, booking, tracking,
               truck estimation, and analytics foundations now running on live backend services.
             </p>
           </div>
 
           <div className="grid gap-4 p-6 sm:grid-cols-3 sm:p-8">
-            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
-              <p className="font-heading text-lg text-slate-900">Warehouse</p>
-              <p className="mt-2 text-sm text-slate-600">
-                Create shipments, compare truck matches, and track approved trips.
-              </p>
-            </div>
-            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
-              <p className="font-heading text-lg text-slate-900">Dealer</p>
-              <p className="mt-2 text-sm text-slate-600">
-                Manage fleet availability, negotiate bookings, and run trip operations.
-              </p>
-            </div>
-            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
-              <p className="font-heading text-lg text-slate-900">Admin</p>
-              <p className="mt-2 text-sm text-slate-600">
-                Review platform rollout and live system analytics from the command layer.
-              </p>
-            </div>
+            {roles.map((role, index) => (
+              <div
+                key={role.name}
+                className={`group rounded-2xl border border-slate-200/60 bg-white/60 p-5 backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:border-slate-300 hover:bg-white hover:shadow-lg ${role.glow} animate-fade-in`}
+                style={{ animationDelay: `${0.2 + index * 0.1}s` }}
+              >
+                <div className={`mb-3 inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br ${role.color} font-heading text-xs font-bold text-white shadow-md`}>
+                  {role.name[0]}
+                </div>
+                <p className="font-heading text-lg text-slate-900">{role.name}</p>
+                <p className="mt-2 text-sm text-slate-500">{role.desc}</p>
+              </div>
+            ))}
           </div>
         </section>
 
         <section className="space-y-6">
-          <div className="panel p-6 sm:p-8">
+          <div className="panel-hover p-6 sm:p-8">
             <p className="font-heading text-sm uppercase tracking-[0.3em] text-freight-600">
               Start Here
             </p>
-            <div className="mt-4 flex flex-col gap-3">
-              <Link className="btn-primary" to="/login">
+            <p className="mt-3 text-sm text-slate-500">
+              Jump into a demo workspace or create your own account to explore the platform.
+            </p>
+            <div className="mt-5 flex flex-col gap-3">
+              <Link className="btn-primary text-center" to="/login">
                 Sign in with a demo account
               </Link>
-              <Link className="btn-secondary" to="/register">
+              <Link className="btn-secondary text-center" to="/register">
                 Create a warehouse or dealer account
               </Link>
             </div>

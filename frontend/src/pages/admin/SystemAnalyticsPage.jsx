@@ -22,17 +22,27 @@ export default function SystemAnalyticsPage() {
       title="System analytics"
       subtitle="Review platform utilization, trip throughput, and sustainability impact across the operating network."
     >
-      <section className="panel p-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+      <section className="rounded-3xl bg-white/40 border border-slate-100 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur-xl">
+        <div className="flex flex-wrap items-center justify-between gap-6">
           <div>
-            <p className="text-sm uppercase tracking-[0.25em] text-slate-500">Time horizon</p>
-            <h2 className="mt-2 font-heading text-3xl text-slate-950">Platform intelligence</h2>
+            <p className="inline-block rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-slate-600">Time horizon</p>
+            <h2 className="mt-3 font-heading text-3xl bg-gradient-to-br from-slate-900 to-slate-600 bg-clip-text text-transparent">Platform intelligence</h2>
           </div>
-          <div className="flex flex-wrap gap-3">
+          <div className="relative inline-flex rounded-full bg-slate-100/80 p-1 shadow-inner backdrop-blur-md">
+            <div
+              className="absolute top-1 bottom-1 w-16 rounded-full bg-white shadow-sm ring-1 ring-slate-900/5 transition-transform duration-300 ease-out"
+              style={{
+                transform: `translateX(${periods.indexOf(period) * 100}%)`,
+              }}
+            />
             {periods.map((value) => (
               <button
                 key={value}
-                className={value === period ? 'btn-primary' : 'btn-secondary'}
+                className={`relative z-10 w-16 py-2 text-sm font-medium transition-colors duration-300 rounded-full ${
+                  value === period
+                    ? 'text-slate-900'
+                    : 'text-slate-500 hover:text-slate-900'
+                }`}
                 onClick={() => setPeriod(value)}
                 type="button"
               >
@@ -72,21 +82,24 @@ export default function SystemAnalyticsPage() {
 
           <section className="grid gap-6 xl:grid-cols-[1fr_0.95fr]">
             <CO2Chart data={analytics.co2Series} period={period} />
-            <article className="panel p-5">
-              <h3 className="font-heading text-2xl text-slate-950">City breakdown</h3>
+            <article className="rounded-3xl bg-white/40 border border-slate-100 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur-xl">
+              <h3 className="font-heading text-2xl bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">City breakdown</h3>
               <div className="mt-6 space-y-4">
                 {analytics.cityBreakdown.map((city) => (
-                  <div key={city.city} className="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-5">
+                  <div key={city.city} className="group rounded-2xl border border-slate-200/60 bg-white/50 px-5 py-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-slate-300/80">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
-                        <p className="font-semibold text-slate-900">{city.city}</p>
-                        <p className="mt-1 text-sm text-slate-600">
-                          {city.shipments} shipment(s)
+                        <p className="font-semibold text-slate-900 transition-colors">{city.city}</p>
+                        <p className="mt-1 text-sm text-slate-500">
+                          <span className="font-medium text-slate-700">{city.shipments}</span> shipment{city.shipments !== 1 && 's'}
                         </p>
                       </div>
-                      <p className="text-sm font-semibold text-slate-900">
-                        {formatNumber(city.weightKg)} kg
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <div className="h-2 w-2 rounded-full bg-emerald-500 opacity-70"></div>
+                        <p className="text-sm font-semibold text-slate-900">
+                          {formatNumber(city.weightKg)} kg
+                        </p>
+                      </div>
                     </div>
                   </div>
                 ))}

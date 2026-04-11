@@ -109,11 +109,13 @@ export default function TrackingMap({
   const completedStops = normalizedStops.filter((stop) => stop.status === 'COMPLETED').length;
 
   return (
-    <section className="panel h-full overflow-hidden p-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <section className="relative flex h-[calc(100vh-10rem)] max-h-[900px] flex-col overflow-hidden rounded-[2.5rem] bg-white ring-1 ring-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8">
+      <div className="absolute inset-0 top-0 h-48 bg-gradient-to-b from-slate-50/80 to-transparent pointer-events-none" />
+
+      <div className="relative flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-sm uppercase tracking-[0.2em] text-slate-500">Route map</p>
-          <h2 className="mt-2 font-heading text-3xl text-slate-950">Live path</h2>
+          <p className="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500">Route map</p>
+          <h2 className="mt-1 font-heading text-3xl font-extrabold tracking-tight bg-gradient-to-br from-slate-900 to-slate-700 bg-clip-text text-transparent">Live path</h2>
         </div>
         <div className="flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
           <span className="rounded-full bg-slate-100 px-3 py-2">

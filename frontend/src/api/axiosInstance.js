@@ -22,6 +22,32 @@ const refreshClient = axios.create({
   },
 });
 
+// --- Refresh-token mutex ---------------------------------------------------
+// The backend uses refresh-token rotation: each /auth/refresh call invalidates
+// the previous token. If two 401 responses race and both fire a refresh, the
+// second one hits "Refresh token reuse detected" which revokes the whole
+// session. A simple mutex ensures only one refresh is in-flight at a time.
+let refreshPromise = null;
+
+function doRefresh() {
+  if (!refreshPromise) {
+    refreshPromise = refreshClient
+      .post('/auth/refresh')
+      .then((response) => {
+        mergeStoredAuth({
+          token: response.data.token,
+          user: response.data.user,
+        });
+        return response.data;
+      })
+      .finally(() => {
+        refreshPromise = null;
+      });
+  }
+  return refreshPromise;
+}
+
+// --- Interceptors -----------------------------------------------------------
 api.interceptors.request.use((config) => {
   const stored = readStoredAuth();
   const token = stored?.state?.token;
@@ -47,14 +73,10 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshed = await refreshClient.post('/auth/refresh');
-        mergeStoredAuth({
-          token: refreshed.data.token,
-          user: refreshed.data.user,
-        });
+        const freshData = await doRefresh();
         originalRequest.headers = {
           ...originalRequest.headers,
-          Authorization: `Bearer ${refreshed.data.token}`,
+          Authorization: `Bearer ${freshData.token}`,
         };
         return api(originalRequest);
       } catch (refreshError) {

@@ -16,12 +16,13 @@ export default function TripManagePage() {
       accent="text-freight-600"
       eyebrow="Dealer Flow"
       title={tracking.trip ? `Trip ${tracking.trip.id.slice(0, 8)}` : 'Trip management'}
-      subtitle="Start the trip, complete stops as the truck progresses, and keep the booking lifecycle moving from the dealer console."
     >
       <PageTabs
         items={[
+          { to: '/dealer/fleet', label: 'Fleet' },
           { to: '/dealer/bookings', label: 'Booking requests' },
           { to: '/dealer/analytics', label: 'Analytics' },
+          { to: '/dealer/return-loads', label: 'Return loads' },
         ]}
       />
 
@@ -48,7 +49,7 @@ export default function TripManagePage() {
                   Start trip
                 </button>
               ) : tracking.trip.status === 'DELIVERED' ? (
-                <div className="rounded-3xl border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm text-emerald-900">
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
                   <p>Trip is fully delivered. Truck can now be repositioned for the next load.</p>
                   <Link
                     className="mt-3 inline-flex font-semibold text-emerald-900 underline"

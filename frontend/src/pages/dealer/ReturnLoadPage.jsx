@@ -49,74 +49,82 @@ export default function ReturnLoadPage() {
       accent="text-freight-600"
       eyebrow="Dealer Flow"
       title="Return load opportunities"
-      subtitle="Keep trucks productive after delivery by capturing nearby pending shipments that pull the fleet back toward base instead of returning empty."
     >
       <PageTabs
         items={[
+          { to: '/dealer/fleet', label: 'Fleet' },
           { to: '/dealer/bookings', label: 'Booking requests' },
-          { to: '/dealer/return-loads', label: 'Return loads', active: true },
           { to: '/dealer/analytics', label: 'Analytics' },
+          { to: '/dealer/return-loads', label: 'Return loads', active: true },
         ]}
       />
 
-      <section className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
-        <article className="panel p-6">
-          <p className="text-sm uppercase tracking-[0.2em] text-slate-500">Current focus</p>
-          <h2 className="mt-3 font-heading text-3xl text-slate-950">
-            {summary?.truck ? `Truck ${summary.truck}` : 'Select a delivered trip'}
-          </h2>
-          <p className="mt-2 text-sm text-slate-600">
-            {summary
-              ? `Latest delivered drop at ${summary.dropCity}. ${summary.dealer} can accept one of the open matches below and keep the truck moving.`
-              : 'Open this page from a delivered trip notification or keep it open to catch new return load opportunities in realtime.'}
-          </p>
+      <section className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+        {/* Current focus */}
+        <article className="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden">
+          <div className="px-6 py-5 border-b border-slate-100">
+            <p className="text-xs font-medium text-slate-400">Current focus</p>
+            <h2 className="mt-1 font-heading text-base font-semibold text-slate-900">
+              {summary?.truck ? `Truck ${summary.truck}` : 'Select a delivered trip'}
+            </h2>
+          </div>
+          <div className="p-5 space-y-4">
+            <p className="text-sm text-slate-500">
+              {summary
+                ? `Latest delivered drop at ${summary.dropCity}. ${summary.dealer} can accept one of the open matches below.`
+                : 'Open this page from a delivered trip notification or keep it open to catch new return load opportunities in realtime.'}
+            </p>
 
-          <div className="mt-5 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-3xl bg-slate-50 px-4 py-4">
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Pending matches</p>
-              <p className="mt-2 text-2xl font-semibold text-slate-950">
-                {formatNumber(topMatchCount)}
-              </p>
-            </div>
-            <div className="rounded-3xl bg-slate-50 px-4 py-4">
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Trip filter</p>
-              <p className="mt-2 text-sm font-semibold text-slate-900">
-                {tripId ? `Trip ${tripId.slice(0, 8)}` : 'All delivered trips'}
-              </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-xl bg-slate-50 border border-slate-100 p-4">
+                <p className="text-xs font-medium text-slate-400">Pending matches</p>
+                <p className="mt-1 text-lg font-bold text-slate-900">
+                  {formatNumber(topMatchCount)}
+                </p>
+              </div>
+              <div className="rounded-xl bg-slate-50 border border-slate-100 p-4">
+                <p className="text-xs font-medium text-slate-400">Trip filter</p>
+                <p className="mt-1 text-sm font-semibold text-slate-900">
+                  {tripId ? `Trip ${tripId.slice(0, 8)}` : 'All delivered trips'}
+                </p>
+              </div>
             </div>
           </div>
         </article>
 
-        <article className="panel p-6">
-          <p className="text-sm uppercase tracking-[0.2em] text-slate-500">Realtime signal</p>
-          <div className="mt-4">
+        {/* Realtime signal */}
+        <article className="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden">
+          <div className="px-6 py-5 border-b border-slate-100">
+            <p className="text-xs font-medium text-slate-400">Realtime signal</p>
+          </div>
+          <div className="p-5 space-y-4">
             <ReturnLoadBadge
               matchCount={hasNewMatches ? topMatchCount || matches.length : 0}
               onClick={() => setHasNewMatches(false)}
             />
+            {acceptedResult?.newTrip ? (
+              <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+                Return load accepted. New trip {acceptedResult.newTrip.id.slice(0, 8)} is ready.
+                <button
+                  className="ml-2 font-semibold text-emerald-900 underline"
+                  onClick={() => navigate(`/dealer/trips/${acceptedResult.newTrip.id}`)}
+                  type="button"
+                >
+                  Open trip
+                </button>
+              </div>
+            ) : (
+              <p className="text-sm text-slate-500">
+                Keep this page open and new matches will refresh automatically when a delivered
+                trip becomes eligible.
+              </p>
+            )}
           </div>
-          {acceptedResult?.newTrip ? (
-            <div className="mt-5 rounded-3xl border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm text-emerald-900">
-              Return load accepted. New trip {acceptedResult.newTrip.id.slice(0, 8)} is ready.
-              <button
-                className="ml-2 font-semibold text-emerald-900 underline"
-                onClick={() => navigate(`/dealer/trips/${acceptedResult.newTrip.id}`)}
-                type="button"
-              >
-                Open trip
-              </button>
-            </div>
-          ) : (
-            <p className="mt-4 text-sm text-slate-600">
-              Keep this page open and new matches will refresh automatically when a delivered
-              trip becomes eligible.
-            </p>
-          )}
         </article>
       </section>
 
       {error ? (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+        <div className="rounded-xl border border-rose-200/60 bg-rose-50/60 px-4 py-3 text-sm text-rose-700">
           {error}
         </div>
       ) : null}

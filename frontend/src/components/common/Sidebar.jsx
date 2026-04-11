@@ -92,19 +92,23 @@ export default function Sidebar({
   return (
     <>
       <div
-        className={`fixed inset-0 z-40 bg-slate-950/40 transition lg:hidden ${
+        className={`fixed inset-0 z-40 bg-slate-950/30 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${
           isMobileOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
         }`}
         onClick={onClose}
       />
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-[18.5rem] flex-col border-r border-slate-200 bg-white/95 px-4 py-4 shadow-2xl backdrop-blur transition duration-200 lg:sticky lg:top-3 lg:z-20 lg:h-[calc(100vh-1.5rem)] lg:translate-x-0 lg:rounded-[2rem] lg:border lg:shadow-card ${
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col border-r border-slate-200 px-3 py-3 shadow-lg transition-all duration-300 ease-in-out lg:sticky lg:top-3 lg:z-20 lg:h-[calc(100vh-1.5rem)] lg:translate-x-0 lg:rounded-[2rem] lg:border ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full'
-        } ${isCollapsed ? 'lg:w-[6.25rem]' : 'lg:w-[18.5rem]'}`}
+        } ${isCollapsed ? 'w-[5.5rem] lg:w-[5.5rem]' : 'w-[17.5rem] lg:w-[17.5rem]'}`}
+        style={{
+          background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 50%, #ffffff 100%)',
+        }}
       >
-        <div className="border-b border-slate-200 pb-5">
-          <div className={`px-2 ${isCollapsed ? 'space-y-3' : 'space-y-4'}`}>
+        {/* ── Brand Header ── */}
+        <div className="border-b border-slate-200 pb-4">
+          <div className={`px-1 ${isCollapsed ? 'space-y-3' : 'space-y-3'}`}>
             <div className={`flex gap-3 ${isCollapsed ? 'justify-center' : 'items-center justify-between'}`}>
               <Link
                 className={`flex min-w-0 items-center gap-3 ${isCollapsed ? 'lg:flex-col' : ''}`}
@@ -112,12 +116,17 @@ export default function Sidebar({
                 title="TruckSetu"
                 to={primaryWorkspaceLink}
               >
-                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-slate-950 font-heading text-sm uppercase tracking-[0.25em] text-white">
+                <div className="relative grid h-11 w-11 shrink-0 place-items-center rounded-2xl font-heading text-sm uppercase tracking-[0.2em] text-white"
+                  style={{
+                    background: 'linear-gradient(135deg, #0d9488, #6366f1)',
+                    boxShadow: '0 0 20px rgba(13, 148, 136, 0.3)',
+                  }}
+                >
                   TS
                 </div>
                 <div className={`${isCollapsed ? 'lg:hidden' : ''}`}>
-                  <p className="font-heading text-xl text-slate-950">TruckSetu</p>
-                  <p className="text-xs uppercase tracking-[0.24em] text-slate-500">
+                  <p className="font-heading text-lg text-slate-800">TruckSetu</p>
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-slate-400">
                     {roleLabel}
                   </p>
                 </div>
@@ -125,46 +134,47 @@ export default function Sidebar({
 
               {!isCollapsed ? (
                 <button
-                  className="hidden h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 lg:inline-flex"
+                  className="hidden h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 lg:inline-flex"
                   onClick={onToggleCollapse}
                   type="button"
                 >
-                  <ChevronLeft className="h-5 w-5" />
+                  <ChevronLeft className="h-4 w-4" />
                 </button>
               ) : null}
             </div>
             <div className="flex items-center justify-center gap-2">
               <button
-                className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 lg:hidden"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 lg:hidden"
                 onClick={onClose}
                 type="button"
               >
-                <X className="h-5 w-5" />
+                <X className="h-4 w-4" />
               </button>
               {isCollapsed ? (
                 <button
-                  className="hidden h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 lg:inline-flex"
+                  className="hidden h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 lg:inline-flex"
                   onClick={onToggleCollapse}
                   type="button"
                 >
-                  <ChevronRight className="h-5 w-5" />
+                  <ChevronRight className="h-4 w-4" />
                 </button>
               ) : null}
             </div>
           </div>
         </div>
 
-        <div className="flex-1 space-y-5 overflow-y-auto pb-4 pt-5">
+        {/* ── Navigation ── */}
+        <div className="flex-1 space-y-4 overflow-y-auto pb-4 pt-4">
           {sections.map((section) => (
-            <section key={section.title} className="space-y-2">
+            <section key={section.title} className="space-y-1">
               <p
-                className={`px-3 text-xs uppercase tracking-[0.24em] text-slate-400 ${
+                className={`px-3 pb-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-400 ${
                   isCollapsed ? 'lg:hidden' : ''
                 }`}
               >
                 {section.title}
               </p>
-              <div className="space-y-1">
+              <div className="space-y-0.5">
                 {section.items.map((item) => {
                   const Icon = iconMap[item.icon] || ShieldCheck;
 
@@ -173,18 +183,37 @@ export default function Sidebar({
                       end={item.end}
                       key={item.key}
                       className={({ isActive }) =>
-                        `flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-medium transition ${
+                        `group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
                           isActive
-                            ? 'bg-slate-950 text-white shadow-sm'
-                            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
+                            ? 'bg-gradient-to-r from-freight-600/10 to-accent-600/10 text-slate-800'
+                            : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
                         } ${isCollapsed ? 'lg:justify-center lg:px-2' : ''}`
                       }
                       onClick={handleClose}
                       title={isCollapsed ? item.label : undefined}
                       to={item.to}
                     >
-                      <Icon className="h-5 w-5 shrink-0" />
-                      <span className={`${isCollapsed ? 'lg:hidden' : ''}`}>{item.label}</span>
+                      {({ isActive }) => (
+                        <>
+                          {isActive && (
+                            <span
+                              className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full"
+                              style={{
+                                background: 'linear-gradient(180deg, #0d9488, #6366f1)',
+                                boxShadow: '0 0 8px rgba(13, 148, 136, 0.5)',
+                              }}
+                            />
+                          )}
+                          <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors duration-200 ${
+                            isActive
+                              ? 'bg-gradient-to-br from-freight-600/20 to-accent-600/20 text-freight-600'
+                              : 'text-slate-400 group-hover:text-slate-600'
+                          }`}>
+                            <Icon className="h-[18px] w-[18px]" />
+                          </span>
+                          <span className={`${isCollapsed ? 'lg:hidden' : ''}`}>{item.label}</span>
+                        </>
+                      )}
                     </NavLink>
                   );
                 })}
@@ -194,42 +223,48 @@ export default function Sidebar({
 
         </div>
 
-        <div className="relative mt-4" ref={profileRef}>
+        {/* ── Profile Section ── */}
+        <div className="relative mt-2" ref={profileRef}>
           <button
-            className={`flex w-full items-center gap-3 rounded-3xl border border-slate-200 bg-slate-50 px-3 py-4 text-left transition hover:border-slate-300 hover:bg-white ${
+            className={`flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left transition-all duration-200 hover:bg-slate-100 ${
               isCollapsed ? 'lg:justify-center lg:px-2' : ''
             }`}
             onClick={() => setIsProfileOpen((current) => !current)}
             title={isCollapsed ? user?.name : undefined}
             type="button"
           >
-            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-slate-950 to-freight-700 text-sm font-semibold text-white">
+            <div
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-sm font-semibold text-white"
+              style={{
+                background: 'linear-gradient(135deg, #0d9488, #6366f1)',
+              }}
+            >
               {initials}
             </div>
             <div className={`min-w-0 flex-1 ${isCollapsed ? 'lg:hidden' : ''}`}>
-              <p className="truncate text-sm font-semibold text-slate-900">{user?.name}</p>
-              <p className="truncate text-xs text-slate-500">{roleLabel}</p>
+              <p className="truncate text-sm font-semibold text-slate-700">{user?.name}</p>
+              <p className="truncate text-xs text-slate-400">{roleLabel}</p>
             </div>
-            <ChevronDown className={`h-4 w-4 text-slate-500 ${isCollapsed ? 'lg:hidden' : ''}`} />
+            <ChevronDown className={`h-4 w-4 text-slate-400 ${isCollapsed ? 'lg:hidden' : ''}`} />
           </button>
 
           {isProfileOpen ? (
             <div
-              className={`absolute bottom-full z-30 mb-3 rounded-3xl border border-slate-200 bg-white p-3 shadow-xl ${
+              className={`absolute bottom-full z-30 mb-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-xl ${
                 isCollapsed ? 'left-full ml-3 w-72' : 'left-0 right-0'
               }`}
             >
-              <div className="rounded-2xl bg-slate-50 px-4 py-4">
-                <p className="text-sm font-semibold text-slate-900">{user?.name}</p>
-                <p className="mt-1 text-sm text-slate-600">{user?.email}</p>
-                <p className="mt-2 text-xs uppercase tracking-[0.24em] text-slate-500">
+              <div className="rounded-xl bg-slate-50 px-4 py-3">
+                <p className="text-sm font-semibold text-slate-800">{user?.name}</p>
+                <p className="mt-1 text-sm text-slate-500">{user?.email}</p>
+                <p className="mt-2 text-[10px] uppercase tracking-[0.28em] text-slate-400">
                   {roleLabel}
                 </p>
               </div>
 
-              <div className="mt-3 space-y-1">
+              <div className="mt-2">
                 <button
-                  className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-rose-700 transition hover:bg-rose-50"
+                  className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-rose-500 transition hover:bg-rose-50"
                   onClick={async () => {
                     setIsProfileOpen(false);
                     await logout();
@@ -244,8 +279,9 @@ export default function Sidebar({
           ) : null}
         </div>
 
+        {/* ── Notifications ── */}
         <button
-          className={`mt-4 flex w-full items-center rounded-3xl border border-slate-200 bg-slate-50 text-left transition hover:border-slate-300 hover:bg-white ${
+          className={`mt-3 flex w-full items-center rounded-xl border border-slate-200 bg-slate-50 text-left transition-all duration-200 hover:bg-slate-100 ${
             isCollapsed ? 'justify-center px-2 py-2' : 'justify-between gap-3 px-3 py-3'
           }`}
           onClick={toggleNotifications}
@@ -254,15 +290,15 @@ export default function Sidebar({
           <div className={`flex-1 ${isCollapsed ? 'lg:hidden' : ''}`}>
             {!isCollapsed ? (
               <>
-                <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Updates</p>
-                <p className="mt-1 text-sm font-semibold text-slate-900">Notifications</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-400">Updates</p>
+                <p className="mt-1 text-sm font-semibold text-slate-700">Notifications</p>
               </>
             ) : null}
           </div>
-          <div className="relative ml-auto grid h-14 w-14 shrink-0 place-items-center rounded-full border border-slate-200 bg-white text-slate-700">
-            <Bell className="h-6 w-6" />
+          <div className="relative grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-slate-400 transition hover:text-slate-600">
+            <Bell className="h-5 w-5" />
             {unreadCount > 0 ? (
-              <span className="absolute -right-1 -top-1 rounded-full bg-rose-500 px-2 py-0.5 text-[10px] font-semibold text-white">
+              <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-gradient-to-r from-rose-500 to-rose-600 px-1.5 text-[10px] font-bold text-white shadow-lg shadow-rose-500/30 animate-glow-pulse">
                 {notificationBadge}
               </span>
             ) : null}

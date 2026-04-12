@@ -76,7 +76,7 @@ export default function BookingRequestsPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <input
-              className="w-full rounded-lg border border-slate-200 py-2 pl-9 pr-3 text-sm text-slate-900 outline-none transition-all duration-200 bg-white placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10"
+              className="w-full rounded-lg border border-slate-200 py-2 pl-9 pr-3 text-sm text-slate-900 outline-none transition-all duration-200 bg-white placeholder:text-slate-400 focus:border-freight-500 focus:ring-2 focus:ring-freight-500/10"
               placeholder="Search requests..."
               value={search}
               onChange={(event) => setSearch(event.target.value)}
@@ -84,7 +84,7 @@ export default function BookingRequestsPage() {
           </div>
 
           <select
-            className="w-full sm:w-44 rounded-lg border border-slate-200 py-2 px-3 text-sm text-slate-700 outline-none transition-all duration-200 bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10"
+            className="w-full sm:w-44 rounded-lg border border-slate-200 py-2 px-3 text-sm text-slate-700 outline-none transition-all duration-200 bg-white focus:border-freight-500 focus:ring-2 focus:ring-freight-500/10"
             value={filters.status}
             onChange={(event) => setFilter('status', event.target.value)}
           >
@@ -137,7 +137,7 @@ export default function BookingRequestsPage() {
                 type="button"
                 className={`group w-full text-left relative overflow-hidden rounded-2xl border transition-all duration-250 px-5 py-5 block animate-fade-in ${
                   selectedBookingId === booking.id
-                    ? 'border-brand-200 bg-brand-50/30 shadow-sm ring-1 ring-brand-100'
+                    ? 'border-freight-200 bg-freight-50/30 shadow-sm ring-1 ring-freight-100'
                     : 'border-slate-200/70 bg-white hover:border-slate-300 hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.06)]'
                 }`}
                 style={{ animationDelay: `${index * 0.04}s` }}
@@ -147,7 +147,7 @@ export default function BookingRequestsPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3">
                       <p className={`font-heading text-base font-semibold truncate transition ${
-                        selectedBookingId === booking.id ? 'text-brand-900' : 'text-slate-900 group-hover:text-brand-700'
+                        selectedBookingId === booking.id ? 'text-freight-900' : 'text-slate-900 group-hover:text-freight-700'
                       }`}>
                         {booking.truck?.registrationNo || `Request ${booking.id.slice(0, 8)}`}
                       </p>

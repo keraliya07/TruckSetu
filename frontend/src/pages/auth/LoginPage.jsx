@@ -20,7 +20,7 @@ const demoAccounts = [
 ];
 
 const inputCls =
-  'w-full rounded-lg border border-slate-200 py-2.5 px-3.5 text-sm text-slate-900 outline-none transition-all duration-200 bg-white hover:border-slate-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 placeholder:text-slate-400';
+  'w-full rounded-lg border border-slate-200 py-2.5 px-3.5 text-sm text-slate-900 outline-none transition-all duration-200 bg-white hover:border-slate-300 focus:border-freight-500 focus:ring-2 focus:ring-freight-500/10 placeholder:text-slate-400';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -95,7 +95,7 @@ export default function LoginPage() {
                   </div>
                   <p className="font-semibold text-sm text-slate-900">{account.role}</p>
                   <p className="mt-0.5 text-xs text-slate-400">{account.email}</p>
-                  <p className="mt-0.5 text-xs font-medium text-brand-600">{account.password}</p>
+                  <p className="mt-0.5 text-xs font-medium text-freight-600">{account.password}</p>
                 </button>
               );
             })}
@@ -153,7 +153,7 @@ export default function LoginPage() {
             <FormFeedback message={error} tone="error" />
 
             <button
-              className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-brand-600 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-brand-700 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
+              className="inline-flex h-10 w-full items-center justify-center rounded-full bg-freight-600 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-freight-700 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
               disabled={isLoading}
               type="submit"
             >
@@ -162,7 +162,7 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-5 flex flex-wrap items-center gap-3 text-sm text-slate-500">
-            <Link className="font-semibold text-brand-600 transition hover:text-brand-700" to="/register">
+            <Link className="font-semibold text-freight-600 transition hover:text-freight-700" to="/register">
               Create a new account
             </Link>
             <Link className="font-semibold text-slate-500 transition hover:text-slate-700" to="/forgot-password">

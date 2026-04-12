@@ -122,7 +122,7 @@ export default function TrackingMap({
             {completedStops}/{stops.length || 0} stops complete
           </span>
           {normalizedTruckPosition ? (
-            <span className="rounded-full bg-brand-50 px-3 py-2 text-brand-700">
+            <span className="rounded-full bg-freight-50 px-3 py-2 text-freight-700">
               {formatNumber(normalizedTruckPosition.lat, { maximumFractionDigits: 3 })},{' '}
               {formatNumber(normalizedTruckPosition.lng, { maximumFractionDigits: 3 })}
             </span>
@@ -136,7 +136,7 @@ export default function TrackingMap({
           <span className="rounded-full bg-freight-50 px-3 py-2 text-freight-700">
             Live trail
           </span>
-          <span className="rounded-full bg-brand-50 px-3 py-2 text-brand-700">
+          <span className="rounded-full bg-freight-50 px-3 py-2 text-freight-700">
             Current truck
           </span>
         </div>

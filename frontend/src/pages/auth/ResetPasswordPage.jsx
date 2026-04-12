@@ -25,7 +25,7 @@ const schema = z
   });
 
 const inputCls =
-  'w-full rounded-lg border border-slate-200 py-2.5 px-3.5 text-sm text-slate-900 outline-none transition-all duration-200 bg-white hover:border-slate-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 placeholder:text-slate-400';
+  'w-full rounded-lg border border-slate-200 py-2.5 px-3.5 text-sm text-slate-900 outline-none transition-all duration-200 bg-white hover:border-slate-300 focus:border-freight-500 focus:ring-2 focus:ring-freight-500/10 placeholder:text-slate-400';
 const labelCls = 'text-xs font-semibold text-slate-500 block mb-1.5';
 
 export default function ResetPasswordPage() {
@@ -84,7 +84,7 @@ export default function ResetPasswordPage() {
       <div className="mx-auto max-w-xl">
         <section className="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden">
           <div className="px-6 py-5 border-b border-slate-100">
-            <p className="text-xs font-medium text-brand-600">Reset Password</p>
+            <p className="text-xs font-medium text-freight-600">Reset Password</p>
             <h1 className="mt-1.5 font-heading text-xl font-bold text-slate-900">Choose a new password</h1>
             <p className="mt-1.5 text-sm text-slate-500">
               Paste the reset token from your email, or open this page through the generated
@@ -134,7 +134,7 @@ export default function ResetPasswordPage() {
               <FormFeedback message={successMessage} tone="success" />
 
               <button
-                className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-brand-600 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-brand-700 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
+                className="inline-flex h-10 w-full items-center justify-center rounded-full bg-freight-600 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-freight-700 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
                 disabled={isSubmitting}
                 type="submit"
               >
@@ -143,7 +143,7 @@ export default function ResetPasswordPage() {
             </form>
 
             <div className="mt-5 text-sm text-slate-500">
-              <Link className="font-semibold text-brand-600 transition hover:text-brand-700" to="/login">
+              <Link className="font-semibold text-freight-600 transition hover:text-freight-700" to="/login">
                 Back to sign in
               </Link>
             </div>

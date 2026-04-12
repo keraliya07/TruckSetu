@@ -70,7 +70,7 @@ export default function ReturnLoadCard({
       </div>
 
       <div className="mt-5 grid gap-4 lg:grid-cols-3">
-        <ScoreBar label="Proximity" tone="bg-brand-600" value={match.proximityScore} />
+        <ScoreBar label="Proximity" tone="bg-freight-600" value={match.proximityScore} />
         <ScoreBar label="Direction" tone="bg-freight-600" value={match.directionScore} />
         <ScoreBar label="Utilization" tone="bg-emerald-600" value={match.utilizationScore} />
       </div>

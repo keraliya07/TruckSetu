@@ -68,7 +68,7 @@ export default function BookingDetailPage() {
 
   return (
     <DashboardShell
-      accent={isDealer ? 'text-freight-600' : 'text-brand-600'}
+      accent={isDealer ? 'text-freight-600' : 'text-freight-600'}
       eyebrow={isDealer ? 'Dealer Flow' : 'Warehouse Flow'}
       title={booking ? `Shipment request ${booking.id.slice(0, 8)}` : 'Shipment request detail'}
       subtitle="Review shipment economics, response status, invited load bundle, and the resulting trip assignment from one page."

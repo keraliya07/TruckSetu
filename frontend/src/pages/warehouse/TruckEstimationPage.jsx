@@ -8,7 +8,7 @@ export default function TruckEstimationPage() {
 
   return (
     <DashboardShell
-      accent="text-brand-600"
+      accent="text-freight-600"
       eyebrow="Warehouse Flow"
       title="Truck estimation"
       subtitle="Check likely truck fit, price range, emissions, and live availability before you commit anything to the shipment workflow."

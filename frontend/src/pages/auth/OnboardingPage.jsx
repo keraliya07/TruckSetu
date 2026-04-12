@@ -7,7 +7,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { getDashboardPath } from '../../utils/roleRoutes';
 
 const inputCls =
-  'w-full rounded-lg border border-slate-200 py-2.5 px-3.5 text-sm text-slate-900 outline-none transition-all duration-200 bg-white hover:border-slate-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 placeholder:text-slate-400';
+  'w-full rounded-lg border border-slate-200 py-2.5 px-3.5 text-sm text-slate-900 outline-none transition-all duration-200 bg-white hover:border-slate-300 focus:border-freight-500 focus:ring-2 focus:ring-freight-500/10 placeholder:text-slate-400';
 const labelCls = 'text-xs font-semibold text-slate-500 block mb-1.5';
 
 export default function OnboardingPage() {
@@ -127,7 +127,7 @@ export default function OnboardingPage() {
               ) : null}
 
               <button
-                className="inline-flex h-10 items-center justify-center rounded-lg bg-brand-600 px-6 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-brand-700 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
+                className="inline-flex h-10 items-center justify-center rounded-full bg-freight-600 px-6 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-freight-700 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
                 disabled={isLoading}
                 type="submit"
               >
@@ -194,7 +194,7 @@ export default function OnboardingPage() {
               ) : null}
 
               <button
-                className="inline-flex h-10 items-center justify-center rounded-lg bg-brand-600 px-6 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-brand-700 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
+                className="inline-flex h-10 items-center justify-center rounded-full bg-freight-600 px-6 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-freight-700 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
                 disabled={isLoading}
                 type="submit"
               >

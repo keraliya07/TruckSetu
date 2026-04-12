@@ -14,7 +14,7 @@ const schema = z.object({
 });
 
 const inputCls =
-  'w-full rounded-lg border border-slate-200 py-2.5 px-3.5 text-sm text-slate-900 outline-none transition-all duration-200 bg-white hover:border-slate-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 placeholder:text-slate-400';
+  'w-full rounded-lg border border-slate-200 py-2.5 px-3.5 text-sm text-slate-900 outline-none transition-all duration-200 bg-white hover:border-slate-300 focus:border-freight-500 focus:ring-2 focus:ring-freight-500/10 placeholder:text-slate-400';
 
 export default function ForgotPasswordPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -80,7 +80,7 @@ export default function ForgotPasswordPage() {
         {/* Right — Form */}
         <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-6 sm:p-8">
           <div className="mb-6">
-            <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+            <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-freight-50 text-freight-600">
               <KeyRound className="h-5 w-5" />
             </div>
             <p className="text-xs font-medium text-slate-400">Forgot Password</p>
@@ -121,7 +121,7 @@ export default function ForgotPasswordPage() {
             ) : null}
 
             <button
-              className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-brand-600 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-brand-700 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
+              className="inline-flex h-10 w-full items-center justify-center rounded-full bg-freight-600 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-freight-700 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
               disabled={isSubmitting}
               type="submit"
             >
@@ -130,7 +130,7 @@ export default function ForgotPasswordPage() {
           </form>
 
           <div className="mt-5 flex flex-wrap gap-3 text-sm text-slate-500">
-            <Link className="font-semibold text-brand-600 transition hover:text-brand-700" to="/login">
+            <Link className="font-semibold text-freight-600 transition hover:text-freight-700" to="/login">
               Back to sign in
             </Link>
             <Link className="font-semibold text-slate-500 transition hover:text-slate-700" to="/register">

@@ -82,7 +82,7 @@ const defaultDeliveryDeadline = () => toLocalInputValue(new Date(Date.now() + 48
 // ─── Style tokens ──────────────────────────────────────────────────────────────
 
 const inputCls =
-  'w-full rounded-xl border border-slate-200 py-3 px-4 text-sm text-slate-900 outline-none transition-all duration-200 bg-white hover:border-slate-300 focus:border-brand-500 focus:ring-3 focus:ring-brand-500/10 placeholder:text-slate-400';
+  'w-full rounded-xl border border-slate-200 py-3 px-4 text-sm text-slate-900 outline-none transition-all duration-200 bg-white hover:border-slate-300 focus:border-freight-500 focus:ring-3 focus:ring-freight-500/10 placeholder:text-slate-400';
 const labelCls = 'text-xs font-semibold text-slate-500 block mb-1.5';
 
 // ─── Sub-components ────────────────────────────────────────────────────────────
@@ -106,7 +106,7 @@ function StepIndicator({ currentStep, completedSteps }) {
                     isCompleted
                       ? 'bg-emerald-500 text-white'
                       : isCurrent
-                      ? 'bg-brand-600 text-white shadow-sm shadow-brand-300'
+                      ? 'bg-freight-600 text-white shadow-sm shadow-brand-300'
                       : 'bg-slate-100 text-slate-400'
                   }`}
                 >
@@ -117,7 +117,7 @@ function StepIndicator({ currentStep, completedSteps }) {
                   )}
                 </div>
                 <span className={`text-[0.65rem] font-semibold whitespace-nowrap ${
-                  isCurrent ? 'text-brand-600' : isCompleted ? 'text-emerald-600' : 'text-slate-400'
+                  isCurrent ? 'text-freight-600' : isCompleted ? 'text-emerald-600' : 'text-slate-400'
                 }`}>
                   {step.label}
                 </span>
@@ -150,7 +150,7 @@ function StepIndicator({ currentStep, completedSteps }) {
 function ReviewRow({ label, value, highlight }) {
   return (
     <div className={`rounded-xl border px-4 py-3 transition-all ${
-      highlight ? 'border-brand-200 bg-brand-50/50' : 'border-slate-100 bg-slate-50/50'
+      highlight ? 'border-freight-200 bg-freight-50/50' : 'border-slate-100 bg-slate-50/50'
     }`}>
       <p className={labelCls}>{label}</p>
       <p className="mt-0.5 text-sm font-semibold text-slate-900">{value}</p>
@@ -295,7 +295,7 @@ export default function CreateShipmentPage() {
 
   return (
     <DashboardShell
-      accent="text-brand-600"
+      accent="text-freight-600"
       eyebrow="Warehouse Flow"
       title="Create workspace"
       subtitle="Complete each step to build, price, and dispatch your shipment to the top 10 optimized dealers automatically."
@@ -394,7 +394,7 @@ export default function CreateShipmentPage() {
                                 onClick={() => setValue('shipmentType', chip.value, { shouldValidate: true })}
                                 className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-semibold transition-all duration-200 ${
                                   isSelected
-                                    ? 'border-brand-400 bg-brand-50 text-brand-700 ring-2 ring-brand-400/20 shadow-sm'
+                                    ? 'border-freight-400 bg-freight-50 text-freight-700 ring-2 ring-freight-400/20 shadow-sm'
                                     : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
                                 }`}
                               >
@@ -446,11 +446,11 @@ export default function CreateShipmentPage() {
                           {/* Fragile + Hazardous */}
                           <div className="grid gap-3 sm:grid-cols-2">
                             <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 px-4 py-3 transition hover:bg-slate-50">
-                              <input className="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" type="checkbox" {...register('fragile')} />
+                              <input className="h-4 w-4 rounded border-slate-300 text-freight-600 focus:ring-freight-500" type="checkbox" {...register('fragile')} />
                               <span className="text-sm text-slate-700">🔮 Fragile handling</span>
                             </label>
                             <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 px-4 py-3 transition hover:bg-slate-50">
-                              <input className="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" type="checkbox" {...register('hazardous')} />
+                              <input className="h-4 w-4 rounded border-slate-300 text-freight-600 focus:ring-freight-500" type="checkbox" {...register('hazardous')} />
                               <span className="text-sm text-slate-700">⚠️ Hazardous cargo</span>
                             </label>
                           </div>
@@ -482,7 +482,7 @@ export default function CreateShipmentPage() {
                     <div className="grid gap-5 lg:grid-cols-2">
                       {/* Pickup — left accent border */}
                       <div className="rounded-xl border border-slate-200 border-l-4 border-l-brand-500 bg-white p-5 space-y-4">
-                        <p className="text-xs font-semibold text-brand-600 uppercase tracking-wide">Origin · Pickup</p>
+                        <p className="text-xs font-semibold text-freight-600 uppercase tracking-wide">Origin · Pickup</p>
                         <div>
                           <label className={labelCls}>City <span className="text-rose-400">*</span></label>
                           <select className={inputCls} {...register('pickupCity')}>
@@ -579,7 +579,7 @@ export default function CreateShipmentPage() {
                       <p className={labelCls}>Lane</p>
                       <div className="mt-2 flex items-center gap-4">
                         <div className="text-center min-w-0">
-                          <span className="flex h-2.5 w-2.5 mx-auto rounded-full bg-brand-500 mb-1" />
+                          <span className="flex h-2.5 w-2.5 mx-auto rounded-full bg-freight-500 mb-1" />
                           <p className="text-sm font-bold text-slate-900">{pickupCity}</p>
                           <p className="text-xs text-slate-500 truncate max-w-[140px]">{pickupAddress}</p>
                         </div>
@@ -655,7 +655,7 @@ export default function CreateShipmentPage() {
               <button
                 type="button"
                 onClick={goNext}
-                className="inline-flex h-10 items-center gap-2 rounded-xl bg-brand-600 px-6 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-brand-700 hover:shadow-md"
+                className="inline-flex h-10 items-center gap-2 rounded-full bg-freight-600 px-6 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-freight-700 hover:shadow-md"
               >
                 Continue
                 <ArrowRight className="h-4 w-4" />

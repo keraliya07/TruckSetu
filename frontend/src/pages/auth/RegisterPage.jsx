@@ -27,7 +27,7 @@ const schema = z
   });
 
 const inputCls =
-  'w-full rounded-lg border border-slate-200 py-2.5 px-3.5 text-sm text-slate-900 outline-none transition-all duration-200 bg-white hover:border-slate-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 placeholder:text-slate-400';
+  'w-full rounded-lg border border-slate-200 py-2.5 px-3.5 text-sm text-slate-900 outline-none transition-all duration-200 bg-white hover:border-slate-300 focus:border-freight-500 focus:ring-2 focus:ring-freight-500/10 placeholder:text-slate-400';
 const labelCls = 'text-xs font-semibold text-slate-500 block mb-1.5';
 
 export default function RegisterPage() {
@@ -85,7 +85,7 @@ export default function RegisterPage() {
       <div className="relative mx-auto grid max-w-5xl gap-6 animate-fade-in lg:grid-cols-[0.9fr_1.1fr]">
         {/* Left — Info panel */}
         <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-6 sm:p-8">
-          <p className="text-xs font-medium text-brand-600">Register</p>
+          <p className="text-xs font-medium text-freight-600">Register</p>
           <h1 className="mt-1.5 font-heading text-2xl font-bold text-slate-900">
             Create your TruckSetu workspace
           </h1>
@@ -184,10 +184,10 @@ export default function RegisterPage() {
             <div>
               <span className={labelCls}>Choose your role</span>
               <div className="grid gap-3 sm:grid-cols-2">
-                <label className={`cursor-pointer rounded-xl border p-4 transition-all duration-200 ${role === 'WAREHOUSE' ? 'border-brand-300 bg-brand-50/40 ring-1 ring-brand-200' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
+                <label className={`cursor-pointer rounded-xl border p-4 transition-all duration-200 ${role === 'WAREHOUSE' ? 'border-freight-300 bg-freight-50/40 ring-1 ring-freight-200' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
                   <input className="sr-only" type="radio" value="WAREHOUSE" {...register('role')} />
                   <div className="flex items-center gap-3">
-                    <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${role === 'WAREHOUSE' ? 'bg-brand-500 text-white' : 'bg-slate-100 text-slate-400'} transition-colors`}>
+                    <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${role === 'WAREHOUSE' ? 'bg-freight-500 text-white' : 'bg-slate-100 text-slate-400'} transition-colors`}>
                       <Package className="h-4 w-4" />
                     </div>
                     <span className="font-semibold text-sm text-slate-900">Warehouse</span>
@@ -197,10 +197,10 @@ export default function RegisterPage() {
                   </span>
                 </label>
 
-                <label className={`cursor-pointer rounded-xl border p-4 transition-all duration-200 ${role === 'DEALER' ? 'border-brand-300 bg-brand-50/40 ring-1 ring-brand-200' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
+                <label className={`cursor-pointer rounded-xl border p-4 transition-all duration-200 ${role === 'DEALER' ? 'border-freight-300 bg-freight-50/40 ring-1 ring-freight-200' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
                   <input className="sr-only" type="radio" value="DEALER" {...register('role')} />
                   <div className="flex items-center gap-3">
-                    <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${role === 'DEALER' ? 'bg-brand-500 text-white' : 'bg-slate-100 text-slate-400'} transition-colors`}>
+                    <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${role === 'DEALER' ? 'bg-freight-500 text-white' : 'bg-slate-100 text-slate-400'} transition-colors`}>
                       <Truck className="h-4 w-4" />
                     </div>
                     <span className="font-semibold text-sm text-slate-900">Truck dealer</span>
@@ -215,7 +215,7 @@ export default function RegisterPage() {
             <FormFeedback message={error} tone="error" />
 
             <button
-              className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-brand-600 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-brand-700 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
+              className="inline-flex h-10 w-full items-center justify-center rounded-full bg-freight-600 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-freight-700 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
               disabled={isLoading}
               type="submit"
             >
@@ -225,7 +225,7 @@ export default function RegisterPage() {
 
           <p className="mt-5 text-sm text-slate-500">
             Already have access?{' '}
-            <Link className="font-semibold text-brand-600 transition hover:text-brand-700" to="/login">
+            <Link className="font-semibold text-freight-600 transition hover:text-freight-700" to="/login">
               Sign in
             </Link>
           </p>

@@ -106,7 +106,7 @@ export default function ShipmentDetailPane({ shipmentId, onClose }) {
             size="sm"
             status={shipment.status}
           />
-          <span className="inline-flex items-center rounded-full bg-brand-50 px-2.5 py-0.5 text-[11px] font-semibold text-brand-700 ring-1 ring-inset ring-brand-600/20">
+          <span className="inline-flex items-center rounded-full bg-freight-50 px-2.5 py-0.5 text-[11px] font-semibold text-freight-700 ring-1 ring-inset ring-freight-600/20">
             {shipment.shipmentType}
           </span>
           <span className="inline-flex items-center rounded-full bg-slate-50 px-2.5 py-0.5 text-[11px] font-semibold text-slate-500 ring-1 ring-inset ring-slate-500/20">
@@ -139,15 +139,15 @@ export default function ShipmentDetailPane({ shipmentId, onClose }) {
         </section>
 
         {/* Price */}
-        <div className="flex items-center justify-between rounded-xl bg-brand-50/50 border border-brand-100 p-4">
+        <div className="flex items-center justify-between rounded-xl bg-freight-50/50 border border-freight-100 p-4">
           <div>
-            <p className="text-xs font-medium text-brand-600">Price</p>
+            <p className="text-xs font-medium text-freight-600">Price</p>
             <p className="mt-1 text-xl font-bold text-slate-900">
               {shipment.systemPrice ? formatCurrency(shipment.systemPrice) : 'Unquoted'}
             </p>
           </div>
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm ring-1 ring-slate-900/5">
-            <DollarSign className="h-5 w-5 text-brand-600" />
+            <DollarSign className="h-5 w-5 text-freight-600" />
           </div>
         </div>
 
@@ -157,7 +157,7 @@ export default function ShipmentDetailPane({ shipmentId, onClose }) {
           <div className="rounded-xl border border-slate-100 bg-white p-4">
             <div className="relative pl-5 before:absolute before:left-[7px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
               <div className="relative mb-4">
-                <div className="absolute -left-[18px] top-0.5 h-2.5 w-2.5 rounded-full bg-brand-500 ring-2 ring-white" />
+                <div className="absolute -left-[18px] top-0.5 h-2.5 w-2.5 rounded-full bg-freight-500 ring-2 ring-white" />
                 <p className="text-sm font-semibold text-slate-900">{shipment.originCity}</p>
                 {shipment.originAddress && (
                   <p className="text-xs text-slate-400 mt-0.5">{shipment.originAddress}</p>
@@ -194,7 +194,7 @@ export default function ShipmentDetailPane({ shipmentId, onClose }) {
                   </div>
                   <div className="mt-3 flex items-center justify-between">
                     <p className="text-sm font-bold text-slate-700">{formatCurrency(booking.quotedPrice)}</p>
-                    <Link className="text-xs font-semibold text-brand-600 hover:text-brand-700 transition" to={`/warehouse/bookings/${booking.id}`}>
+                    <Link className="text-xs font-semibold text-freight-600 hover:text-freight-700 transition" to={`/warehouse/bookings/${booking.id}`}>
                       View bid →
                     </Link>
                   </div>

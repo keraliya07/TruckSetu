@@ -13,7 +13,7 @@ export default function TrackingPage() {
 
   return (
     <DashboardShell
-      accent="text-brand-600"
+      accent="text-freight-600"
       eyebrow="Warehouse Flow"
       title={tracking.trip ? `Trip ${tracking.trip.id.slice(0, 8)}` : 'Live tracking'}
     >

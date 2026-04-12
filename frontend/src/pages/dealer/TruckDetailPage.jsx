@@ -106,7 +106,7 @@ export default function TruckDetailPage() {
                   <StatusBadge animate={truck.status === 'ON_TRIP'} size="sm" status={truck.status} />
                   {activeTrip ? (
                     <Link
-                      className="inline-flex h-9 items-center justify-center rounded-lg bg-brand-600 px-4 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-brand-700 hover:shadow-md hover:-translate-y-px"
+                      className="inline-flex h-9 items-center justify-center rounded-full bg-freight-600 px-4 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-freight-700 hover:shadow-md hover:-translate-y-px"
                       to={`/dealer/trips/${activeTrip.id}`}
                     >
                       Manage active trip
@@ -155,7 +155,7 @@ export default function TruckDetailPage() {
                       key={status}
                       className={`inline-flex h-9 items-center rounded-lg border px-4 text-sm font-semibold transition-all ${
                         truck.status === status
-                          ? 'border-brand-200 bg-brand-50 text-brand-700 pointer-events-none'
+                          ? 'border-freight-200 bg-freight-50 text-freight-700 pointer-events-none'
                           : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
                       }`}
                       disabled={truck.status === status || isSaving}
@@ -223,7 +223,7 @@ export default function TruckDetailPage() {
                       </div>
                       <div className="mt-3">
                         <Link
-                          className="text-xs font-semibold text-brand-600 hover:text-brand-700 transition"
+                          className="text-xs font-semibold text-freight-600 hover:text-freight-700 transition"
                           to={`/dealer/trips/${trip.id}`}
                         >
                           Open trip →

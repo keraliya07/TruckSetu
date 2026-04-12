@@ -57,7 +57,7 @@ export default function TruckFitCalculator({ defaultOriginCity }) {
       <div className="relative rounded-[1.5rem] bg-white/80 backdrop-blur-sm border border-white/50">
         {/* Header */}
         <div className="p-8 border-b border-slate-100/80">
-          <p className="text-[0.65rem] font-bold uppercase tracking-widest text-brand-600">Cost Estimator</p>
+          <p className="text-[0.65rem] font-bold uppercase tracking-widest text-freight-600">Cost Estimator</p>
           <h3 className="mt-2 font-heading text-3xl font-extrabold tracking-tight bg-gradient-to-br from-slate-900 to-slate-700 bg-clip-text text-transparent">
             Truck fit calculator
           </h3>
@@ -75,7 +75,7 @@ export default function TruckFitCalculator({ defaultOriginCity }) {
                 Weight (kg)
               </label>
               <input
-                className="w-full rounded-2xl border border-slate-300 py-3 px-4 text-sm text-slate-900 outline-none transition-all duration-300 bg-slate-50/50 hover:bg-slate-50 focus:bg-white placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 shadow-sm"
+                className="w-full rounded-2xl border border-slate-300 py-3 px-4 text-sm text-slate-900 outline-none transition-all duration-300 bg-slate-50/50 hover:bg-slate-50 focus:bg-white placeholder:text-slate-400 focus:border-freight-500 focus:ring-4 focus:ring-freight-500/10 shadow-sm"
                 id="fit-weightKg"
                 type="number"
                 {...register('weightKg')}
@@ -91,7 +91,7 @@ export default function TruckFitCalculator({ defaultOriginCity }) {
                 Volume (m³)
               </label>
               <input
-                className="w-full rounded-2xl border border-slate-300 py-3 px-4 text-sm text-slate-900 outline-none transition-all duration-300 bg-slate-50/50 hover:bg-slate-50 focus:bg-white placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 shadow-sm"
+                className="w-full rounded-2xl border border-slate-300 py-3 px-4 text-sm text-slate-900 outline-none transition-all duration-300 bg-slate-50/50 hover:bg-slate-50 focus:bg-white placeholder:text-slate-400 focus:border-freight-500 focus:ring-4 focus:ring-freight-500/10 shadow-sm"
                 id="fit-volumeM3"
                 step="0.1"
                 type="number"
@@ -108,7 +108,7 @@ export default function TruckFitCalculator({ defaultOriginCity }) {
                 Origin city
               </label>
               <select
-                className="w-full rounded-2xl border border-slate-300 py-3 px-4 text-sm text-slate-900 outline-none transition-all duration-300 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 shadow-sm"
+                className="w-full rounded-2xl border border-slate-300 py-3 px-4 text-sm text-slate-900 outline-none transition-all duration-300 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:border-freight-500 focus:ring-4 focus:ring-freight-500/10 shadow-sm"
                 id="fit-originCity"
                 {...register('originCity')}
               >
@@ -126,7 +126,7 @@ export default function TruckFitCalculator({ defaultOriginCity }) {
                 Destination city
               </label>
               <select
-                className="w-full rounded-2xl border border-slate-300 py-3 px-4 text-sm text-slate-900 outline-none transition-all duration-300 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 shadow-sm"
+                className="w-full rounded-2xl border border-slate-300 py-3 px-4 text-sm text-slate-900 outline-none transition-all duration-300 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:border-freight-500 focus:ring-4 focus:ring-freight-500/10 shadow-sm"
                 id="fit-destCity"
                 {...register('destCity')}
               >
@@ -160,18 +160,18 @@ export default function TruckFitCalculator({ defaultOriginCity }) {
         {/* Results */}
         {result ? (
           <div className="border-t border-slate-100/80 p-8">
-            <p className="text-[0.65rem] font-bold uppercase tracking-widest text-brand-600 mb-5">Estimation Results</p>
+            <p className="text-[0.65rem] font-bold uppercase tracking-widest text-freight-600 mb-5">Estimation Results</p>
             <div className="grid gap-4 lg:grid-cols-3">
               {/* Recommended type */}
-              <div className="relative overflow-hidden rounded-[1.5rem] border border-brand-100 bg-gradient-to-br from-brand-50 to-indigo-50/40 p-5">
-                <div className="absolute top-2 right-2 flex h-9 w-9 items-center justify-center rounded-xl bg-white/70 shadow-sm ring-1 ring-brand-100">
-                  <Truck className="h-4 w-4 text-brand-600" />
+              <div className="relative overflow-hidden rounded-[1.5rem] border border-freight-100 bg-gradient-to-br from-brand-50 to-indigo-50/40 p-5">
+                <div className="absolute top-2 right-2 flex h-9 w-9 items-center justify-center rounded-xl bg-white/70 shadow-sm ring-1 ring-freight-100">
+                  <Truck className="h-4 w-4 text-freight-600" />
                 </div>
-                <p className="text-[0.65rem] font-bold uppercase tracking-widest text-brand-600">Recommended</p>
-                <p className="mt-2 text-xl font-extrabold text-brand-800 tracking-tight">
+                <p className="text-[0.65rem] font-bold uppercase tracking-widest text-freight-600">Recommended</p>
+                <p className="mt-2 text-xl font-extrabold text-freight-800 tracking-tight">
                   {result.recommendedType}
                 </p>
-                <p className="mt-1 text-xs font-medium text-brand-400">truck category</p>
+                <p className="mt-1 text-xs font-medium text-freight-400">truck category</p>
               </div>
 
               {/* Cost */}

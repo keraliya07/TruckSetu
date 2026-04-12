@@ -180,7 +180,7 @@ export default function FleetDetailPane({ truckId, onClose, onUpdate }) {
                  key={status}
                  className={`rounded-xl border px-3 py-2.5 text-xs font-semibold transition-all ${
                    truck.status === status
-                     ? 'border-brand-200 bg-brand-50 text-brand-700 pointer-events-none'
+                     ? 'border-freight-200 bg-freight-50 text-freight-700 pointer-events-none'
                      : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
                  }`}
                  disabled={truck.status === status || isSaving}

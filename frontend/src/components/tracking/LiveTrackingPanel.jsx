@@ -28,7 +28,7 @@ export default function LiveTrackingPanel({
       <div className="relative flex-none border-b border-slate-100/80 px-8 py-7">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-[0.65rem] font-bold uppercase tracking-widest text-brand-600">Trip control</p>
+            <p className="text-[0.65rem] font-bold uppercase tracking-widest text-freight-600">Trip control</p>
             <h2 className="mt-1 font-heading text-3xl font-extrabold tracking-tight bg-gradient-to-br from-slate-900 to-slate-700 bg-clip-text text-transparent">
               Trip {trip.id.slice(0, 8)}
             </h2>
@@ -94,8 +94,8 @@ export default function LiveTrackingPanel({
         </div>
 
         {/* ETA */}
-        <div className="rounded-[1.5rem] border border-brand-100/60 bg-gradient-to-br from-brand-50/50 to-indigo-50/20 p-5">
-          <p className="text-[0.65rem] font-bold uppercase tracking-widest text-brand-600 mb-4">ETA Intelligence</p>
+        <div className="rounded-[1.5rem] border border-freight-100/60 bg-gradient-to-br from-brand-50/50 to-indigo-50/20 p-5">
+          <p className="text-[0.65rem] font-bold uppercase tracking-widest text-freight-600 mb-4">ETA Intelligence</p>
           <ETADisplay
             finalETA={eta.finalStop}
             nextStopCity={eta.nextStopCity}

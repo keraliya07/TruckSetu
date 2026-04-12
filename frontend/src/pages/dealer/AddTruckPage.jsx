@@ -22,7 +22,7 @@ const schema = z.object({
 });
 
 const inputCls =
-  'w-full rounded-lg border border-slate-200 py-2.5 px-3.5 text-sm text-slate-900 outline-none transition-all duration-200 bg-white hover:border-slate-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 placeholder:text-slate-400';
+  'w-full rounded-lg border border-slate-200 py-2.5 px-3.5 text-sm text-slate-900 outline-none transition-all duration-200 bg-white hover:border-slate-300 focus:border-freight-500 focus:ring-2 focus:ring-freight-500/10 placeholder:text-slate-400';
 const labelCls = 'text-xs font-semibold text-slate-500 block mb-1.5';
 
 export default function AddTruckPage() {
@@ -92,7 +92,7 @@ export default function AddTruckPage() {
                 <label className={labelCls} htmlFor="registrationNo">
                   Registration number
                 </label>
-                <input className={inputCls} id="registrationNo" {...register('registrationNo')} />
+                <input className={inputCls} id="registrationNo" placeholder="e.g. GJ-01-AB-1234" {...register('registrationNo')} />
                 {errors.registrationNo ? (
                   <p className="mt-1.5 flex items-center gap-1.5 text-xs text-rose-600">
                     <AlertCircle className="h-3 w-3" />{errors.registrationNo.message}
@@ -118,13 +118,13 @@ export default function AddTruckPage() {
                 <label className={labelCls} htmlFor="maxWeightKg">
                   Max weight (kg)
                 </label>
-                <input className={inputCls} id="maxWeightKg" type="number" {...register('maxWeightKg')} />
+                <input className={inputCls} id="maxWeightKg" placeholder="e.g. 16000" type="number" {...register('maxWeightKg')} />
               </div>
               <div>
                 <label className={labelCls} htmlFor="maxVolumeM3">
                   Max volume (m³)
                 </label>
-                <input className={inputCls} id="maxVolumeM3" step="0.1" type="number" {...register('maxVolumeM3')} />
+                <input className={inputCls} id="maxVolumeM3" placeholder="e.g. 65" step="0.1" type="number" {...register('maxVolumeM3')} />
               </div>
             </div>
 
@@ -133,13 +133,13 @@ export default function AddTruckPage() {
                 <label className={labelCls} htmlFor="emissionFactor">
                   Emission factor
                 </label>
-                <input className={inputCls} id="emissionFactor" step="0.01" type="number" {...register('emissionFactor')} />
+                <input className={inputCls} id="emissionFactor" placeholder="e.g. 2.68" step="0.01" type="number" {...register('emissionFactor')} />
               </div>
               <div>
                 <label className={labelCls} htmlFor="fuelEfficiency">
                   Fuel efficiency
                 </label>
-                <input className={inputCls} id="fuelEfficiency" step="0.1" type="number" {...register('fuelEfficiency')} />
+                <input className={inputCls} id="fuelEfficiency" placeholder="e.g. 4.0" step="0.1" type="number" {...register('fuelEfficiency')} />
               </div>
               <div>
                 <label className={labelCls} htmlFor="currentCity">
@@ -161,13 +161,15 @@ export default function AddTruckPage() {
               </div>
             ) : null}
 
-            <button
-              className="inline-flex h-10 items-center justify-center rounded-lg bg-brand-600 px-6 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-brand-700 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
-              disabled={isSubmitting}
-              type="submit"
-            >
-              {isSubmitting ? 'Adding truck...' : 'Add truck'}
-            </button>
+            <div className="mt-2 flex justify-center">
+              <button
+                className="btn-primary px-10 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed"
+                disabled={isSubmitting}
+                type="submit"
+              >
+                {isSubmitting ? 'Adding truck...' : 'Add truck'}
+              </button>
+            </div>
           </form>
         </section>
       </div>

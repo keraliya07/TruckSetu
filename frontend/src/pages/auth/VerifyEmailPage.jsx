@@ -75,7 +75,7 @@ export default function VerifyEmailPage() {
       <div className="mx-auto max-w-xl">
         <section className="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden">
           <div className="px-6 py-5 border-b border-slate-100">
-            <p className="text-xs font-medium text-brand-600">Email Verification</p>
+            <p className="text-xs font-medium text-freight-600">Email Verification</p>
             <h1 className="mt-1.5 font-heading text-xl font-bold text-slate-900">
               Confirm your account email
             </h1>
@@ -99,7 +99,7 @@ export default function VerifyEmailPage() {
                 tone={status === 'error' ? 'error' : 'success'}
               />
               {devUrl ? (
-                <a className="mt-3 inline-block text-sm font-semibold text-brand-600 underline" href={devUrl}>
+                <a className="mt-3 inline-block text-sm font-semibold text-freight-600 underline" href={devUrl}>
                   Open development verification link
                 </a>
               ) : null}
@@ -110,7 +110,7 @@ export default function VerifyEmailPage() {
 
             {!hasToken && isAuthenticated ? (
               <button
-                className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-brand-600 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-brand-700 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
+                className="inline-flex h-10 w-full items-center justify-center rounded-full bg-freight-600 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-freight-700 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
                 disabled={status === 'pending'}
                 onClick={handleSendVerification}
                 type="button"
@@ -120,7 +120,7 @@ export default function VerifyEmailPage() {
             ) : null}
 
             <div className="flex flex-wrap gap-3 text-sm text-slate-500">
-              <Link className="font-semibold text-brand-600 transition hover:text-brand-700" to="/login">
+              <Link className="font-semibold text-freight-600 transition hover:text-freight-700" to="/login">
                 Sign in
               </Link>
             </div>

@@ -55,7 +55,7 @@ export default function ShipmentDetailPage() {
 
   return (
     <DashboardShell
-      accent="text-brand-600"
+      accent="text-freight-600"
       eyebrow="Warehouse Flow"
       title={shipment?.title || shipment?.referenceNo || 'Shipment detail'}
     >
@@ -128,7 +128,7 @@ export default function ShipmentDetailPage() {
                 <p className="mt-0.5 text-xs text-slate-500">Priority {shipment.priority}</p>
               </div>
               <div className="bg-white px-5 py-4">
-                <p className="text-xs font-medium text-brand-600">System Price</p>
+                <p className="text-xs font-medium text-freight-600">System Price</p>
                 <p className="mt-1 text-lg font-bold text-slate-900">
                   {shipment.systemPrice ? formatCurrency(shipment.systemPrice) : 'Not available'}
                 </p>
@@ -152,7 +152,7 @@ export default function ShipmentDetailPage() {
                 <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-5">
                   <div className="relative pl-6 before:absolute before:left-[7px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
                     <div className="relative mb-5">
-                      <div className="absolute -left-[18px] top-0.5 h-2.5 w-2.5 rounded-full bg-brand-500 ring-2 ring-white" />
+                      <div className="absolute -left-[18px] top-0.5 h-2.5 w-2.5 rounded-full bg-freight-500 ring-2 ring-white" />
                       <p className="text-xs font-medium text-slate-400">Origin</p>
                       <p className="mt-0.5 text-sm font-semibold text-slate-900">{shipment.originCity}</p>
                       <p className="mt-0.5 text-xs text-slate-500">{shipment.originAddress || 'Pickup address pending'}</p>
@@ -204,7 +204,7 @@ export default function ShipmentDetailPage() {
                           </div>
                           <div className="mt-3 flex items-center justify-between">
                             <p className="text-sm font-bold text-slate-700">{formatCurrency(booking.quotedPrice)}</p>
-                            <Link className="text-xs font-semibold text-brand-600 hover:text-brand-700 transition" to={`/warehouse/bookings/${booking.id}`}>
+                            <Link className="text-xs font-semibold text-freight-600 hover:text-freight-700 transition" to={`/warehouse/bookings/${booking.id}`}>
                               View request →
                             </Link>
                           </div>

@@ -119,7 +119,7 @@ export default function BookingDetailPane({ bookingId, onUpdate, onClose }) {
                  <p className="mt-1 text-xs text-slate-500">{entry.shipment.originCity} to {entry.shipment.destCity}</p>
                  <p className="mt-2 text-xs text-slate-600">{formatNumber(entry.shipment.weightKg)} kg | {entry.shipment.shipmentType}</p>
                  {!isDealer && (
-                    <Link className="text-xs text-brand-600 hover:text-brand-700 font-bold mt-2 inline-block uppercase tracking-wider" to={`/warehouse/shipments/${entry.shipment.id}`}>
+                    <Link className="text-xs text-freight-600 hover:text-freight-700 font-bold mt-2 inline-block uppercase tracking-wider" to={`/warehouse/shipments/${entry.shipment.id}`}>
                       Open shipment →
                     </Link>
                  )}

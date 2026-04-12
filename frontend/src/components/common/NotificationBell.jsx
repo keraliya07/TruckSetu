@@ -120,7 +120,7 @@ export default function NotificationBell({
                   className={`w-full rounded-2xl border px-4 py-4 text-left transition ${
                     notification.isRead
                       ? 'border-slate-200 bg-slate-50'
-                      : 'border-brand-200 bg-brand-50'
+                      : 'border-freight-200 bg-freight-50'
                   }`}
                   onClick={async () => {
                     if (!notification.isRead) {

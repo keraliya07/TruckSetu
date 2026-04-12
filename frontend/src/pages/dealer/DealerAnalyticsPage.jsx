@@ -33,19 +33,26 @@ export default function DealerAnalyticsPage() {
       />
 
       {/* ── Toolbar ── */}
-      <section className="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-3.5">
-          <div className="flex items-center gap-3">
-            <h2 className="text-base font-semibold text-slate-900">Commercial performance</h2>
+      <section className="rounded-3xl bg-white/40 border border-slate-100 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur-xl">
+        <div className="flex flex-wrap items-center justify-between gap-6">
+          <div>
+            <p className="inline-block rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-slate-600">Time horizon</p>
+            <h2 className="mt-3 font-heading text-3xl bg-gradient-to-br from-slate-900 to-slate-600 bg-clip-text text-transparent">Commercial performance</h2>
           </div>
-          <div className="flex gap-1.5">
+          <div className="relative inline-flex rounded-full bg-slate-100/80 p-1 shadow-inner backdrop-blur-md">
+            <div
+              className="absolute top-1 bottom-1 w-16 rounded-full bg-white shadow-sm ring-1 ring-slate-900/5 transition-transform duration-300 ease-out"
+              style={{
+                transform: `translateX(${periods.indexOf(period) * 100}%)`,
+              }}
+            />
             {periods.map((value) => (
               <button
                 key={value}
-                className={`inline-flex h-9 items-center rounded-lg px-3.5 text-sm font-semibold transition-all duration-200 ${
+                className={`relative z-10 w-16 py-2 text-sm font-medium transition-colors duration-300 rounded-full ${
                   value === period
-                    ? 'bg-brand-600 text-white shadow-sm'
-                    : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                    ? 'text-slate-900'
+                    : 'text-slate-500 hover:text-slate-900'
                 }`}
                 onClick={() => setPeriod(value)}
                 type="button"

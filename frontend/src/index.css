@@ -115,6 +115,7 @@ body {
 
 /* ─── Component Layer ─── */
 @layer components {
+
   /* --- Panels --- */
   .panel {
     @apply rounded-3xl border border-slate-200/60 bg-white/70 shadow-card backdrop-blur-xl transition-shadow duration-300;
@@ -154,12 +155,12 @@ body {
 
   /* --- Buttons --- */
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-full bg-gradient-to-r from-freight-600 to-freight-500 px-5 py-3 text-sm font-semibold text-white transition-all duration-200;
+    @apply inline-flex items-center justify-center rounded-full bg-freight-600 px-5 py-3 text-sm font-semibold text-white transition-all duration-200;
     box-shadow: 0 4px 14px rgba(13, 148, 136, 0.25);
   }
 
   .btn-primary:hover {
-    @apply from-freight-700 to-freight-600;
+    @apply bg-freight-700;
     box-shadow: 0 6px 24px rgba(13, 148, 136, 0.35);
     transform: translateY(-1px);
   }
@@ -209,12 +210,10 @@ body {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(255, 255, 255, 0.5) 50%,
-      transparent 100%
-    );
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.5) 50%,
+        transparent 100%);
     background-size: 200% 100%;
     animation: shimmer 2s linear infinite;
   }
@@ -231,11 +230,9 @@ body {
     left: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(
-      circle,
-      rgba(13, 148, 136, 0.06) 0%,
-      transparent 60%
-    );
+    background: radial-gradient(circle,
+        rgba(13, 148, 136, 0.06) 0%,
+        transparent 60%);
     opacity: 0;
     transition: opacity 0.4s ease;
     pointer-events: none;
@@ -247,11 +244,34 @@ body {
 }
 
 /* ─── Stagger delay utilities ─── */
-.stagger-1 { animation-delay: 0.05s; }
-.stagger-2 { animation-delay: 0.10s; }
-.stagger-3 { animation-delay: 0.15s; }
-.stagger-4 { animation-delay: 0.20s; }
-.stagger-5 { animation-delay: 0.25s; }
-.stagger-6 { animation-delay: 0.30s; }
-.stagger-7 { animation-delay: 0.35s; }
-.stagger-8 { animation-delay: 0.40s; }
+.stagger-1 {
+  animation-delay: 0.05s;
+}
+
+.stagger-2 {
+  animation-delay: 0.10s;
+}
+
+.stagger-3 {
+  animation-delay: 0.15s;
+}
+
+.stagger-4 {
+  animation-delay: 0.20s;
+}
+
+.stagger-5 {
+  animation-delay: 0.25s;
+}
+
+.stagger-6 {
+  animation-delay: 0.30s;
+}
+
+.stagger-7 {
+  animation-delay: 0.35s;
+}
+
+.stagger-8 {
+  animation-delay: 0.40s;
+}

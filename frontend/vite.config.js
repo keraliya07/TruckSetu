@@ -6,13 +6,6 @@ const watchInterval = Number(process.env.CHOKIDAR_INTERVAL ?? 300);
 
 export default defineConfig({
   plugins: [react()],
-  test: {
-    environment: 'jsdom',
-    setupFiles: './src/test/setup.js',
-    globals: true,
-    clearMocks: true,
-    restoreMocks: true,
-  },
   server: {
     port: 3000,
     host: true,

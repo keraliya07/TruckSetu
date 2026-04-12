@@ -22,7 +22,7 @@ export default function LiveTrackingPanel({
   return (
     <section className="relative flex h-[calc(100vh-10rem)] max-h-[900px] flex-col overflow-hidden rounded-[2.5rem] bg-white border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.05)]">
       {/* Gradient header overlay */}
-      <div className="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-brand-50/80 to-transparent pointer-events-none" />
+      <div className="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-freight-50/80 to-transparent pointer-events-none" />
 
       {/* Header */}
       <div className="relative flex-none border-b border-slate-100/80 px-8 py-7">
@@ -94,7 +94,7 @@ export default function LiveTrackingPanel({
         </div>
 
         {/* ETA */}
-        <div className="rounded-[1.5rem] border border-freight-100/60 bg-gradient-to-br from-brand-50/50 to-indigo-50/20 p-5">
+        <div className="rounded-[1.5rem] border border-freight-100/60 bg-gradient-to-br from-freight-50/50 to-indigo-50/20 p-5">
           <p className="text-[0.65rem] font-bold uppercase tracking-widest text-freight-600 mb-4">ETA Intelligence</p>
           <ETADisplay
             finalETA={eta.finalStop}

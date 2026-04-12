@@ -11,7 +11,7 @@ export default function MetricCard({ label, value, hint, tone = 'text-freight-60
           <span className={clsx(
             'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110',
             tone === 'text-freight-600' && 'bg-gradient-to-br from-freight-500/10 to-freight-600/10 text-freight-600',
-            tone === 'text-freight-600' && 'bg-gradient-to-br from-brand-500/10 to-brand-600/10 text-freight-600',
+            tone === 'text-freight-600' && 'bg-gradient-to-br from-freight-500/10 to-freight-600/10 text-freight-600',
             tone === 'text-accent-600' && 'bg-gradient-to-br from-accent-500/10 to-accent-600/10 text-accent-600',
             tone === 'text-signal-600' && 'bg-gradient-to-br from-signal-500/10 to-signal-600/10 text-signal-600',
             tone === 'text-rose-600' && 'bg-gradient-to-br from-rose-500/10 to-rose-600/10 text-rose-600',

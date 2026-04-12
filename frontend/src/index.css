@@ -126,19 +126,6 @@ body {
     transition: transform 0.25s ease, box-shadow 0.3s ease, border-color 0.3s ease;
   }
 
-  .panel-gradient {
-    @apply panel relative overflow-hidden;
-  }
-
-  .panel-gradient::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    height: 3px;
-    border-radius: 1.5rem 1.5rem 0 0;
-    background: linear-gradient(90deg, #0d9488, #6366f1, #22c55e);
-    opacity: 0.8;
-  }
 
   /* --- Form Fields --- */
   .field-label {
@@ -191,87 +178,7 @@ body {
     box-shadow: none;
   }
 
-  .btn-danger {
-    @apply inline-flex items-center justify-center rounded-full bg-gradient-to-r from-rose-600 to-rose-500 px-5 py-3 text-sm font-semibold text-white transition-all duration-200;
-    box-shadow: 0 4px 14px rgba(244, 63, 94, 0.25);
-  }
 
-  .btn-danger:hover {
-    box-shadow: 0 6px 24px rgba(244, 63, 94, 0.35);
-    transform: translateY(-1px);
-  }
 
-  /* --- Shimmer Loading --- */
-  .shimmer-loading {
-    @apply relative overflow-hidden rounded-2xl bg-slate-100;
-  }
-
-  .shimmer-loading::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.5) 50%,
-        transparent 100%);
-    background-size: 200% 100%;
-    animation: shimmer 2s linear infinite;
-  }
-
-  /* --- Glow Card --- */
-  .glow-card {
-    @apply panel relative overflow-hidden;
-  }
-
-  .glow-card::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle,
-        rgba(13, 148, 136, 0.06) 0%,
-        transparent 60%);
-    opacity: 0;
-    transition: opacity 0.4s ease;
-    pointer-events: none;
-  }
-
-  .glow-card:hover::after {
-    opacity: 1;
-  }
 }
 
-/* ─── Stagger delay utilities ─── */
-.stagger-1 {
-  animation-delay: 0.05s;
-}
-
-.stagger-2 {
-  animation-delay: 0.10s;
-}
-
-.stagger-3 {
-  animation-delay: 0.15s;
-}
-
-.stagger-4 {
-  animation-delay: 0.20s;
-}
-
-.stagger-5 {
-  animation-delay: 0.25s;
-}
-
-.stagger-6 {
-  animation-delay: 0.30s;
-}
-
-.stagger-7 {
-  animation-delay: 0.35s;
-}
-
-.stagger-8 {
-  animation-delay: 0.40s;
-}

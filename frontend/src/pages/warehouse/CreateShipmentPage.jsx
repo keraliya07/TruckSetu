@@ -106,7 +106,7 @@ function StepIndicator({ currentStep, completedSteps }) {
                     isCompleted
                       ? 'bg-emerald-500 text-white'
                       : isCurrent
-                      ? 'bg-freight-600 text-white shadow-sm shadow-brand-300'
+                      ? 'bg-freight-600 text-white shadow-sm shadow-freight-300'
                       : 'bg-slate-100 text-slate-400'
                   }`}
                 >
@@ -139,7 +139,7 @@ function StepIndicator({ currentStep, completedSteps }) {
       {/* Overall progress bar */}
       <div className="h-1 w-full overflow-hidden rounded-full bg-slate-100">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-brand-500 to-emerald-500 transition-all duration-700 ease-out"
+          className="h-full rounded-full bg-gradient-to-r from-freight-500 to-emerald-500 transition-all duration-700 ease-out"
           style={{ width: `${progress}%` }}
         />
       </div>
@@ -481,7 +481,7 @@ export default function CreateShipmentPage() {
 
                     <div className="grid gap-5 lg:grid-cols-2">
                       {/* Pickup — left accent border */}
-                      <div className="rounded-xl border border-slate-200 border-l-4 border-l-brand-500 bg-white p-5 space-y-4">
+                      <div className="rounded-xl border border-slate-200 border-l-4 border-l-freight-500 bg-white p-5 space-y-4">
                         <p className="text-xs font-semibold text-freight-600 uppercase tracking-wide">Origin · Pickup</p>
                         <div>
                           <label className={labelCls}>City <span className="text-rose-400">*</span></label>
@@ -584,7 +584,7 @@ export default function CreateShipmentPage() {
                           <p className="text-xs text-slate-500 truncate max-w-[140px]">{pickupAddress}</p>
                         </div>
                         <div className="flex-1 flex items-center gap-1">
-                          <div className="flex-1 h-px bg-gradient-to-r from-brand-300 to-slate-300" />
+                          <div className="flex-1 h-px bg-gradient-to-r from-freight-300 to-slate-300" />
                           <ArrowRight className="h-4 w-4 text-slate-400 shrink-0" />
                         </div>
                         <div className="text-center min-w-0">

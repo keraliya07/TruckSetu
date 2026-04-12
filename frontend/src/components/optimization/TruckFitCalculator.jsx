@@ -52,7 +52,7 @@ export default function TruckFitCalculator({ defaultOriginCity }) {
 
   return (
     <section className="relative overflow-hidden rounded-[2rem] bg-white border border-slate-200 p-2 shadow-sm">
-      <div className="absolute inset-0 bg-gradient-to-br from-brand-50/40 to-indigo-50/20 opacity-60 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-br from-freight-50/40 to-indigo-50/20 opacity-60 pointer-events-none" />
 
       <div className="relative rounded-[1.5rem] bg-white/80 backdrop-blur-sm border border-white/50">
         {/* Header */}
@@ -141,7 +141,7 @@ export default function TruckFitCalculator({ defaultOriginCity }) {
             {/* Submit */}
             <div className="lg:col-span-2">
               <button
-                className="inline-flex h-[52px] w-full items-center justify-center rounded-2xl bg-gradient-to-r from-brand-600 to-brand-500 px-8 text-sm font-bold text-white shadow-md transition-all duration-200 hover:shadow-lg hover:shadow-brand-500/20 hover:-translate-y-[1px] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                className="inline-flex h-[52px] w-full items-center justify-center rounded-2xl bg-gradient-to-r from-freight-600 to-freight-500 px-8 text-sm font-bold text-white shadow-md transition-all duration-200 hover:shadow-lg hover:shadow-freight-500/20 hover:-translate-y-[1px] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                 disabled={isSubmitting}
                 type="submit"
               >
@@ -163,7 +163,7 @@ export default function TruckFitCalculator({ defaultOriginCity }) {
             <p className="text-[0.65rem] font-bold uppercase tracking-widest text-freight-600 mb-5">Estimation Results</p>
             <div className="grid gap-4 lg:grid-cols-3">
               {/* Recommended type */}
-              <div className="relative overflow-hidden rounded-[1.5rem] border border-freight-100 bg-gradient-to-br from-brand-50 to-indigo-50/40 p-5">
+              <div className="relative overflow-hidden rounded-[1.5rem] border border-freight-100 bg-gradient-to-br from-freight-50 to-indigo-50/40 p-5">
                 <div className="absolute top-2 right-2 flex h-9 w-9 items-center justify-center rounded-xl bg-white/70 shadow-sm ring-1 ring-freight-100">
                   <Truck className="h-4 w-4 text-freight-600" />
                 </div>

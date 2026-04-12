@@ -1,5 +1,5 @@
 # === .gitignore ===
-# TruckSetu
+# STLOS (TruckSetu)
 
 # ─── Dependencies ───
 node_modules/
@@ -9,10 +9,25 @@ __pycache__/
 venv/
 env/
 
-# ─── Environment ───
+# ─── Environment (NEVER commit real secrets) ───
 .env
 .env.local
 .env.production
+.env.development
+.env.staging
+frontend/.env
+ml-service/.env
+
+# ─── Allow example files to be committed ───
+!.env.example
+!frontend/.env.example
+!ml-service/.env.example
+
+# ─── Docker (real compose may contain secrets) ───
+docker-compose.yml
+docker-compose.override.yml
+!docker-compose.example.yml
+osrm-data/
 
 # ─── Build Output ───
 dist/
@@ -30,9 +45,6 @@ build/
 .DS_Store
 Thumbs.db
 desktop.ini
-
-# ─── Docker ───
-osrm-data/
 
 # ─── Logs ───
 logs/

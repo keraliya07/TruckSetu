@@ -5,6 +5,7 @@ import LoadingSpinner from '../../components/common/LoadingSpinner';
 import PageTabs from '../../components/common/PageTabs';
 import TrackingMap from '../../components/maps/TrackingMap';
 import LiveTrackingPanel from '../../components/tracking/LiveTrackingPanel';
+import InvoiceDownloadButton from '../../components/trips/InvoiceDownloadButton';
 import { useTracking } from '../../hooks/useTracking';
 
 export default function TripManagePage() {
@@ -45,20 +46,37 @@ export default function TripManagePage() {
           <LiveTrackingPanel
             actions={
               tracking.trip.status === 'PLANNED' ? (
-                <button className="btn-primary" onClick={tracking.startTrip} type="button">
-                  Start trip
-                </button>
-              ) : tracking.trip.status === 'DELIVERED' ? (
-                <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-                  <p>Trip is fully delivered. Truck can now be repositioned for the next load.</p>
-                  <Link
-                    className="mt-3 inline-flex font-semibold text-emerald-900 underline"
-                    to={`/dealer/return-loads?tripId=${tracking.trip.id}`}
-                  >
-                    Review return loads
-                  </Link>
+                <div className="flex flex-wrap gap-3">
+                  <button className="btn-primary" onClick={tracking.startTrip} type="button">
+                    Start trip
+                  </button>
+                  <InvoiceDownloadButton
+                    className="btn-secondary gap-2"
+                    tripId={tracking.trip.id}
+                  />
                 </div>
-              ) : null
+              ) : tracking.trip.status === 'DELIVERED' ? (
+                <div className="space-y-3">
+                  <InvoiceDownloadButton
+                    className="btn-secondary gap-2"
+                    tripId={tracking.trip.id}
+                  />
+                  <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+                    <p>Trip is fully delivered. Truck can now be repositioned for the next load.</p>
+                    <Link
+                      className="mt-3 inline-flex font-semibold text-emerald-900 underline"
+                      to={`/dealer/return-loads?tripId=${tracking.trip.id}`}
+                    >
+                      Review return loads
+                    </Link>
+                  </div>
+                </div>
+              ) : (
+                <InvoiceDownloadButton
+                  className="btn-secondary gap-2"
+                  tripId={tracking.trip.id}
+                />
+              )
             }
             busyStopId={tracking.busyStopId}
             eta={tracking.eta}

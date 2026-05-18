@@ -5,6 +5,7 @@ import LoadingSpinner from '../../components/common/LoadingSpinner';
 import PageTabs from '../../components/common/PageTabs';
 import TrackingMap from '../../components/maps/TrackingMap';
 import LiveTrackingPanel from '../../components/tracking/LiveTrackingPanel';
+import InvoiceDownloadButton from '../../components/trips/InvoiceDownloadButton';
 import { useTracking } from '../../hooks/useTracking';
 
 export default function TrackingPage() {
@@ -44,6 +45,12 @@ export default function TrackingPage() {
             truckPosition={tracking.truckPosition}
           />
           <LiveTrackingPanel
+            actions={
+              <InvoiceDownloadButton
+                className="btn-secondary gap-2"
+                tripId={tracking.trip.id}
+              />
+            }
             eta={tracking.eta}
             progress={tracking.progress}
             stops={tracking.stops}

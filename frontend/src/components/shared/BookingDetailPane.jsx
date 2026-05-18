@@ -5,6 +5,7 @@ import { X } from 'lucide-react';
 import * as bookingApi from '../../api/booking.api';
 import LoadingSpinner from '../common/LoadingSpinner';
 import StatusBadge from '../common/StatusBadge';
+import InvoiceDownloadButton from '../trips/InvoiceDownloadButton';
 import { useAuth } from '../../hooks/useAuth';
 import { useBookingStore } from '../../store/bookingStore';
 import { formatCurrency, formatDateTime, formatNumber } from '../../utils/formatters';
@@ -150,6 +151,11 @@ export default function BookingDetailPane({ bookingId, onUpdate, onClose }) {
                     Open trip →
                   </Link>
                 </div>
+                <InvoiceDownloadButton
+                  className="mt-3 inline-flex items-center justify-center gap-1.5 rounded-full border border-emerald-200 bg-white/80 px-3 py-2 text-xs font-bold uppercase tracking-wider text-emerald-700 transition hover:bg-white hover:text-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+                  compact
+                  tripId={trip.id}
+                />
               </div>
             ) : null}
 

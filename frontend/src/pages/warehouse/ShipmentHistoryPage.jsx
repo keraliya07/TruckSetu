@@ -12,13 +12,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { formatDate, formatNumber } from '../../utils/formatters';
 
 const statusOptions = [
-  { value: '', label: 'All statuses' },
-  { value: 'DRAFT', label: 'Draft' },
-  { value: 'PENDING', label: 'Pending' },
-  { value: 'BOOKING_PENDING', label: 'Booking pending' },
-  { value: 'BOOKING_CONFIRMED', label: 'Booking confirmed' },
-  { value: 'LOADING', label: 'Loading' },
-  { value: 'IN_TRANSIT', label: 'In transit' },
+  { value: '', label: 'All closed shipments' },
   { value: 'DELIVERED', label: 'Delivered' },
   { value: 'CANCELLED', label: 'Cancelled' },
 ];
@@ -26,6 +20,7 @@ const statusOptions = [
 export default function ShipmentHistoryPage() {
   const { user } = useAuth();
   const [filters, setFilters] = useState({
+    scope: 'closed',
     search: '',
     status: '',
     page: 1,

@@ -71,6 +71,16 @@ const shipmentTypeMultipliers = {
   BULK: 0.96,
 };
 
+const activeShipmentStatuses = [
+  'PENDING',
+  'BOOKING_PENDING',
+  'BOOKING_CONFIRMED',
+  'LOADING',
+  'IN_TRANSIT',
+];
+
+const closedShipmentStatuses = ['DELIVERED', 'CANCELLED'];
+
 const getWarehouseProfile = async (userId) => {
   const warehouse = await prisma.warehouse.findUnique({
     where: { userId },
@@ -229,9 +239,20 @@ const getAll = async (filters, user) => {
   const page = Number.parseInt(filters.page || '1', 10);
   const limit = Math.min(Number.parseInt(filters.limit || '10', 10), 100);
   const skip = (page - 1) * limit;
+  const requestedStatus = filters.status || null;
+  const scopeStatuses =
+    filters.scope === 'active'
+      ? activeShipmentStatuses
+      : filters.scope === 'closed'
+        ? closedShipmentStatuses
+        : null;
 
   const where = {
-    ...(filters.status ? { status: filters.status } : {}),
+    ...(requestedStatus
+      ? { status: requestedStatus }
+      : scopeStatuses
+        ? { status: { in: scopeStatuses } }
+        : {}),
     ...(filters.search
       ? {
           OR: [

@@ -1,4 +1,5 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '..', '..', '.env') });
 
 const { z } = require('zod');
 
@@ -20,6 +21,7 @@ const schema = z.object({
   DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
   DIRECT_URL: z.string().min(1, 'DIRECT_URL is required'),
   REDIS_URL: z.string().default('redis://localhost:6379'),
+  REDIS_ENABLED: z.preprocess(toBoolean, z.boolean().default(true)),
   REDIS_CONNECT_TIMEOUT_MS: z.coerce.number().int().positive().default(10000),
   REDIS_RETRY_BASE_MS: z.coerce.number().int().positive().default(500),
   REDIS_RETRY_MAX_DELAY_MS: z.coerce.number().int().positive().default(5000),

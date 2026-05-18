@@ -35,6 +35,7 @@ const roleNavigation = {
         title: 'Admin',
         items: [
           { key: 'analytics', label: 'System Analytics', to: '/admin/analytics', icon: 'analytics' },
+          { key: 'trip-invoices', label: 'Trip Invoices', to: '/admin/trips', icon: 'bookings' },
           { key: 'users', label: 'User Management', to: '/admin/users', icon: 'users' },
           { key: 'analyst-management', label: 'Analyst Management', to: '/admin/analysts', icon: 'users', end: true },
           { key: 'add-analyst', label: 'Add Analyst', to: '/admin/analysts/new', icon: 'create' },

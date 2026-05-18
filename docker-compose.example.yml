@@ -95,8 +95,8 @@ services:
       # MinIO — uses the local minio container
       MINIO_ENDPOINT: minio
       MINIO_PORT: 9000
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-trucksetuadmin}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-trucksetuadmin123}
       MINIO_BUCKET: stlos-documents
 
       # Jobs & GPS
@@ -177,8 +177,8 @@ services:
     restart: unless-stopped
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-trucksetuadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-trucksetuadmin123}
     ports:
       - "9000:9000"
       - "9001:9001"

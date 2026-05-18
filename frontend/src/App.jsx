@@ -12,6 +12,7 @@ import { getDashboardPath } from './utils/roleRoutes';
 const AddAnalystPage = lazy(() => import('./pages/admin/AddAnalystPage'));
 const AnalystManagementPage = lazy(() => import('./pages/admin/AnalystManagementPage'));
 const SystemAnalyticsPage = lazy(() => import('./pages/admin/SystemAnalyticsPage'));
+const TripInvoicesPage = lazy(() => import('./pages/admin/TripInvoicesPage'));
 const UserManagementPage = lazy(() => import('./pages/admin/UserManagementPage'));
 const ForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage'));
 const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
@@ -444,6 +445,18 @@ export default function App() {
             <RoleGuard allowedRoles={['ADMIN', 'ANALYST']}>
               <LazyPage>
                 <SystemAnalyticsPage />
+              </LazyPage>
+            </RoleGuard>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/trips"
+        element={
+          <ProtectedRoute>
+            <RoleGuard allowedRoles={['ADMIN']}>
+              <LazyPage>
+                <TripInvoicesPage />
               </LazyPage>
             </RoleGuard>
           </ProtectedRoute>

@@ -3,10 +3,29 @@ import { create } from 'zustand';
 import * as shipmentApi from '../api/shipment.api';
 
 const defaultFilters = {
+  scope: 'active',
   status: '',
   search: '',
   page: 1,
   limit: 12,
+};
+
+const shipmentMatchesScope = (shipment, scope) => {
+  if (!scope) {
+    return true;
+  }
+
+  if (scope === 'active') {
+    return ['PENDING', 'BOOKING_PENDING', 'BOOKING_CONFIRMED', 'LOADING', 'IN_TRANSIT'].includes(
+      shipment.status
+    );
+  }
+
+  if (scope === 'closed') {
+    return ['DELIVERED', 'CANCELLED'].includes(shipment.status);
+  }
+
+  return true;
 };
 
 export const useShipmentStore = create((set, get) => ({
@@ -50,10 +69,12 @@ export const useShipmentStore = create((set, get) => ({
     try {
       const result = await shipmentApi.batchUpdateStatus(payload);
       set((state) => ({
-        shipments: state.shipments.map((shipment) => {
-          const updated = result.shipments.find((item) => item.id === shipment.id);
-          return updated || shipment;
-        }),
+        shipments: state.shipments
+          .map((shipment) => {
+            const updated = result.shipments.find((item) => item.id === shipment.id);
+            return updated || shipment;
+          })
+          .filter((shipment) => shipmentMatchesScope(shipment, state.filters.scope)),
         selectedIds: [],
       }));
       return result;

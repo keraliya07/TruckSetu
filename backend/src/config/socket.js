@@ -4,6 +4,7 @@ const { createAdapter } = require('@socket.io/redis-adapter');
 const prisma = require('./db');
 const {
   CORS_ORIGIN,
+  REDIS_ENABLED,
   SOCKET_REDIS_REATTACH_BASE_MS,
   SOCKET_REDIS_REATTACH_MAX_DELAY_MS,
 } = require('./env');
@@ -105,6 +106,10 @@ const bindAdapterClientEvents = (client, clientName) => {
 };
 
 async function attachRedisAdapter() {
+  if (!REDIS_ENABLED) {
+    return;
+  }
+
   if (!io || isAttachingAdapter || isShuttingDown) {
     return;
   }
@@ -205,7 +210,11 @@ function initSocketServer(httpServer) {
     registerNotificationSocket(io, socket);
   });
 
-  attachRedisAdapter().catch(() => {});
+  if (REDIS_ENABLED) {
+    attachRedisAdapter().catch(() => {});
+  } else {
+    console.log('Socket.IO Redis adapter disabled. Using local-only socket delivery.');
+  }
   return io;
 }
 

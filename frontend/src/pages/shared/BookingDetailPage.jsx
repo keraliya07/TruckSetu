@@ -6,6 +6,7 @@ import DashboardShell from '../../components/common/DashboardShell';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import PageTabs from '../../components/common/PageTabs';
 import StatusBadge from '../../components/common/StatusBadge';
+import InvoiceDownloadButton from '../../components/trips/InvoiceDownloadButton';
 import { useAuth } from '../../hooks/useAuth';
 import { useBookingStore } from '../../store/bookingStore';
 import {
@@ -211,6 +212,10 @@ export default function BookingDetailPage() {
                         >
                           Open trip
                         </Link>
+                        <InvoiceDownloadButton
+                          className="btn-secondary gap-2"
+                          tripId={trip.id}
+                        />
                       </div>
                     </div>
                   ) : null}

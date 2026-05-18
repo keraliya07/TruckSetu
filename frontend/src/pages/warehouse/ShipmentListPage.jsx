@@ -99,13 +99,12 @@ export default function ShipmentListPage() {
             value={filters.status}
             onChange={(event) => setFilter('status', event.target.value)}
           >
-            <option value="">All statuses</option>
-            <option value="DRAFT">Draft</option>
+            <option value="">All active shipments</option>
             <option value="PENDING">Pending</option>
             <option value="BOOKING_PENDING">Booking pending</option>
             <option value="BOOKING_CONFIRMED">Booking confirmed</option>
-            <option value="DELIVERED">Delivered</option>
-            <option value="CANCELLED">Cancelled</option>
+            <option value="LOADING">Loading</option>
+            <option value="IN_TRANSIT">In transit</option>
           </select>
 
           <button

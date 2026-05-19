@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { getCO2Data, getDashboardKPIs, getRevenueData, getUtilizationData } from '../api/analytics.api';
+import { getCO2Data, getDashboardKPIs, getDemandForecast, getRevenueData, getUtilizationData } from '../api/analytics.api';
 
 export function useAnalytics(_scope = 'dealer', period = '30d') {
   const [state, setState] = useState({
@@ -21,11 +21,12 @@ export function useAnalytics(_scope = 'dealer', period = '30d') {
 
       try {
         const baseParams = { period };
-        const [kpis, revenue, utilization, co2] = await Promise.all([
+        const [kpis, revenue, utilization, co2, demandForecast] = await Promise.all([
           getDashboardKPIs(baseParams),
           getRevenueData(baseParams),
           getUtilizationData(baseParams),
           getCO2Data(baseParams),
+          getDemandForecast({ ...baseParams, horizon: '14d' }),
         ]);
 
         if (cancelled) {
@@ -44,6 +45,7 @@ export function useAnalytics(_scope = 'dealer', period = '30d') {
               perTripAvg: co2.perTripAvg || 0,
               timeSeries: co2.timeSeries || [],
             },
+            demandForecast: demandForecast || { data: [] },
           },
         });
       } catch (error) {

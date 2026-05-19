@@ -35,6 +35,7 @@ const ShipmentDetailPage = lazy(() => import('./pages/warehouse/ShipmentDetailPa
 const ShipmentHistoryPage = lazy(() => import('./pages/warehouse/ShipmentHistoryPage'));
 const ShipmentListPage = lazy(() => import('./pages/warehouse/ShipmentListPage'));
 const TruckEstimationPage = lazy(() => import('./pages/warehouse/TruckEstimationPage'));
+const OptimizationHistoryPage = lazy(() => import('./pages/warehouse/OptimizationHistoryPage'));
 const TrackingPage = lazy(() => import('./pages/warehouse/TrackingPage'));
 
 function RouteLoader() {

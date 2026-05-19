@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
+import * as optimizationApi from '../../api/optimization.api';
 import * as shipmentApi from '../../api/shipment.api';
 import DashboardShell from '../../components/common/DashboardShell';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
@@ -17,6 +18,7 @@ export default function ShipmentDetailPage() {
   const { id } = useParams();
   const [shipment, setShipment] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isScoring, setIsScoring] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -52,6 +54,21 @@ export default function ShipmentDetailPage() {
     () => approvedBooking?.trip || shipment?.tripShipments?.[0]?.trip || null,
     [approvedBooking?.trip, shipment?.tripShipments]
   );
+
+  const handleScoreTrucks = async () => {
+    setIsScoring(true);
+    setError(null);
+    try {
+      await optimizationApi.scoreTrucks({ shipmentIds: [shipment.id] });
+      // Reload shipment to get updated bookings/matches if it creates them behind the scenes
+      const result = await shipmentApi.getShipmentById(id);
+      setShipment(result);
+    } catch (err) {
+      setError(err.message || 'Failed to score trucks');
+    } finally {
+      setIsScoring(false);
+    }
+  };
 
   return (
     <DashboardShell
@@ -98,6 +115,16 @@ export default function ShipmentDetailPage() {
                     size="sm"
                     status={shipment.status}
                   />
+                  {shipment.status === 'PENDING' ? (
+                    <button
+                      className="inline-flex h-9 items-center justify-center rounded-lg bg-indigo-600 px-4 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-indigo-700 hover:shadow-md hover:-translate-y-px disabled:opacity-70 disabled:hover:translate-y-0"
+                      disabled={isScoring}
+                      onClick={handleScoreTrucks}
+                      type="button"
+                    >
+                      {isScoring ? 'Scoring...' : 'Score Trucks (ML)'}
+                    </button>
+                  ) : null}
                   {activeTrip ? (
                     <Link
                       className="inline-flex h-9 items-center justify-center rounded-lg bg-emerald-600 px-4 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-emerald-700 hover:shadow-md hover:-translate-y-px"

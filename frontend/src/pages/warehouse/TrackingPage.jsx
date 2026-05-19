@@ -5,6 +5,7 @@ import LoadingSpinner from '../../components/common/LoadingSpinner';
 import PageTabs from '../../components/common/PageTabs';
 import TrackingMap from '../../components/maps/TrackingMap';
 import LiveTrackingPanel from '../../components/tracking/LiveTrackingPanel';
+import CO2DownloadButton from '../../components/trips/CO2DownloadButton';
 import InvoiceDownloadButton from '../../components/trips/InvoiceDownloadButton';
 import { useTracking } from '../../hooks/useTracking';
 import { useTripStore } from '../../store/tripStore';
@@ -50,10 +51,13 @@ export default function TrackingPage() {
           />
           <LiveTrackingPanel
             actions={
-              <InvoiceDownloadButton
-                className="btn-secondary gap-2"
-                tripId={tracking.trip.id}
-              />
+              <div className="flex flex-col sm:flex-row gap-2">
+                <CO2DownloadButton className="btn-secondary gap-2" tripId={tracking.trip.id} />
+                <InvoiceDownloadButton
+                  className="btn-secondary gap-2"
+                  tripId={tracking.trip.id}
+                />
+              </div>
             }
             eta={tracking.eta}
             progress={tracking.progress}

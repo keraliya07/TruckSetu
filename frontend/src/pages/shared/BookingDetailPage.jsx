@@ -6,6 +6,7 @@ import DashboardShell from '../../components/common/DashboardShell';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import PageTabs from '../../components/common/PageTabs';
 import StatusBadge from '../../components/common/StatusBadge';
+import CO2DownloadButton from '../../components/trips/CO2DownloadButton';
 import InvoiceDownloadButton from '../../components/trips/InvoiceDownloadButton';
 import { useAuth } from '../../hooks/useAuth';
 import { useBookingStore } from '../../store/bookingStore';
@@ -212,10 +213,13 @@ export default function BookingDetailPage() {
                         >
                           Open trip
                         </Link>
-                        <InvoiceDownloadButton
-                          className="btn-secondary gap-2"
-                          tripId={trip.id}
-                        />
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <CO2DownloadButton className="btn-secondary gap-2" tripId={trip.id} />
+                          <InvoiceDownloadButton
+                            className="btn-secondary gap-2"
+                            tripId={trip.id}
+                          />
+                        </div>
                       </div>
                     </div>
                   ) : null}

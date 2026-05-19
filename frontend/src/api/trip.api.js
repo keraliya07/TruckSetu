@@ -4,6 +4,8 @@ export const getTrips = (params) => api.get('/trips', { params });
 export const getTripById = (id) => api.get(`/trips/${id}`);
 export const downloadInvoice = (id) =>
   api.get(`/trips/${id}/invoice`, { responseType: 'blob' });
+export const downloadCO2Report = (id) =>
+  api.get(`/trips/${id}/co2-report`, { responseType: 'blob' });
 export const startTrip = (id) => api.patch(`/trips/${id}/start`);
 export const completeStop = (tripId, stopId) =>
   api.patch(`/trips/${tripId}/stops/${stopId}/complete`);

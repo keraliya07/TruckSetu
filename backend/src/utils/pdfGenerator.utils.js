@@ -311,22 +311,52 @@ const generateInvoicePDF = async (td) =>
 // ── CO2 Report PDF ────────────────────────────────────────────────────────────
 const generateCO2ReportPDF = async (td) =>
   collectPdfBuffer((doc) => {
+    const co = td.company || {};
     const GD  = '#14532D'; const GM  = '#16A34A';
     const GL  = '#DCFCE7'; const GXL = '#F0FDF4';
 
     doc.rect(0, 0, PW, 5).fill(GD);
 
-    doc.font('B').fontSize(16).fillColor(GD).text('TruckSetu Logistics', ML, 18, { lineBreak: false });
-    doc.font('R').fontSize(8).fillColor(TXT_L).text('CO\u2082 EMISSIONS REPORT', ML, 38, { characterSpacing: 1 });
+    /* ── Company info block (left) + Report block (right) ── */
+    doc.font('B').fontSize(16).fillColor(GD)
+       .text(co.legalName || 'TruckSetu Logistics Pvt. Ltd.', ML, 18, { lineBreak: false });
 
-    doc.font('B').fontSize(22).fillColor(TXT_D).text('ECO REPORT', 0, 16, { align: 'right', width: PW - ML, lineBreak: false });
-    doc.font('R').fontSize(9).fillColor(TXT_M)
-       .text(`Date: ${fmtDate(new Date())}`, 0, 44, { align: 'right', width: PW - ML, lineBreak: false });
+    let cy = 38;
+    const compLines = [
+      co.address,
+      co.gstin  ? `GSTIN: ${co.gstin}` : null,
+      co.pan    ? `PAN: ${co.pan}`     : null,
+      [co.email, co.phone].filter(Boolean).join('  |  '),
+      co.website,
+    ].filter(Boolean);
 
-    hrule(doc, 70);
+    compLines.forEach((line) => {
+      doc.font('R').fontSize(8).fillColor(TXT_M).text(line, ML, cy, { lineBreak: false });
+      cy += 11;
+    });
+
+    // Report block (right column)
+    doc.font('B').fontSize(22).fillColor(TXT_D)
+       .text('ECO REPORT', 0, 16, { align: 'right', width: PW - ML, lineBreak: false });
+
+    const metaRight = [
+      { label: 'Related Invoice', value: td.invoiceRef || 'N/A', bold: true  },
+      { label: 'Generated On',    value: fmtDate(new Date()),    bold: false },
+    ];
+    let ry = 46;
+    metaRight.forEach(({ label, value, bold }) => {
+      doc.font('R').fontSize(8).fillColor(TXT_L)
+         .text(`${label}:`, 0, ry, { align: 'right', width: PW - ML, lineBreak: false });
+      doc.font(bold ? 'B' : 'R').fontSize(9).fillColor(bold ? GD : TXT_D)
+         .text(value, 0, ry + 10, { align: 'right', width: PW - ML, lineBreak: false });
+      ry += 24;
+    });
+
+    const divY = Math.max(cy + 18, ry + 10);
+    hrule(doc, divY);
 
     // Meta grid
-    let y = 84;
+    let y = divY + 14;
     const cw2 = CW / 2;
     [
       { label: 'Truck',  value: td.truckRegistration },
@@ -355,16 +385,19 @@ const generateCO2ReportPDF = async (td) =>
     doc.font('B').fontSize(11).fillColor(TXT_D).text('Emissions Summary', ML, y);
     y += 16;
 
-    const sw = CW / 3;
+    const carbonIntensity = td.totalCost ? (td.tripCo2Kg / (td.totalCost / 1000)).toFixed(2) : 'N/A';
+    
+    const sw = CW / 4;
     [
       { label: 'Distance',    value: `${td.distanceKm} km` },
       { label: 'Load',        value: `${td.weightTons} t`  },
       { label: 'Utilization', value: `${td.utilizationPct}%` },
+      { label: 'Intensity (\u20B91k)', value: `${carbonIntensity} kg` },
     ].forEach((s, i) => {
       const cx = ML + i * sw;
       fill(doc, cx, y, sw - 10, 50, 6, GL);
-      doc.font('B').fontSize(16).fillColor(GM).text(s.value, cx + 6, y + 8, { width: sw - 22, align: 'center' });
-      doc.font('R').fontSize(7.5).fillColor(TXT_M).text(s.label.toUpperCase(), cx + 6, y + 32, { width: sw - 22, align: 'center', characterSpacing: 0.7 });
+      doc.font('B').fontSize(14).fillColor(GM).text(s.value, cx + 2, y + 10, { width: sw - 14, align: 'center' });
+      doc.font('R').fontSize(7).fillColor(TXT_M).text(s.label.toUpperCase(), cx + 2, y + 32, { width: sw - 14, align: 'center', characterSpacing: 0.7 });
     });
     y += 60;
 
@@ -428,7 +461,9 @@ const generateCO2ReportPDF = async (td) =>
     doc.font('B').fontSize(9).fillColor(WHITE)
        .text('TruckSetu \u2014 Committed to Greener Logistics Across India', 0, footY + 12, { align: 'center', width: PW });
     doc.font('R').fontSize(7.5).fillColor('#86EFAC')
-       .text(`Generated ${fmtDate(new Date())}  \u00B7  Computer-generated document.`, 0, footY + 30, { align: 'center', width: PW });
+       .text(`${co.email || ''}  |  ${co.phone || ''}  |  ${co.website || ''}`, 0, footY + 24, { align: 'center', width: PW });
+    doc.font('R').fontSize(7).fillColor('#4ADE80')
+       .text(`Generated ${fmtDate(new Date())}  \u00B7  Computer-generated document.`, 0, footY + 36, { align: 'center', width: PW });
   });
 
 module.exports = { generateCO2ReportPDF, generateInvoicePDF };

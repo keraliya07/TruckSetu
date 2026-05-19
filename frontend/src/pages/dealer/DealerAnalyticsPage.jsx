@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import CO2Chart from '../../components/analytics/CO2Chart';
+import DemandForecastChart from '../../components/analytics/DemandForecastChart';
 import KPICard from '../../components/analytics/KPICard';
 import RevenueChart from '../../components/analytics/RevenueChart';
 import UtilizationChart from '../../components/analytics/UtilizationChart';
@@ -91,8 +92,15 @@ export default function DealerAnalyticsPage() {
             <UtilizationChart data={analytics.utilizationSeries} period={period} />
           </section>
 
-          <section className="grid gap-6 xl:grid-cols-[1fr_0.95fr]">
+          <section className="grid gap-6 xl:grid-cols-2">
+            <DemandForecastChart 
+              data={analytics.demandForecast?.data || []} 
+              period="14d" 
+            />
             <CO2Chart data={analytics.co2Series} period={period} />
+          </section>
+
+          <section className="grid gap-6 xl:grid-cols-1">
             <article className="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden flex flex-col max-h-[500px]">
               <div className="flex-none px-6 py-5 border-b border-slate-100">
                 <div className="flex items-center justify-between">

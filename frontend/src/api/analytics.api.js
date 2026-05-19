@@ -22,3 +22,7 @@ export function downloadCO2Report(tripId) {
     responseType: 'blob',
   });
 }
+
+export function getDemandForecast(params) {
+  return api.get('/analytics/demand-forecast', { params });
+}

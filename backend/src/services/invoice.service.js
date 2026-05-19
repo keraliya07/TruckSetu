@@ -231,7 +231,19 @@ const buildInvoicePayload = (trip, invoiceNumber) => {
 const buildCO2ReportPayload = (trip) => {
   const summary = buildTripCO2Summary(trip);
 
+  const baseAmount =
+    trip.actualCost ||
+    trip.estimatedCost ||
+    trip.bookingRequest?.finalPrice ||
+    trip.bookingRequest?.quotedPrice ||
+    0;
+  const platformFee  = Math.max(Math.round(baseAmount * 0.03), 250);
+  const totalCost = baseAmount + platformFee;
+
   return {
+    company: COMPANY,
+    invoiceRef: `INV-${trip.id.slice(0, 8).toUpperCase()}`,
+    totalCost,
     tripId: trip.id,
     truckRegistration: trip.truck.registrationNo,
     dealerName: trip.truck.dealer.companyName,

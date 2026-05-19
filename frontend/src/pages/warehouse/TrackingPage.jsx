@@ -7,10 +7,12 @@ import TrackingMap from '../../components/maps/TrackingMap';
 import LiveTrackingPanel from '../../components/tracking/LiveTrackingPanel';
 import InvoiceDownloadButton from '../../components/trips/InvoiceDownloadButton';
 import { useTracking } from '../../hooks/useTracking';
+import { useTripStore } from '../../store/tripStore';
 
 export default function TrackingPage() {
   const { tripId } = useParams();
   const tracking = useTracking(tripId);
+  const refreshGeometryAction = useTripStore((state) => state.refreshGeometry);
 
   return (
     <DashboardShell
@@ -40,6 +42,8 @@ export default function TrackingPage() {
         <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
           <TrackingMap
             locationHistory={tracking.locationHistory}
+            onRefreshGeometry={() => refreshGeometryAction(tripId)}
+            routeGeometry={tracking.trip?.routeGeometry}
             stops={tracking.stops}
             trip={tracking.trip}
             truckPosition={tracking.truckPosition}

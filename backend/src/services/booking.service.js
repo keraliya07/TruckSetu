@@ -3,6 +3,7 @@ const ApiError = require('../utils/apiError.utils');
 const { BOOKING_TIMEOUT_HOURS } = require('../config/env');
 const notificationService = require('./notification.service');
 const { resolveCityCoordinates } = require('../utils/cityCoordinates');
+const { getRoute } = require('../utils/osrm.utils');
 
 const bookingInclude = {
   warehouse: true,
@@ -221,6 +222,24 @@ const createTripForBooking = async (tx, booking, finalPrice) => {
     0
   );
 
+  // Build stop coordinates: [pickup, ...deliveries] in [lng, lat] order for OSRM
+  const tripStops = buildTripStops(booking.warehouse, booking.shipments);
+  const osrmCoordinates = tripStops
+    .filter((stop) => stop.lat && stop.lng)
+    .map((stop) => [stop.lng, stop.lat]);
+
+  // Fetch road geometry from OSRM (non-blocking fallback if unreachable)
+  const osrmRoute = await getRoute(osrmCoordinates);
+  const routeGeometry = osrmRoute.geometry ?? null;
+  const estimatedDistanceKm =
+    osrmRoute.source === 'osrm'
+      ? Number((osrmRoute.distance / 1000).toFixed(1))
+      : totalDistanceEstimate;
+  const estimatedDurationMin =
+    osrmRoute.source === 'osrm'
+      ? Math.round(osrmRoute.duration / 60)
+      : null;
+
   return tx.trip.create({
     data: {
       bookingRequestId: booking.id,
@@ -228,14 +247,16 @@ const createTripForBooking = async (tx, booking, finalPrice) => {
       dealerId: booking.truck.dealerId,
       status: 'PLANNED',
       estimatedCost: finalPrice,
-      estimatedDistanceKm: totalDistanceEstimate,
+      estimatedDistanceKm,
+      estimatedDurationMin,
+      routeGeometry,
       shipments: {
         create: booking.shipments.map((entry) => ({
           shipmentId: entry.shipment.id,
         })),
       },
       stops: {
-        create: buildTripStops(booking.warehouse, booking.shipments),
+        create: tripStops,
       },
     },
     include: {

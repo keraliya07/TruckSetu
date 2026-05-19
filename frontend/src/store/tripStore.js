@@ -191,4 +191,9 @@ export const useTripStore = create((set, get) => ({
     get().applyTripState(trip);
     return trip;
   },
+  refreshGeometry: async (tripId) => {
+    const result = await tripApi.refreshGeometry(tripId);
+    get().applyTripState(result.trip);
+    return result;
+  },
 }));

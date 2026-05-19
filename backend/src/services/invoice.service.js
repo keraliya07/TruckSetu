@@ -6,6 +6,25 @@ const {
   generateInvoicePDF,
 } = require('../utils/pdfGenerator.utils');
 
+// ─── Company info from env (printed on every invoice) ────────────────────────
+const COMPANY = {
+  legalName : process.env.COMPANY_LEGAL_NAME || 'TruckSetu Logistics Pvt. Ltd.',
+  gstin     : process.env.COMPANY_GSTIN      || '',
+  pan       : process.env.COMPANY_PAN        || '',
+  address   : process.env.COMPANY_ADDRESS    || 'Ahmedabad, Gujarat',
+  email     : process.env.COMPANY_EMAIL      || 'billing@trucksetu.com',
+  phone     : process.env.COMPANY_PHONE      || '',
+  website   : process.env.COMPANY_WEBSITE    || 'www.trucksetu.com',
+};
+
+// ─── Sequential invoice number (based on total INVOICE documents created) ───
+const getNextInvoiceNumber = async () => {
+  const count = await prisma.document.count({ where: { type: 'INVOICE' } });
+  const year  = new Date().getFullYear();
+  const seq   = String(count + 1).padStart(4, '0');
+  return `INV-${year}-${seq}`;
+};
+
 const tripInclude = {
   truck: {
     include: {
@@ -126,46 +145,82 @@ const persistGeneratedDocument = async ({
   });
 };
 
-const buildInvoicePayload = (trip) => {
+const buildInvoicePayload = (trip, invoiceNumber) => {
   const baseAmount =
     trip.actualCost ||
     trip.estimatedCost ||
     trip.bookingRequest?.finalPrice ||
     trip.bookingRequest?.quotedPrice ||
     0;
-  const platformFee = Math.max(Math.round(baseAmount * 0.03), 250);
+  const platformFee  = Math.max(Math.round(baseAmount * 0.03), 250);
   const shipmentCount = trip.shipments.length || 1;
-  const distanceKm = Number(trip.estimatedDistanceKm || trip.routeSummary?.totalDistanceKm || 0);
+  const distanceKm   = Number(trip.estimatedDistanceKm || trip.routeSummary?.totalDistanceKm || 0);
+
+  // Cargo / weight details
+  const totalWeightKg = trip.shipments.reduce(
+    (sum, entry) => sum + Number(entry.shipment?.weightKg || 0), 0
+  );
+  const shipmentDetails = trip.shipments.map((entry) => ({
+    title      : entry.shipment?.title || entry.shipment?.referenceNo || entry.shipment?.id || 'N/A',
+    weightKg   : Number(entry.shipment?.weightKg || 0),
+    volumeM3   : Number(entry.shipment?.volumeM3 || 0),
+    originCity : entry.shipment?.originCity || 'N/A',
+    destCity   : entry.shipment?.destCity   || 'N/A',
+    shipmentType: entry.shipment?.shipmentType || 'STANDARD',
+    fragile    : entry.shipment?.fragile || false,
+    hazardous  : entry.shipment?.hazardous || false,
+  }));
+
+  // Invoice dates
+  const invoiceDate = new Date();
+  const dueDate     = new Date(invoiceDate);
+  dueDate.setDate(dueDate.getDate() + 30);
 
   return {
-    tripId: trip.id,
-    bookingId: trip.bookingRequestId || 'N/A',
+    // Invoice meta
+    invoiceNumber,
+    invoiceDate,
+    dueDate,
+    company: COMPANY,
+
+    // Trip info
+    tripId           : trip.id,
+    bookingId        : trip.bookingRequestId || 'N/A',
     truckRegistration: trip.truck.registrationNo,
-    dealerName: trip.truck.dealer.companyName,
-    warehouseName: trip.bookingRequest?.warehouse?.warehouseName || 'N/A',
-    status: trip.status,
-    subtotal: baseAmount,
+    truckType        : trip.truck?.truckType || 'N/A',
+    dealerName       : trip.truck.dealer.companyName,
+    warehouseName    : trip.bookingRequest?.warehouse?.warehouseName || 'N/A',
+    status           : trip.status,
+
+    // Financials
+    subtotal   : baseAmount,
     platformFee,
-    total: baseAmount + platformFee,
-    lineItems: [
+    total      : baseAmount + platformFee,
+    lineItems  : [
       {
-        label: 'Trip transport charge',
-        description: `${shipmentCount} shipment(s) consolidated for this trip`,
-        quantityLabel: `${distanceKm.toFixed(1)} km route`,
-        amount: baseAmount,
+        label        : 'Trip Transport Charge',
+        description  : `${shipmentCount} shipment(s) consolidated for this trip`,
+        quantityLabel: `${distanceKm.toFixed(1)} km route • ${totalWeightKg.toFixed(0)} kg total`,
+        amount       : baseAmount,
       },
       {
-        label: 'Platform operations fee',
-        description: 'Routing, booking orchestration, and digital trip supervision',
-        quantityLabel: 'Flat fee',
-        amount: platformFee,
+        label        : 'Platform Operations Fee',
+        description  : 'Routing, booking orchestration, and digital trip supervision',
+        quantityLabel: 'Flat fee (3% of transport charge, min ₹250)',
+        amount       : platformFee,
       },
     ],
+
+    // Cargo
+    totalWeightKg,
+    shipmentDetails,
+
+    // Stops
     stops: trip.stops.map((stop) => ({
-      sequence: stop.sequence,
-      type: stop.type,
-      city: stop.city,
-      address: stop.address,
+      sequence     : stop.sequence,
+      type         : stop.type,
+      city         : stop.city,
+      address      : stop.address,
       shipmentTitle:
         trip.shipments.find((entry) => entry.shipmentId === stop.shipmentId)?.shipment?.title ||
         null,
@@ -199,23 +254,21 @@ const buildCO2ReportPayload = (trip) => {
 };
 
 const generateInvoice = async (tripId, user) => {
-  const trip = await getTripWithAccess(tripId, user);
-  const payload = buildInvoicePayload(trip);
-  const buffer = await generateInvoicePDF(payload);
-  const fileName = `trucksetu-invoice-${trip.id.slice(0, 8)}.pdf`;
+  const trip          = await getTripWithAccess(tripId, user);
+  const invoiceNumber = await getNextInvoiceNumber();
+  const payload       = buildInvoicePayload(trip, invoiceNumber);
+  const buffer        = await generateInvoicePDF(payload);
+  const fileName      = `trucksetu-invoice-${trip.id.slice(0, 8)}.pdf`;
 
   await persistGeneratedDocument({
-    tripId: trip.id,
+    tripId          : trip.id,
     bookingRequestId: trip.bookingRequestId,
-    type: 'INVOICE',
+    type            : 'INVOICE',
     fileName,
-    sizeBytes: buffer.length,
+    sizeBytes       : buffer.length,
   });
 
-  return {
-    buffer,
-    fileName,
-  };
+  return { buffer, fileName };
 };
 
 const generateCO2Report = async (tripId, user) => {

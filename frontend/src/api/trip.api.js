@@ -7,3 +7,4 @@ export const downloadInvoice = (id) =>
 export const startTrip = (id) => api.patch(`/trips/${id}/start`);
 export const completeStop = (tripId, stopId) =>
   api.patch(`/trips/${tripId}/stops/${stopId}/complete`);
+export const refreshGeometry = (id) => api.patch(`/trips/${id}/geometry`);

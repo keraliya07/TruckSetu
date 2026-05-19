@@ -1,5 +1,5 @@
 import L from 'leaflet';
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { MapContainer, TileLayer, useMap } from 'react-leaflet';
 
 import RoutePolyline from './RoutePolyline';
@@ -54,7 +54,20 @@ export default function TrackingMap({
   truckPosition,
   stops = [],
   locationHistory = [],
+  routeGeometry = null,
+  onRefreshGeometry = null,
 }) {
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = useCallback(async () => {
+    if (!onRefreshGeometry || refreshing) return;
+    setRefreshing(true);
+    try {
+      await onRefreshGeometry();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [onRefreshGeometry, refreshing]);
   const normalizedStops = useMemo(
     () =>
       stops
@@ -80,13 +93,22 @@ export default function TrackingMap({
     return resolvePosition(truckPosition.lat, truckPosition.lng, trip?.truck?.currentCity);
   }, [trip?.truck?.currentCity, truckPosition]);
 
-  const plannedCoordinates = useMemo(
-    () =>
-      normalizedStops
-        .filter((stop) => stop.lat != null && stop.lng != null)
-        .map((stop) => [stop.lat, stop.lng]),
-    [normalizedStops]
-  );
+  // Use OSRM road geometry (hundreds of road-following points) when available,
+  // otherwise fall back to straight lines between stop coordinates.
+  const plannedCoordinates = useMemo(() => {
+    const osrmCoords = routeGeometry?.coordinates;
+    if (Array.isArray(osrmCoords) && osrmCoords.length >= 2) {
+      // OSRM returns [lng, lat] — Leaflet needs [lat, lng]
+      return osrmCoords
+        .filter((point) => Array.isArray(point) && point.length >= 2)
+        .map(([lng, lat]) => [lat, lng]);
+    }
+
+    // Fallback: straight lines between stops
+    return normalizedStops
+      .filter((stop) => stop.lat != null && stop.lng != null)
+      .map((stop) => [stop.lat, stop.lng]);
+  }, [routeGeometry, normalizedStops]);
 
   const liveTrail = useMemo(
     () =>
@@ -108,6 +130,8 @@ export default function TrackingMap({
 
   const completedStops = normalizedStops.filter((stop) => stop.status === 'COMPLETED').length;
 
+  const usingOsrmRoute = Array.isArray(routeGeometry?.coordinates) && routeGeometry.coordinates.length >= 2;
+
   return (
     <section className="relative flex h-[calc(100vh-10rem)] max-h-[900px] flex-col overflow-hidden rounded-[2.5rem] bg-white ring-1 ring-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8">
       <div className="absolute inset-0 top-0 h-48 bg-gradient-to-b from-slate-50/80 to-transparent pointer-events-none" />
@@ -127,12 +151,24 @@ export default function TrackingMap({
               {formatNumber(normalizedTruckPosition.lng, { maximumFractionDigits: 3 })}
             </span>
           ) : null}
+          {!usingOsrmRoute && onRefreshGeometry ? (
+            <button
+              className="rounded-full bg-teal-600 px-3 py-2 text-white uppercase tracking-[0.16em] font-semibold text-xs hover:bg-teal-700 transition-colors disabled:opacity-60"
+              disabled={refreshing}
+              onClick={handleRefresh}
+              type="button"
+            >
+              {refreshing ? 'Loading…' : '⟳ Load Road Route'}
+            </button>
+          ) : null}
         </div>
       </div>
 
       <div className="mt-6 space-y-4">
         <div className="flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-          <span className="rounded-full bg-slate-100 px-3 py-2">Planned route</span>
+          <span className="rounded-full bg-slate-100 px-3 py-2">
+            {usingOsrmRoute ? 'Road route (OSRM)' : 'Planned route'}
+          </span>
           <span className="rounded-full bg-freight-50 px-3 py-2 text-freight-700">
             Live trail
           </span>
@@ -156,9 +192,9 @@ export default function TrackingMap({
 
             <RoutePolyline
               color="#0f766e"
-              completedIndex={Math.max(0, completedStops - 1)}
+              completedIndex={completedStops > 0 ? completedStops - 1 : -1}
               coordinates={plannedCoordinates}
-              dashedColor="#94a3b8"
+              dashedColor="#64748b"
               weight={4}
             />
 

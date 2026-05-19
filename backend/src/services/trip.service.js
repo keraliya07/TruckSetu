@@ -1,6 +1,7 @@
 const prisma = require('../config/db');
 const ApiError = require('../utils/apiError.utils');
 const { startSimulator } = require('../jobs/gpsSimulator.job');
+const { getRoute } = require('../utils/osrm.utils');
 
 const tripDetailInclude = {
   truck: {
@@ -360,9 +361,42 @@ const completeStop = async (tripId, stopId, user) => {
   return getTripOrThrow(tripId);
 };
 
+const refreshGeometry = async (tripId, user) => {
+  const trip = await getTripOrThrow(tripId);
+  await assertTripAccess(trip, user);
+
+  // Build [lng, lat] coordinates from the trip's ordered stops
+  const coordinates = trip.stops
+    .filter((stop) => stop.lat && stop.lng)
+    .map((stop) => [stop.lng, stop.lat]);
+
+  if (coordinates.length < 2) {
+    throw ApiError.badRequest('Trip does not have enough stops to calculate a route');
+  }
+
+  const osrmRoute = await getRoute(coordinates);
+
+  const updated = await prisma.trip.update({
+    where: { id: tripId },
+    data: {
+      routeGeometry: osrmRoute.geometry,
+      ...(osrmRoute.source === 'osrm' && {
+        estimatedDistanceKm: Number((osrmRoute.distance / 1000).toFixed(1)),
+        estimatedDurationMin: Math.round(osrmRoute.duration / 60),
+      }),
+    },
+    include: {
+      ...tripDetailInclude,
+    },
+  });
+
+  return { trip: updated, source: osrmRoute.source };
+};
+
 module.exports = {
   completeStop,
   getAll,
   getById,
+  refreshGeometry,
   start,
 };

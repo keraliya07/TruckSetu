@@ -12,5 +12,6 @@ router.get(
 );
 router.patch('/:id/start', requireRole('DEALER'), controller.start);
 router.patch('/:id/stops/:stopId/complete', requireRole('DEALER'), controller.completeStop);
+router.patch('/:id/geometry', requireRole('WAREHOUSE', 'DEALER', 'ADMIN'), controller.refreshGeometry);
 
 module.exports = router;

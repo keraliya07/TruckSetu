@@ -64,3 +64,12 @@ exports.downloadCO2Report = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.refreshGeometry = async (req, res, next) => {
+  try {
+    const result = await service.refreshGeometry(req.params.id, req.user);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};

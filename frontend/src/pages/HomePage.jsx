@@ -132,14 +132,18 @@ export default function HomePage() {
             : 'bg-transparent'
         }`}
       >
-        <div className="max-w-6xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
-          <a href="#" className="flex items-center gap-2 font-heading text-xl font-extrabold text-slate-900">
-            <span className="text-2xl">🚛</span>
-            Truck<span className="text-freight-600">Setu</span>
-          </a>
+        <div className="w-full px-5 sm:px-12 lg:px-16 h-16 flex items-center justify-between">
+          
+          {/* Left: Logo */}
+          <div className="flex-1 flex justify-start">
+            <a href="#" className="flex items-center gap-2 font-heading text-xl font-extrabold text-slate-900">
+              <span className="text-2xl leading-none flex items-center">🚛</span>
+              <span className="flex items-center mt-[2px]">Truck<span className="text-freight-600">Setu</span></span>
+            </a>
+          </div>
 
-          {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-7">
+          {/* Center: Desktop Nav */}
+          <div className="hidden md:flex flex-1 justify-center items-center gap-7">
             {['Features', 'How It Works', 'Roles'].map((label) => (
               <a
                 key={label}
@@ -151,7 +155,8 @@ export default function HomePage() {
             ))}
           </div>
 
-          <div className="hidden md:flex items-center gap-3">
+          {/* Right: Auth Buttons */}
+          <div className="hidden md:flex flex-1 justify-end items-center gap-3">
             <Link to="/login" className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors px-4 py-2 rounded-full hover:bg-slate-100/60">
               Sign In
             </Link>
@@ -161,11 +166,13 @@ export default function HomePage() {
           </div>
 
           {/* Mobile toggle */}
-          <button className="md:hidden p-2 text-slate-700" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d={mobileOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'} />
-            </svg>
-          </button>
+          <div className="flex flex-1 justify-end md:hidden">
+            <button className="p-2 text-slate-700" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d={mobileOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'} />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Mobile menu */}
